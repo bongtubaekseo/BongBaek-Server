@@ -3,6 +3,15 @@ package org.appjam.bongbaek.global.common;
 import org.springframework.http.HttpStatus;
 
 public enum CommonErrorCode implements ErrorCode {
+    // 400 Bad Request
+    BAD_REQUEST(false, HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+
+    // 401 Unauthorized
+    UNAUTHORIZED(false, HttpStatus.UNAUTHORIZED,"인증에 실패했습니다."),
+
+    // 403 Forbidden
+    FORBIDDEN(false, HttpStatus.FORBIDDEN,"권한이 없습니다."),
+
     // 404 Not Found
     INVALID_URL_ERROR(false, HttpStatus.NOT_FOUND, "잘못된 URL 입니다."),
 
