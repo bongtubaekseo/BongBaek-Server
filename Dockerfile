@@ -2,4 +2,4 @@ FROM openjdk:21-slim
 WORKDIR /app
 COPY build/libs/*.jar ./bongbaek.jar
 EXPOSE 8080
-CMD ["java", "-jar", "/bongbaek.jar"]
+CMD ["java", "-jar", "/app/bongbaek.jar"]
