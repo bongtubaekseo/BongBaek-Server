@@ -38,7 +38,7 @@ jobs:
         run: |
           mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+          printf '%s' "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
         shell: bash
 
       # 빌드 수행(테스트 제외)
