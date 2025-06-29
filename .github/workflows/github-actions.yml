@@ -3,6 +3,8 @@ name: Bongbaek CI with github actions & docker
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -67,6 +69,16 @@ jobs:
           --push \
           -t ${{ secrets.DOCKER_USERNAME }}/bongbaek-server .
 
+      # 디렉토리 사전 생성
+      - name: Ensure remote dir
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/bongbaek-server
+
       # docker-compose.yml 업로드
       - name: Upload docker-compose
         uses: appleboy/scp-action@master
@@ -86,11 +98,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/bongbaek-server
-            
+
             docker compose down
-            
+
             docker compose pull
-            
+
             docker compose up -d --remove-orphans
-            
+
             docker image prune -f
