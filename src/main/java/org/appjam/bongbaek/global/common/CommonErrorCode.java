@@ -1,7 +1,9 @@
 package org.appjam.bongbaek.global.common;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+@RequiredArgsConstructor
 public enum CommonErrorCode implements ErrorCode {
     // 400 Bad Request
     BAD_REQUEST(false, HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
@@ -25,15 +27,9 @@ public enum CommonErrorCode implements ErrorCode {
     private final HttpStatus status;
     private final String errorMessage;
 
-    CommonErrorCode(boolean success, HttpStatus httpStatus, String errorMessage) {
-        this.success = success;
-        this.status = httpStatus;
-        this.errorMessage = errorMessage;
-    }
-
     @Override
     public boolean getSuccess() {
-        return this.success;
+        return success;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package org.appjam.bongbaek.global.common;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+@RequiredArgsConstructor
 public enum CommonSuccessCode implements SuccessCode {
     // 200 Ok
     OK(true, HttpStatus.OK, "요청이 성공했습니다."),
@@ -12,12 +14,6 @@ public enum CommonSuccessCode implements SuccessCode {
     private final boolean success;
     private final HttpStatus status;
     private final String successMessage;
-
-    CommonSuccessCode(boolean success, HttpStatus httpStatus, String successMessage) {
-        this.success = success;
-        this.status = httpStatus;
-        this.successMessage = successMessage;
-    }
 
     @Override
     public boolean getSuccess() {
