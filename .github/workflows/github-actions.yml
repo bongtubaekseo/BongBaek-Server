@@ -99,6 +99,8 @@ jobs:
           script: |
             cd /home/ubuntu/bongbaek-server
 
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+
             docker compose down
 
             docker compose pull

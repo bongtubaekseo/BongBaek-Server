@@ -7,7 +7,7 @@ services:
       - "6379:6379"
 
   bongbaek-server:
-    image: bongtubaekseo/bongbaek-server:latest
+    image: ${DOCKER_USERNAME}/bongbaek-server:latest
     container_name: bongbaek-server
     ports:
       - "8080:8080"
