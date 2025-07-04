@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public final class User {
+public class User {
 	@Id
 	@Column(name = "user_id", columnDefinition = "BINARY(16)")
 	private UUID userId;
@@ -30,7 +30,7 @@ public final class User {
 	private LocalDate userBirthday;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "user_income", nullable = false)
+	@Column(name = "user_income", columnDefinition = "VARCHAR(50)", nullable = false)
 	private IncomeType userIncome;
 
 	@Column(name = "apple_id", updatable = false)
