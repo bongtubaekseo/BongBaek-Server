@@ -1,0 +1,104 @@
+package org.appjam.bongbaek.domain.event;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+import org.appjam.bongbaek.domain.common.BaseEntity;
+import org.appjam.bongbaek.domain.user.User;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@Table(name = "event")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public final class Event extends BaseEntity {
+	@Id
+	@Column(name = "event_id", columnDefinition = "BINARY(16)")
+	private UUID eventId;
+
+	// host
+	@Column(name = "host_name", length = 30, nullable = false)
+	private String hostName;
+
+	@Column(name = "host_nickname", length = 30, nullable = false)
+	private String hostNickname;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "relationship", nullable = false)
+	private Relationship relationship;
+
+	@Column(name = "contact_frequency")
+	private int contactFrequency;
+
+	@Column(name = "meet_frequency")
+	private int meetFrequency;
+
+	// event
+	@Column(name = "event_category", nullable = false)
+	private Category eventCategory;
+
+	@Column(name = "event_date", nullable = false)
+	private LocalDate eventDate;
+
+	@Column(name = "is_attend", nullable = false)
+	private boolean attended;
+
+	@Column(name = "note", columnDefinition = "TEXT")
+	private String note;
+
+	@Column(name = "price", nullable = false)
+	private int price;
+
+	// location
+	@Column(name = "location", nullable = false)
+	private String location;
+
+	@Column(name = "address", nullable = false)
+	private String address;
+
+	@Column(name = "latitude", nullable = false)
+	private double latitude;
+
+	@Column(name = "longitude", nullable = false)
+	private double longitude;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
+
+	@Builder
+	private Event(String hostName, String hostNickname, Relationship relationship, int contactFrequency,
+			int meetFrequency,
+			Category eventCategory, LocalDate eventDate, boolean attended, String note, int price,
+			String location, String address, double latitude, double longitude, User user) {
+		this.eventId = UUID.randomUUID();
+		this.hostName = hostName;
+		this.hostNickname = hostNickname;
+		this.relationship = relationship;
+		this.contactFrequency = contactFrequency;
+		this.meetFrequency = meetFrequency;
+		this.eventCategory = eventCategory;
+		this.eventDate = eventDate;
+		this.attended = attended;
+		this.note = note;
+		this.price = price;
+		this.location = location;
+		this.address = address;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.user = user;
+	}
+}
