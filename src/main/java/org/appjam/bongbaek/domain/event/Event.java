@@ -47,6 +47,7 @@ public final class Event extends BaseEntity {
 	private int meetFrequency;
 
 	// event
+	@Enumerated(EnumType.STRING)
 	@Column(name = "event_category", nullable = false)
 	private Category eventCategory;
 
