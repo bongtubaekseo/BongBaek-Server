@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.event;
+package org.appjam.bongbaek.domain.event.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

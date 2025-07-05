@@ -1,10 +1,10 @@
-package org.appjam.bongbaek.domain.event;
+package org.appjam.bongbaek.domain.event.entity;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
-import org.appjam.bongbaek.domain.user.User;
+import org.appjam.bongbaek.domain.user.entity.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
