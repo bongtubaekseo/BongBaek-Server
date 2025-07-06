@@ -16,22 +16,22 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "user")
+@Table(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class Member {
 	@Id
 	@Column(name = "user_id", columnDefinition = "BINARY(16)")
-	private UUID userId;
+	private UUID memberId;
 
-	@Column(name = "user_name", length = 30, nullable = false)
-	private String username;
+	@Column(name = "member_name", length = 30, nullable = false)
+	private String memberName;
 
-	@Column(name = "user_birthday", nullable = false)
-	private LocalDate userBirthday;
+	@Column(name = "member_birthday", nullable = false)
+	private LocalDate memberBirthday;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "user_income", columnDefinition = "VARCHAR(50)", nullable = false)
-	private IncomeType userIncome;
+	@Column(name = "member_income", columnDefinition = "VARCHAR(50)", nullable = false)
+	private IncomeType memberIncome;
 
 	@Column(name = "apple_id", updatable = false)
 	private String appleId;

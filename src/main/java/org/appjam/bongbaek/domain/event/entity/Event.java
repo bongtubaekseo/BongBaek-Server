@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
-import org.appjam.bongbaek.domain.user.entity.User;
+import org.appjam.bongbaek.domain.member.entity.Member;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Table(
 		name = "event",
 		indexes = {
-				@Index(name = "idx_user_id", columnList = "user_id")
+				@Index(name = "idx_member_id", columnList = "member_id")
 		}
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -67,8 +67,8 @@ public class Event extends BaseEntity {
 	@Column(name = "note", columnDefinition = "TEXT")
 	private String note;
 
-	@Column(name = "price", nullable = false)
-	private int price;
+	@Column(name = "cost", nullable = false)
+	private int cost;
 
 	// location
 	@Column(name = "location", nullable = false)
@@ -84,14 +84,14 @@ public class Event extends BaseEntity {
 	private double longitude;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@JoinColumn(name = "member_id")
+	private Member member;
 
 	@Builder
 	private Event(String hostName, String hostNickname, Relationship relationship, int contactFrequency,
 			int meetFrequency,
-			Category eventCategory, LocalDate eventDate, boolean attended, String note, int price,
-			String location, String address, double latitude, double longitude, User user) {
+			Category eventCategory, LocalDate eventDate, boolean attended, String note, int cost,
+			String location, String address, double latitude, double longitude, Member member) {
 		this.eventId = UUID.randomUUID();
 		this.hostName = hostName;
 		this.hostNickname = hostNickname;
@@ -102,11 +102,11 @@ public class Event extends BaseEntity {
 		this.eventDate = eventDate;
 		this.attended = attended;
 		this.note = note;
-		this.price = price;
+		this.cost = cost;
 		this.location = location;
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.user = user;
+		this.member = member;
 	}
 }
