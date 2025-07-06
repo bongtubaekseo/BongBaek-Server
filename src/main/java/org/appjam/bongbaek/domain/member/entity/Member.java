@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.user.entity;
+package org.appjam.bongbaek.domain.member.entity;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 	@Id
-	@Column(name = "user_id", columnDefinition = "BINARY(16)")
+	@Column(name = "member_id", columnDefinition = "BINARY(16)")
 	private UUID memberId;
 
 	@Column(name = "member_name", length = 30, nullable = false)
@@ -40,11 +40,11 @@ public class Member {
 	private Long kakaoId;
 
 	@Builder
-	private User(String username, LocalDate userBirthday, IncomeType userIncome, String appleId, Long kakaoId) {
-		this.userId = UUID.randomUUID();
-		this.username = username;
-		this.userBirthday = userBirthday;
-		this.userIncome = userIncome;
+	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, Long kakaoId) {
+		this.memberId = UUID.randomUUID();
+		this.memberName = memberName;
+		this.memberBirthday = memberBirthday;
+		this.memberIncome = memberIncome;
 		this.appleId = appleId;
 		this.kakaoId = kakaoId;
 	}

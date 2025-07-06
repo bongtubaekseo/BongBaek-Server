@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.user.entity;
+package org.appjam.bongbaek.domain.member.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
