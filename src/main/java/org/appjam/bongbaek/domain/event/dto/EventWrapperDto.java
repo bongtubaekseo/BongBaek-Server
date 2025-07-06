@@ -1,9 +1,9 @@
 package org.appjam.bongbaek.domain.event.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -12,10 +12,10 @@ import java.util.List;
 public class EventWrapperDto {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private EventDetailResponseDto event;
+    private EventDetailResponseDto event;       // 상세 조회용
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<EventHomeResponseDto> events;
+    private List<EventHomeResponseDto> events;  // 홈, 전체 조회용
 
     public static EventWrapperDto of(EventDetailResponseDto data) {
         return EventWrapperDto.builder()
