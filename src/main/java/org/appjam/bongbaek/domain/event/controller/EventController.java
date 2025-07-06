@@ -1,5 +1,6 @@
 package org.appjam.bongbaek.domain.event.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ public class EventController {
     public ResponseEntity<ApiResponse<EventWrapperDto>> getEventByEventId(
             @PathVariable String eventId
             ){
+
         UUID targetId = UUID.fromString(eventId);
 
         EventDetailResponseDto event = eventService.getEventByEventId(targetId);
@@ -46,7 +48,8 @@ public class EventController {
             Member member   // 멤버 JWT 구현 시 리팩터링 (현재 25-07-07 사용 X)
     ){
 
-        List<EventHomeResponseDto> events = eventService.getEventsForHome(member);
+        List<EventHomeResponseDto> events = eventService.getEventsForHome(member, LocalDate.now());
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(EventSuccessCode.OK, EventWrapperDto.from(events)));
