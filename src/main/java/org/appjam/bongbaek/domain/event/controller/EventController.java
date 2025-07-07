@@ -4,17 +4,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
+import org.appjam.bongbaek.domain.event.dto.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.EventWrapperDto;
-import org.appjam.bongbaek.domain.event.repository.EventRepository;
 import org.appjam.bongbaek.domain.event.service.EventService;
-import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.global.api.ApiResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.appjam.bongbaek.global.common.CommonSuccessCode;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -26,32 +23,76 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/events")
 public class EventController {
 
-    private final EventRepository eventRepository;
     private final EventService eventService;
 
     @GetMapping("/{eventId}")
     public ResponseEntity<ApiResponse<EventWrapperDto>> getEventByEventId(
-            @PathVariable String eventId
+            @PathVariable String eventId,   // NOTE: 클라 요청 간에는 무조건 String
+            String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
             ){
 
-        UUID targetId = UUID.fromString(eventId);
+        UUID eventUUID = UUID.fromString(eventId);
+        UUID memberUUID = UUID.fromString(memberId);
 
-        EventDetailResponseDto event = eventService.getEventByEventId(targetId);
+        EventDetailResponseDto event = eventService.getEventByEventId(eventUUID, memberUUID);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.OK, EventWrapperDto.of(event)));
+                .body(ApiResponse.success(CommonSuccessCode.GET_EVENT, EventWrapperDto.of(event)));
     }
 
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<EventWrapperDto>> getEventsForHome(
-            Member member   // 멤버 JWT 구현 시 리팩터링 (현재 25-07-07 사용 X)
+            String memberId
     ){
 
-        List<EventHomeResponseDto> events = eventService.getEventsForHome(member, LocalDate.now());
+        UUID memberUUId =  UUID.fromString(memberId);
+        List<EventHomeResponseDto> events = eventService.getEventsForHome(LocalDate.now(), memberUUId);
+
+        if (events.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(ApiResponse.success(CommonSuccessCode.NO_EVENT, EventWrapperDto.from(events)));
+
+        }
+        else {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(ApiResponse.success(CommonSuccessCode.GET_EVENT, EventWrapperDto.from(events)));
+        }
+    }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
+            @PathVariable String eventId,
+            String memberId
+    ) {
+
+        UUID eventUUID = UUID.fromString(eventId);
+        UUID memberUUID = UUID.fromString(memberId);
+
+        eventService.deleteEventByEventId(eventUUID, memberUUID);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.OK, EventWrapperDto.from(events)));
+                .body(ApiResponse.success(CommonSuccessCode.DELETED_EVENT));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteEvents(
+            @RequestBody EventDeleteRequestDto request,
+            String memberId
+    ){
+
+        UUID memberUUID = UUID.fromString(memberId);
+        List<UUID> eventList = request.eventIds().stream()
+                .map(UUID::fromString)
+                .toList();
+
+        eventService.deleteEvents(eventList, memberUUID);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(CommonSuccessCode.DELETED_EVENT));
     }
 }
