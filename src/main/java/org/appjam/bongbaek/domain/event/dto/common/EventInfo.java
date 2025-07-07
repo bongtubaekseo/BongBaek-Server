@@ -12,14 +12,16 @@ public record EventInfo(
 		String relationship,
 		int cost,
 		Boolean isAttend,
-		LocalDate eventDate
+		LocalDate eventDate,
+		String note
 ) {
 	public static EventInfo from(Event event) {
 		return new EventInfo(event.getEventCategory().getDescription(),
 				event.getRelationship().getDescription(),
 				event.getCost(),
 				event.isAttended(),
-				event.getEventDate());
+				event.getEventDate(),
+				event.getNote());
 	}
 	public static EventInfo from(
 			String eventCategory,
@@ -30,6 +32,7 @@ public record EventInfo(
 				relationship,
 				cost,
 				null,
-				eventDate);
+				eventDate,
+				null);
 	}
 }
