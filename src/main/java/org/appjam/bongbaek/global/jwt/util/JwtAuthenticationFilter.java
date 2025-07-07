@@ -23,7 +23,6 @@ import static org.appjam.bongbaek.global.jwt.enums.JwtValidationType.VALID_JWT;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtProvider jwtProvider;
     private final JwtValidator jwtValidator;
     private final JwtParser jwtParser;
 

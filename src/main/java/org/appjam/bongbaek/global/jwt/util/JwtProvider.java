@@ -29,35 +29,27 @@ public class JwtProvider {
         );
     } // NOTE: TokenResponse로 반환
 
-    public String generateAccessToken(UUID memberId) {
+    private String generateToken(UUID memberId, Long expirationTime) {
         final Date now = new Date();
         final Claims claims = Jwts.claims()
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME))
+                .setExpiration(new Date(now.getTime() + expirationTime))
                 .build();
 
         claims.put(MEMBER_ID, memberId.toString());
 
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // Header
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setClaims(claims)
                 .signWith(jwtParser.getSigningKey())
                 .compact();
+    }
+
+    public String generateAccessToken(UUID memberId) {
+        return generateToken(memberId, ACCESS_TOKEN_EXPIRATION_TIME);
     } // NOTE: header.payload.signature 형태 생성
 
     public String generateRefreshToken(UUID memberId) {
-        final Date now = new Date();
-        final Claims claims = Jwts.claims()
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME))
-                .build();
-
-        claims.put(MEMBER_ID, memberId.toString());
-
-        return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // Header
-                .setClaims(claims)
-                .signWith(jwtParser.getSigningKey())
-                .compact();
+        return generateToken(memberId, REFRESH_TOKEN_EXPIRATION_TIME);
     }
 }
