@@ -1,7 +1,6 @@
 package org.appjam.bongbaek.domain.event.dto;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
