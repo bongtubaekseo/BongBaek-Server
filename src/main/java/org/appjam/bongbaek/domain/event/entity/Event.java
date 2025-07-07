@@ -7,7 +7,6 @@ import org.appjam.bongbaek.domain.common.BaseEntity;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.member.entity.Member;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -84,7 +83,7 @@ public class Event extends BaseEntity {
 	@Column(name = "longitude", nullable = false)
 	private double longitude;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
 
@@ -112,17 +111,21 @@ public class Event extends BaseEntity {
 	}
 
 	public void updateFromDto(EventUpdateRequestDto dto) {
+
 		this.hostName = dto.hostInfo().hostName();
 		this.hostNickname = dto.hostInfo().hostNickname();
-		this.eventCategory = dto.eventInfo().eventCategory();
-		this.relationship = dto.eventInfo().eventRelationship();
-		this.cost = dto.eventInfo().getCost();
-		this.attended = dto.eventInfo().getIsAttend();
-		this.eventDate = dto.eventInfo().getEventDate();
-		this.location = dto.locationInfo().getLocation();
-		this.address = dto.locationInfo().getAddress();
-		this.latitude = dto.locationInfo().getLatitude();
-		this.longitude = dto.locationInfo().getLongitude();
-		this.note = dto.eventInfo().getNote();
+
+		this.eventCategory = Category.of(dto.eventInfo().eventCategory());
+		this.relationship = Relationship.of(dto.eventInfo().relationship());
+		this.cost = dto.eventInfo().cost();
+		this.attended = dto.eventInfo().isAttend();
+		this.eventDate = dto.eventInfo().eventDate();
+		this.note = dto.eventInfo().note();
+
+		this.location = dto.locationInfo().location();
+		this.address = dto.locationInfo().address();
+		this.latitude = dto.locationInfo().latitude();
+		this.longitude = dto.locationInfo().longitude();
+
 	}
 }
