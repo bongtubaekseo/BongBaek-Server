@@ -16,9 +16,9 @@ public class JwtProvider {
 
     private static final String MEMBER_ID = "memberId";
 
-    // TODO: ACCESS,REFRESH 모두 2주일로
+    // TODO: ACCESS 2주,REFRESH 4주일로
     private static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14;
-    private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14;
+    private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14 * 2;
 
     @Value("${jwt.secret}")
     private String JWT_SECRET;
