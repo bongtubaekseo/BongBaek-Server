@@ -23,7 +23,8 @@ public record EventHomeResponseDto (
                         event.getRelationship().getDescription(),
                         event.getCost(),
                         null,
-                        event.getEventDate()
+                        event.getEventDate(),
+                        null
                 ),
                 new LocationInfo(
                         event.getLocation(),
