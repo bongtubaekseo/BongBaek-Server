@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.entity.Event;
-import org.appjam.bongbaek.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, UUID> {
-    List<Event> findTop3ByMemberAndEventDateAfterOrderByEventDateDesc(Member member, LocalDate date);
+    List<Event> findTop3ByMemberIdAndEventDateAfterOrderByEventDateDesc(UUID memberID, LocalDate date); // TO DO: jwt 발급 시 사용
     List<Event> findTop3ByEventDateAfterOrderByEventDateDesc(LocalDate date);   // TEST용. 멤버 JWT 구현 시 삭제
 }
