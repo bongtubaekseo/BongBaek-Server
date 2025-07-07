@@ -32,25 +32,14 @@ public class EventCommonDto {
     @Getter
     public static class EventInfo{
 
-        @JsonProperty("event_id")
         private String eventId;
-
-        @JsonProperty("eventCategory")
         private Category eventCategory;
-
-        @JsonProperty("eventRelationship")
         private Relationship eventRelationship;
-
-        @JsonProperty("cost")
         private int cost;
 
         @JsonProperty("isAttend")
         private Boolean isAttend;
-
-        @JsonProperty("eventDate")
         private LocalDate eventDate;
-
-        @JsonProperty("note")
         private String note;
     }
 
