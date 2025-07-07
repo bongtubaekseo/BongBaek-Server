@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
-import org.appjam.bongbaek.domain.event.dto.EventWrapperDto;
+import org.appjam.bongbaek.domain.event.dto.common.EventWrapperDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
