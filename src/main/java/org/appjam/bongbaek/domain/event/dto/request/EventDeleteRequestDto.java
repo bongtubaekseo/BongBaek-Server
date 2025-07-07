@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.event.dto;
+package org.appjam.bongbaek.domain.event.dto.request;
 
 import java.util.List;
 
