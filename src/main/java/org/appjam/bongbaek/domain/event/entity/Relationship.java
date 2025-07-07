@@ -1,5 +1,7 @@
 package org.appjam.bongbaek.domain.event.entity;
 
+import java.util.Arrays;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,4 +16,12 @@ public enum Relationship {
 	ETC("기타");
 
 	private final String description;
+
+	public static Relationship of(String description) {
+		return Arrays.stream(Relationship.values())
+				.filter(relationship -> relationship.description.equals(description))
+				.findFirst()
+				.orElse(null);
+				// .orElseThrow(IllegalArgumentException::new);
+	}
 }
