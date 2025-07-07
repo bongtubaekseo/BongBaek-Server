@@ -4,13 +4,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
+import org.appjam.bongbaek.domain.event.dto.EventWrapperDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.service.EventService;
 import org.appjam.bongbaek.global.api.ApiResponse;
-import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class EventController {
     @GetMapping("/{eventId}")
     public ResponseEntity<ApiResponse<EventWrapperDto>> getEventByEventId(
             @PathVariable String eventId,   // NOTE: 클라 요청 간에는 무조건 String
-            String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
+            @RequestHeader String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
     ){
 
         UUID eventUUID = UUID.fromString(eventId);
@@ -37,12 +38,12 @@ public class EventController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.GET_EVENT, EventWrapperDto.of(event)));
+                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, EventWrapperDto.of(event)));
     }
 
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<EventWrapperDto>> getEventsForHome(
-            String memberId
+            @RequestHeader String memberId
     ){
 
         UUID memberUUId =  UUID.fromString(memberId);
@@ -51,20 +52,20 @@ public class EventController {
         if (events.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
-                    .body(ApiResponse.success(CommonSuccessCode.NO_EVENT, EventWrapperDto.from(events)));
+                    .body(ApiResponse.success(EventSuccessCode.NO_EVENT, EventWrapperDto.from(events)));
 
         }
         else {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(ApiResponse.success(CommonSuccessCode.GET_EVENT, EventWrapperDto.from(events)));
+                    .body(ApiResponse.success(EventSuccessCode.GET_EVENT, EventWrapperDto.from(events)));
         }
     }
 
     @PutMapping("{eventId}")
     public ResponseEntity<ApiResponse<Void>> updateEvent(
             @PathVariable String eventId,
-            String memberId,
+            @RequestHeader String memberId,
             @RequestBody EventUpdateRequestDto request
     ){
         UUID eventUUID = UUID.fromString(eventId);
@@ -74,13 +75,13 @@ public class EventController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.UPDATED_EVENT));
+                .body(ApiResponse.success(EventSuccessCode.UPDATED_EVENT));
     }
 
     @DeleteMapping("/{eventId}")
     public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
             @PathVariable String eventId,
-            String memberId
+            @RequestHeader String memberId
     ) {
 
         UUID eventUUID = UUID.fromString(eventId);
@@ -90,12 +91,12 @@ public class EventController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.DELETED_EVENT));
+                .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
     }
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteEvents(
-            String memberId,
+            @RequestHeader String memberId,
             @RequestBody EventDeleteRequestDto request
     ){
 
@@ -108,6 +109,6 @@ public class EventController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.DELETED_EVENT));
+                .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
     }
 }
