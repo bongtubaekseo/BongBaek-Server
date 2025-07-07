@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.event.test.dto.common;
+package org.appjam.bongbaek.domain.event.dto.common;
 
 import org.appjam.bongbaek.domain.event.entity.Event;
 
