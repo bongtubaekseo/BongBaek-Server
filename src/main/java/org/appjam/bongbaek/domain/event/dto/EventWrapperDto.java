@@ -2,8 +2,12 @@ package org.appjam.bongbaek.domain.event.dto;
 
 import java.util.List;
 
+import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
+import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.*;
+
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
