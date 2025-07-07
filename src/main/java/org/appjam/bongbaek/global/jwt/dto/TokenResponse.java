@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.jwt;
+package org.appjam.bongbaek.global.jwt.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

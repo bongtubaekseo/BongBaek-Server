@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.jwt;
+package org.appjam.bongbaek.global.jwt.util;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

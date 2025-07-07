@@ -1,9 +1,9 @@
 package org.appjam.bongbaek.global.config;
 
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.global.jwt.CustomAccessDeniedHandler;
-import org.appjam.bongbaek.global.jwt.CustomJwtAuthenticationEntryPoint;
-import org.appjam.bongbaek.global.jwt.JwtAuthenticationFilter;
+import org.appjam.bongbaek.global.jwt.exception.CustomAccessDeniedHandler;
+import org.appjam.bongbaek.global.jwt.exception.CustomJwtAuthenticationEntryPoint;
+import org.appjam.bongbaek.global.jwt.util.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

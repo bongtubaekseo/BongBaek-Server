@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.jwt;
+package org.appjam.bongbaek.global.jwt.enums;
 
 public enum JwtValidationType {
     VALID_JWT,
