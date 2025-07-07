@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
+import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.member.entity.Member;
 
 import jakarta.persistence.CascadeType;
@@ -108,5 +109,20 @@ public class Event extends BaseEntity {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.member = member;
+	}
+
+	public void updateFromDto(EventUpdateRequestDto dto) {
+		this.hostName = dto.hostInfo().hostName();
+		this.hostNickname = dto.hostInfo().hostNickname();
+		this.eventCategory = dto.eventInfo().eventCategory();
+		this.relationship = dto.eventInfo().eventRelationship();
+		this.cost = dto.eventInfo().getCost();
+		this.attended = dto.eventInfo().getIsAttend();
+		this.eventDate = dto.eventInfo().getEventDate();
+		this.location = dto.locationInfo().getLocation();
+		this.address = dto.locationInfo().getAddress();
+		this.latitude = dto.locationInfo().getLatitude();
+		this.longitude = dto.locationInfo().getLongitude();
+		this.note = dto.eventInfo().getNote();
 	}
 }
