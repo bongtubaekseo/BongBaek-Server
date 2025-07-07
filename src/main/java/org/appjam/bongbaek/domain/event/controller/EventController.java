@@ -4,9 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.appjam.bongbaek.domain.event.dto.EventDeleteRequestDto;
-import org.appjam.bongbaek.domain.event.dto.EventDetailResponseDto;
-import org.appjam.bongbaek.domain.event.dto.EventHomeResponseDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
+import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
+import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.EventWrapperDto;
 import org.appjam.bongbaek.domain.event.service.EventService;
 import org.appjam.bongbaek.global.api.ApiResponse;
@@ -62,6 +63,22 @@ public class EventController {
         }
     }
 
+    @PutMapping("{eventId}")
+    public ResponseEntity<ApiResponse<Void>> updateEvent(
+            @PathVariable String eventId,
+            String memberId,
+            @RequestBody EventUpdateRequestDto request
+    ){
+        UUID eventUUID = UUID.fromString(eventId);
+        UUID memberUUID = UUID.fromString(memberId);
+
+        eventService.updateEventByEventId(eventUUID, memberUUID, request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(CommonSuccessCode.UPDATED_EVENT));
+    }
+
     @DeleteMapping("/{eventId}")
     public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
             @PathVariable String eventId,
@@ -80,8 +97,8 @@ public class EventController {
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteEvents(
-            @RequestBody EventDeleteRequestDto request,
-            String memberId
+            String memberId,
+            @RequestBody EventDeleteRequestDto request
     ){
 
         UUID memberUUID = UUID.fromString(memberId);
