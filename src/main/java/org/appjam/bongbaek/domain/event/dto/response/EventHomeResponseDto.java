@@ -5,33 +5,29 @@ import org.appjam.bongbaek.domain.event.dto.common.HostInfo;
 import org.appjam.bongbaek.domain.event.dto.common.LocationInfo;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 public record EventHomeResponseDto (
         String eventId,
         HostInfo hostInfo,
         EventInfo eventInfo,
         LocationInfo locationInfo
 ){
-    public static EventHomeResponseDto of(Event event) {
+    public static EventHomeResponseDto of(Event event, LocalDate now) {
+
+        Integer dDay = (int) ChronoUnit.DAYS.between(now, event.getEventDate());
+
         return new EventHomeResponseDto(
                 event.getEventId().toString(),
-                new HostInfo(
-                        event.getHostName(),
-                        event.getHostNickname()
-                ),
-                new EventInfo(
+                HostInfo.from(event),
+                EventInfo.from(
                         event.getEventCategory().getDescription(),
                         event.getRelationship().getDescription(),
                         event.getCost(),
-                        null,
                         event.getEventDate(),
-                        null
-                ),
-                new LocationInfo(
-                        event.getLocation(),
-                        null,
-                        null,
-                        null
-                )
+                        dDay),
+                LocationInfo.from(event)
         );
     }
 }

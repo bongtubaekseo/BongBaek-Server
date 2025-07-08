@@ -10,23 +10,9 @@ public record EventDetailResponseDto(
 ) {
     public static EventDetailResponseDto of(Event event) {
         return new EventDetailResponseDto(
-                new HostInfo(
-                        event.getHostName(),
-                        event.getHostNickname()),
-                new EventInfo(
-                        event.getEventCategory().getDescription(),
-                        event.getRelationship().getDescription(),
-                        event.getCost(),
-                        event.isAttended(),
-                        event.getEventDate(),
-                        event.getNote()
-                ),
-                new LocationInfo(
-                        event.getLocation(),
-                        event.getAddress(),
-                        event.getLatitude(),
-                        event.getLongitude()
-                )
+                HostInfo.from(event),
+                EventInfo.from(event),
+                LocationInfo.from(event)
         );
     }
 }
