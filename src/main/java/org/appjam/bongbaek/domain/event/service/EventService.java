@@ -43,7 +43,7 @@ public class EventService {
         List<Event> events = eventRepository.findTop3ByEventDateAfterAndMemberMemberIdOrderByEventDateDesc(now, memberUUID);
 
         return events.stream()
-                .map(EventHomeResponseDto::of)
+                .map(event -> EventHomeResponseDto.of(event, now))
                 .toList();
     }
 
