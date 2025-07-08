@@ -13,6 +13,8 @@ public enum EventErrorCode implements ErrorCode {
     INVALID_EVENT_DATE(false, HttpStatus.BAD_REQUEST, "유효하지 않은 경조사 날짜입니다."),
     INVALID_UUID_FORMAT(false, HttpStatus.BAD_REQUEST, "유효하지 않은 UUID 포멧입니다."),
 
+    //403
+    FORBIDDEN_USER(false, HttpStatus.FORBIDDEN, "해당 경조사의 접근 권한이 없습니다."),
     // 404
     EVENT_NOT_FOUND(false, HttpStatus.NOT_FOUND,  "경조사를 찾을 수 없습니다.");
 
