@@ -40,11 +40,7 @@ public class EventService {
     @Transactional(readOnly = true)
     public List<EventHomeResponseDto> getEventsForHome(LocalDate now, UUID memberUUID){
 
-        List<Event> events = eventRepository.findTop3ByEventDateAfterOrderByEventDateDesc(now);
-
-        for (Event event : events) {
-            EventValidator.EventAuthorization(memberUUID, event.getMember().getMemberId());
-        }
+        List<Event> events = eventRepository.findTop3ByEventDateAfterAndMemberMemberIdOrderByEventDateDesc(now, memberUUID);
 
         return events.stream()
                 .map(EventHomeResponseDto::of)
@@ -76,13 +72,15 @@ public class EventService {
     @Transactional
     public void deleteEvents(List<UUID> eventList, UUID memberUUID) {
 
-        for (UUID eventUUID : eventList) {
+        List<Event> events = eventRepository.findAllById(eventList);
+
+        for (UUID eventUUID : eventList) {                      // NOTE: 없는 경조사 선택 예외 처리
             Event event = eventRepository.findById(eventUUID)
                     .orElseThrow(NotFoundEventException::new);
 
             EventValidator.EventAuthorization(memberUUID, event.getMember().getMemberId());
-
-            eventRepository.delete(event);
         }
+
+        eventRepository.deleteAll(events);
     }
 }
