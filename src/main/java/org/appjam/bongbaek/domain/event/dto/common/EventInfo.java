@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.event.dto.common;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.Size;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,10 +11,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record EventInfo(
 		String eventCategory,
 		String relationship,
+		@Size(max = 99999999, message = "2자 이상 10자 이내만 기입할 수 있습니다")
 		int cost,
 		Boolean isAttend,
 		LocalDate eventDate,
 		Integer dDay,
+		@Size(max = 50, message= "메모는 50자를 넘길 수 없습니다")
 		String note
 ) {
 	public static EventInfo from(Event event) {
