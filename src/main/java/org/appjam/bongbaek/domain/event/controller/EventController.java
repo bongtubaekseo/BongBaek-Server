@@ -62,7 +62,7 @@ public class EventController {
         }
     }
 
-    @PutMapping("{eventId}")
+    @PutMapping("/{eventId}")
     public ResponseEntity<ApiResponse<Void>> updateEvent(
             @PathVariable String eventId,
             @RequestHeader String memberId,
