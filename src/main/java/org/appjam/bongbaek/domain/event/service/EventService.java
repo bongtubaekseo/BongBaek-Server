@@ -45,7 +45,7 @@ public class EventService {
     @Transactional
     public void updateEventByEventId(UUID eventUUID, UUID memberUUID, EventUpdateRequestDto request) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(memberUUID, eventUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
                 .orElseThrow(UnauthorizationException::new);
 
         event.updateFromDto(request);
@@ -54,7 +54,7 @@ public class EventService {
     @Transactional
     public void deleteEventByEventId(UUID eventUUID, UUID memberUUID) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(memberUUID, eventUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
                 .orElseThrow(UnauthorizationException::new);
 
         eventRepository.delete(event);
