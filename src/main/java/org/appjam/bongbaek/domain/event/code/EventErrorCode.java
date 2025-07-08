@@ -14,7 +14,7 @@ public enum EventErrorCode implements ErrorCode {
     INVALID_UUID_FORMAT(false, HttpStatus.BAD_REQUEST, "유효하지 않은 UUID 포멧입니다."),
 
     // 404
-    EVENT_NOT_FOUND(true, HttpStatus.NOT_FOUND,  "경조사를 찾을 수 없습니다.");
+    EVENT_NOT_FOUND(false, HttpStatus.NOT_FOUND,  "경조사를 찾을 수 없습니다.");
 
     private final boolean success;
     private final HttpStatus status;
