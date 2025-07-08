@@ -1,19 +1,17 @@
 package org.appjam.bongbaek.domain.event.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
-import static org.appjam.bongbaek.domain.event.util.EventValidator.EventAuthorization;
-
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
+import org.appjam.bongbaek.domain.event.exception.UnauthorizationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.entity.Event;
-import org.appjam.bongbaek.domain.event.exception.NotFoundEventException;
 import org.appjam.bongbaek.domain.event.repository.EventRepository;
-import org.appjam.bongbaek.domain.event.util.EventValidator;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -28,13 +26,10 @@ public class EventService {
     @Transactional(readOnly = true)
     public EventDetailResponseDto getEventByEventId(UUID eventUUID, UUID memberUUID) {
 
-        Event event = eventRepository.findById(eventUUID)
-                .orElseThrow(NotFoundEventException::new);
-
-        EventAuthorization(memberUUID, event.getMember().getMemberId());
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+                .orElseThrow(UnauthorizationException::new);
 
         return EventDetailResponseDto.of(event);
-
     }
 
     @Transactional(readOnly = true)
@@ -43,17 +38,15 @@ public class EventService {
         List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberUUID);
 
         return events.stream()
-                .map(event -> EventHomeResponseDto.of(event, now))
+                .map(event -> EventHomeResponseDto.of(event, (int) ChronoUnit.DAYS.between(now, event.getEventDate())))
                 .toList();
     }
 
     @Transactional
-    public void updateEventByEventId(UUID eventId, UUID memberUUID, EventUpdateRequestDto request) {
+    public void updateEventByEventId(UUID eventUUID, UUID memberUUID, EventUpdateRequestDto request) {
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(NotFoundEventException::new);
-
-        EventAuthorization(memberUUID, event.getMember().getMemberId());
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(memberUUID, eventUUID)
+                .orElseThrow(UnauthorizationException::new);
 
         event.updateFromDto(request);
     }
@@ -61,10 +54,8 @@ public class EventService {
     @Transactional
     public void deleteEventByEventId(UUID eventUUID, UUID memberUUID) {
 
-        Event event = eventRepository.findById(eventUUID)
-                .orElseThrow(NotFoundEventException::new);
-
-        EventValidator.EventAuthorization(memberUUID, event.getMember().getMemberId());
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(memberUUID, eventUUID)
+                .orElseThrow(UnauthorizationException::new);
 
         eventRepository.delete(event);
     }
@@ -72,13 +63,10 @@ public class EventService {
     @Transactional
     public void deleteEvents(List<UUID> eventList, UUID memberUUID) {
 
-        List<Event> events = eventRepository.findAllById(eventList);
+        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventList, memberUUID);
 
-        for (UUID eventUUID : eventList) {                      // NOTE: 없는 경조사 선택 예외 처리
-            Event event = eventRepository.findById(eventUUID)
-                    .orElseThrow(NotFoundEventException::new);
-
-            EventValidator.EventAuthorization(memberUUID, event.getMember().getMemberId());
+        if (events.size() != eventList.size()) {
+            throw new UnauthorizationException();
         }
 
         eventRepository.deleteAll(events);
