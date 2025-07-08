@@ -5,21 +5,17 @@ import org.appjam.bongbaek.domain.event.dto.common.HostInfo;
 import org.appjam.bongbaek.domain.event.dto.common.LocationInfo;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 public record EventHomeResponseDto (
-        String eventId,
+        UUID eventId,
         HostInfo hostInfo,
         EventInfo eventInfo,
         LocationInfo locationInfo
 ){
-    public static EventHomeResponseDto of(Event event, LocalDate now) {
-
-        Integer dDay = (int) ChronoUnit.DAYS.between(now, event.getEventDate());
-
+    public static EventHomeResponseDto of(Event event, Integer dDay) {
         return new EventHomeResponseDto(
-                event.getEventId().toString(),
+                event.getEventId(),
                 HostInfo.from(event),
                 EventInfo.from(
                         event.getEventCategory().getDescription(),
