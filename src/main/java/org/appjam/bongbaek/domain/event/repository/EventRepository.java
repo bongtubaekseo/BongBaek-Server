@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, UUID> {
-    List<Event> findTop3ByEventDateAfterAndMemberMemberIdOrderByEventDateDesc(LocalDate now, UUID member_memberId); // TO DO: jwt 발급 시 사용
+    List<Event> findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(LocalDate now, UUID member_memberId); // TO DO: jwt 발급 시 사용
     List<Event> findTop3ByEventDateAfterOrderByEventDateDesc(LocalDate date);   // TEST용. 멤버 JWT 구현 시 삭제
 }
