@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
 import org.appjam.bongbaek.domain.event.dto.common.EventWrapperDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
@@ -66,7 +67,7 @@ public class EventController {
     public ResponseEntity<ApiResponse<Void>> updateEvent(
             @PathVariable String eventId,
             @RequestHeader String memberId,
-            @RequestBody EventUpdateRequestDto request
+            @RequestBody @Valid EventUpdateRequestDto request
     ){
         UUID eventUUID = parseUUID(eventId);
         UUID memberUUID = parseUUID(memberId);
