@@ -40,7 +40,7 @@ public class EventService {
     @Transactional(readOnly = true)
     public List<EventHomeResponseDto> getEventsForHome(LocalDate now, UUID memberUUID){
 
-        List<Event> events = eventRepository.findTop3ByEventDateAfterAndMemberMemberIdOrderByEventDateDesc(now, memberUUID);
+        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberUUID);
 
         return events.stream()
                 .map(event -> EventHomeResponseDto.of(event, now))
