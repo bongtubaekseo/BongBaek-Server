@@ -48,10 +48,10 @@ public class Event extends BaseEntity {
 	private Relationship relationship;
 
 	@Column(name = "contact_frequency")
-	private int contactFrequency;
+	private Integer contactFrequency;
 
 	@Column(name = "meet_frequency")
-	private int meetFrequency;
+	private Integer meetFrequency;
 
 	// event
 	@Enumerated(EnumType.STRING)
