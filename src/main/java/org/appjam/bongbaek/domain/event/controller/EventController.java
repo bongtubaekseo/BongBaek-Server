@@ -10,6 +10,7 @@ import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
+import org.appjam.bongbaek.domain.event.exception.InvalidUUIDFormatException;
 import org.appjam.bongbaek.domain.event.service.EventService;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +32,8 @@ public class EventController {
             @RequestHeader String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
     ){
 
-        UUID eventUUID = UUID.fromString(eventId);
-        UUID memberUUID = UUID.fromString(memberId);
+        UUID eventUUID = parseUUID(eventId);
+        UUID memberUUID = parseUUID(memberId);
 
         EventDetailResponseDto event = eventService.getEventByEventId(eventUUID, memberUUID);
 
@@ -45,8 +46,7 @@ public class EventController {
     public ResponseEntity<ApiResponse<EventWrapperDto>> getEventsForHome(
             @RequestHeader String memberId
     ){
-
-        UUID memberUUId =  UUID.fromString(memberId);
+        UUID memberUUId =  parseUUID(memberId);
         List<EventHomeResponseDto> events = eventService.getEventsForHome(LocalDate.now(), memberUUId);
 
         if (events.isEmpty()) {
@@ -68,8 +68,8 @@ public class EventController {
             @RequestHeader String memberId,
             @RequestBody EventUpdateRequestDto request
     ){
-        UUID eventUUID = UUID.fromString(eventId);
-        UUID memberUUID = UUID.fromString(memberId);
+        UUID eventUUID = parseUUID(eventId);
+        UUID memberUUID = parseUUID(memberId);
 
         eventService.updateEventByEventId(eventUUID, memberUUID, request);
 
@@ -84,8 +84,8 @@ public class EventController {
             @RequestHeader String memberId
     ) {
 
-        UUID eventUUID = UUID.fromString(eventId);
-        UUID memberUUID = UUID.fromString(memberId);
+        UUID eventUUID = parseUUID(eventId);
+        UUID memberUUID = parseUUID(memberId);
 
         eventService.deleteEventByEventId(eventUUID, memberUUID);
 
@@ -100,7 +100,7 @@ public class EventController {
             @RequestBody EventDeleteRequestDto request
     ){
 
-        UUID memberUUID = UUID.fromString(memberId);
+        UUID memberUUID = parseUUID(memberId);
         List<UUID> eventList = request.eventIds().stream()
                 .map(UUID::fromString)
                 .toList();
@@ -110,5 +110,14 @@ public class EventController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
+    }
+
+    private UUID parseUUID(String id) {
+
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidUUIDFormatException();
+        }
     }
 }
