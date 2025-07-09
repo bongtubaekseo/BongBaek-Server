@@ -1,6 +1,7 @@
 package org.appjam.bongbaek.domain.member.entity;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -47,5 +48,9 @@ public class Member {
 		this.memberIncome = memberIncome;
 		this.appleId = appleId;
 		this.kakaoId = kakaoId;
+	}
+
+	public int getAge(){
+		return Period.between(this.memberBirthday, LocalDate.now()).getYears();
 	}
 }
