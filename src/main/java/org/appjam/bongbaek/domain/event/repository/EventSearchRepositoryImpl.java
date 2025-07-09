@@ -35,7 +35,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 		List<Event> events = queryFactory.selectFrom(qEvent)
 				.where(
 						qEvent.member.memberId.eq(memberId),
-						qEvent.eventDate.before(LocalDate.now()),
+						qEvent.eventDate.loe(LocalDate.now()),
 						categoryEqual(category),
 						attendedEqual(attended)
 				)
@@ -61,7 +61,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 		List<Event> events = queryFactory.selectFrom(qEvent)
 				.where(
 						qEvent.member.memberId.eq(memberId),
-						qEvent.eventDate.after(LocalDate.now()),
+						qEvent.eventDate.goe(LocalDate.now()),
 						categoryEqual(category)
 				)
 				.orderBy(qEvent.eventDate.asc())
