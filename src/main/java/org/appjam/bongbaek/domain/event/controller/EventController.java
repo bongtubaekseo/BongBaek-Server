@@ -101,13 +101,4 @@ public class EventController {
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
     }
-
-    private UUID parseUUID(String id) {
-
-        try {
-            return UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidUUIDFormatException();
-        }
-    }
 }
