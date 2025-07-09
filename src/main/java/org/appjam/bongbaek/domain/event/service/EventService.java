@@ -33,13 +33,11 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventHomeResponseDto> getEventsForHome(LocalDate now, UUID memberUUID){
+    public EventHomeResponseDto getEventsForHome(LocalDate now, UUID memberUUID){
 
         List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberUUID);
 
-        return events.stream()
-                .map(event -> EventHomeResponseDto.of(event, (int) ChronoUnit.DAYS.between(now, event.getEventDate())))
-                .toList();
+        return EventHomeResponseDto.from(events);
     }
 
     @Transactional

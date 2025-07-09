@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
-import org.appjam.bongbaek.domain.event.dto.common.EventWrapperDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
@@ -28,39 +27,29 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<ApiResponse<EventWrapperDto>> getEventByEventId(
+    public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventByEventId(
             @PathVariable String eventId,   // NOTE: 클라 요청 간에는 무조건 String
             @RequestHeader String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
     ){
 
-        UUID eventUUID = parseUUID(eventId);
-        UUID memberUUID = parseUUID(memberId);
-
-        EventDetailResponseDto event = eventService.getEventByEventId(eventUUID, memberUUID);
+        UUID eventUUID = UUID.fromString(eventId);
+        UUID memberUUID = UUID.fromString(memberId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, EventWrapperDto.of(event)));
+                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventByEventId(eventUUID, memberUUID)));
     }
 
     @GetMapping("/home")
-    public ResponseEntity<ApiResponse<EventWrapperDto>> getEventsForHome(
+    public ResponseEntity<ApiResponse<EventHomeResponseDto>> getEventsForHome(
             @RequestHeader String memberId
     ){
-        UUID memberUUId =  parseUUID(memberId);
-        List<EventHomeResponseDto> events = eventService.getEventsForHome(LocalDate.now(), memberUUId);
 
-        if (events.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .body(ApiResponse.success(EventSuccessCode.NO_EVENT, EventWrapperDto.from(events)));
+        UUID memberUUID = UUID.fromString(memberId);
 
-        }
-        else {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(ApiResponse.success(EventSuccessCode.GET_EVENT, EventWrapperDto.from(events)));
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventsForHome(LocalDate.now(), memberUUID)));
     }
 
     @PutMapping("/{eventId}")
@@ -69,8 +58,8 @@ public class EventController {
             @RequestHeader String memberId,
             @RequestBody @Valid EventUpdateRequestDto request
     ){
-        UUID eventUUID = parseUUID(eventId);
-        UUID memberUUID = parseUUID(memberId);
+        UUID eventUUID = UUID.fromString(eventId);
+        UUID memberUUID = UUID.fromString(memberId);
 
         eventService.updateEventByEventId(eventUUID, memberUUID, request);
 
@@ -85,8 +74,8 @@ public class EventController {
             @RequestHeader String memberId
     ) {
 
-        UUID eventUUID = parseUUID(eventId);
-        UUID memberUUID = parseUUID(memberId);
+        UUID eventUUID = UUID.fromString(eventId);
+        UUID memberUUID = UUID.fromString(memberId);
 
         eventService.deleteEventByEventId(eventUUID, memberUUID);
 
@@ -101,7 +90,7 @@ public class EventController {
             @RequestBody EventDeleteRequestDto request
     ){
 
-        UUID memberUUID = parseUUID(memberId);
+        UUID memberUUID = UUID.fromString(memberId);
         List<UUID> eventList = request.eventIds().stream()
                 .map(UUID::fromString)
                 .toList();
