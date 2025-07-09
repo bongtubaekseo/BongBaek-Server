@@ -1,6 +1,5 @@
 package org.appjam.bongbaek.global.exception;
 
-import com.google.protobuf.Api;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.springframework.http.ResponseEntity;
