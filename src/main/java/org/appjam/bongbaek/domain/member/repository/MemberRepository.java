@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.event.repository;
+package org.appjam.bongbaek.domain.member.repository;
 
 import java.util.UUID;
 

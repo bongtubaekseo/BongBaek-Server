@@ -12,7 +12,7 @@ import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.domain.event.exception.NotFoundEventException;
-import org.appjam.bongbaek.domain.event.repository.MemberRepository;
+import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.domain.event.service.util.CostCalculator;
 import org.appjam.bongbaek.domain.event.service.util.RangeCalculator;
 import org.appjam.bongbaek.domain.event.service.util.vo.CostParamInfo;
