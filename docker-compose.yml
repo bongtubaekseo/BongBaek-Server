@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:8.0.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  bongbaek-server:
+    image: ${DOCKER_USERNAME}/bongbaek-server:latest
+    container_name: bongbaek-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis

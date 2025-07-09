@@ -1,13 +1,12 @@
-package org.appjam.bongbeak;
+package org.appjam.bongbaek;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BongbeakApplication {
+public class BongbaekApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BongbeakApplication.class, args);
+		SpringApplication.run(BongbaekApplication.class, args);
 	}
-
 }
