@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
+import org.appjam.bongbaek.domain.event.exception.NotFoundEventException;
 import org.appjam.bongbaek.domain.event.exception.UnauthorizationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
@@ -27,7 +28,7 @@ public class EventService {
     public EventDetailResponseDto getEventByEventId(UUID eventUUID, UUID memberUUID) {
 
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
-                .orElseThrow(UnauthorizationException::new);
+                .orElseThrow(NotFoundEventException::new);
 
         return EventDetailResponseDto.of(event);
     }
@@ -44,7 +45,7 @@ public class EventService {
     public void updateEventByEventId(UUID eventUUID, UUID memberUUID, EventUpdateRequestDto request) {
 
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
-                .orElseThrow(UnauthorizationException::new);
+                .orElseThrow(NotFoundEventException::new);
 
         event.updateFromDto(request);
     }
@@ -53,7 +54,7 @@ public class EventService {
     public void deleteEventByEventId(UUID eventUUID, UUID memberUUID) {
 
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
-                .orElseThrow(UnauthorizationException::new);
+                .orElseThrow(NotFoundEventException::new);
 
         eventRepository.delete(event);
     }
@@ -64,7 +65,7 @@ public class EventService {
         List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventList, memberUUID);
 
         if (events.size() != eventList.size()) {
-            throw new UnauthorizationException();
+            throw new NotFoundEventException();
         }
 
         eventRepository.deleteAll(events);

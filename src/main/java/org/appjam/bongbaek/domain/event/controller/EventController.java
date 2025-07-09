@@ -26,10 +26,10 @@ public class EventController {
 
     private final EventService eventService;
 
-    @GetMapping("/{eventId}")
+    @GetMapping(path = "/{eventId}")
     public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventByEventId(
-            @PathVariable String eventId,   // NOTE: 클라 요청 간에는 무조건 String
-            @RequestHeader String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
+            @PathVariable(name = "eventId") String eventId,   // NOTE: 클라 요청 간에는 무조건 String
+            @RequestHeader(name = "memberId") String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
     ){
 
         UUID eventUUID = UUID.fromString(eventId);
@@ -40,9 +40,9 @@ public class EventController {
                 .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventByEventId(eventUUID, memberUUID)));
     }
 
-    @GetMapping("/home")
+    @GetMapping(path = "/home")
     public ResponseEntity<ApiResponse<EventHomeResponseDto>> getEventsForHome(
-            @RequestHeader String memberId
+            @RequestHeader(name = "memberId") String memberId
     ){
 
         UUID memberUUID = UUID.fromString(memberId);
@@ -52,10 +52,10 @@ public class EventController {
                 .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventsForHome(LocalDate.now(), memberUUID)));
     }
 
-    @PutMapping("/{eventId}")
+    @PutMapping(path = "/{eventId}")
     public ResponseEntity<ApiResponse<Void>> updateEvent(
-            @PathVariable String eventId,
-            @RequestHeader String memberId,
+            @PathVariable(name = "eventId") String eventId,
+            @RequestHeader(name = "memberId") String memberId,
             @RequestBody @Valid EventUpdateRequestDto request
     ){
         UUID eventUUID = UUID.fromString(eventId);
@@ -68,10 +68,10 @@ public class EventController {
                 .body(ApiResponse.success(EventSuccessCode.UPDATED_EVENT));
     }
 
-    @DeleteMapping("/{eventId}")
+    @DeleteMapping(path = "/{eventId}")
     public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
-            @PathVariable String eventId,
-            @RequestHeader String memberId
+            @PathVariable(name = "eventId") String eventId,
+            @RequestHeader(name = "memberId") String memberId
     ) {
 
         UUID eventUUID = UUID.fromString(eventId);
@@ -86,7 +86,7 @@ public class EventController {
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteEvents(
-            @RequestHeader String memberId,
+            @RequestHeader(name = "memberId") String memberId,
             @RequestBody EventDeleteRequestDto request
     ){
 
