@@ -59,6 +59,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.failure(CommonErrorCode.VALIDATION_ERROR));
     }
 
+    // 요청 인자들 데이터 타입이 틀린 경우
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity
+                .status(CommonErrorCode.BAD_REQUEST.getStatus())
+                .body(ApiResponse.failure(CommonErrorCode.BAD_REQUEST));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleInternalServerException(Exception e) {
         return ResponseEntity
