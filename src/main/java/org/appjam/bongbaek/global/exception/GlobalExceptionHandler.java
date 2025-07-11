@@ -1,10 +1,12 @@
 package org.appjam.bongbaek.global.exception;
 
-import com.google.protobuf.Api;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -31,6 +33,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(CommonErrorCode.METHOD_NOT_ALLOWED_ERROR.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.METHOD_NOT_ALLOWED_ERROR));
+    }
+
+    //NOTE: @Valid 검증 실패한 경우
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<String>> handleValidationException(MethodArgumentNotValidException e) {
+        return ResponseEntity
+                .status(e.getStatusCode())
+                .body(ApiResponse.failure(e.getFieldError().getDefaultMessage()));
+    }
+
+    //NOTE : JSON 데이터 타입이 다른 경우
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e){
+        return ResponseEntity
+                .status(CommonErrorCode.BAD_REQUEST.getStatus())
+                .body(ApiResponse.failure(e.getMessage()));
+    }
+
+    // NOTE: ENUM 입력 데이터 오류
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        return ResponseEntity
+                .status(CommonErrorCode.VALIDATION_ERROR.getStatus())
+                .body(ApiResponse.failure(CommonErrorCode.VALIDATION_ERROR));
     }
 
     @ExceptionHandler(Exception.class)
