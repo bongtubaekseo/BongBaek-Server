@@ -14,7 +14,6 @@ public record EventInfo(
 		Boolean isAttend,
 		LocalDate eventDate,
 		Integer dDay,
-		@Size(max = 50, message= "메모는 50자를 넘길 수 없습니다")
 		String note
 ) {
 	public static EventInfo from(Event event) {
