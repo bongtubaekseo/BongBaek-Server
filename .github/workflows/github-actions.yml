@@ -100,9 +100,9 @@ jobs:
             cd /home/ubuntu/bongbaek-server
 
             export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            
+
             export DOZZLE_USERNAME=${{ secrets.DOZZLE_USERNAME }}
-            
+
             export DOZZLE_PASSWORD=${{ secrets.DOZZLE_PASSWORD }}
 
             docker compose down
