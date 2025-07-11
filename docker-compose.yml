@@ -13,6 +13,7 @@ services:
       - "8080:8080"
     depends_on:
       - redis
+
   dozzle:
     container_name: dozzle
     image: amir20/dozzle:latest
