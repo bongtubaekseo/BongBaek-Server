@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.event.util;
+package org.appjam.bongbaek.domain.event.service.util;
 
 import org.appjam.bongbaek.domain.event.exception.InvalidNoteException;
 
@@ -14,6 +14,7 @@ public class Validator {
     }
 
     public static void validateLength(String note) {
+
         if (lengthWithEmoji(note) > 50) {
             throw new InvalidNoteException();
         }
