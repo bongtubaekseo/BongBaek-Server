@@ -38,14 +38,6 @@ public class MemberController {
         } // NOTE: 기존 회원과 최초 로그인의 응답을 다르게.
     }
 
-    @Operation(summary = "로그아웃 API", description = "로그아웃 API 입니다.")
-    @PostMapping("/member/logout")
-    public ResponseEntity<ApiResponse<Void>> logout() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK, memberService.logout(PrincipalHandler.getMemberIdFromPrincipal())));
-    } // TODO: 추후 보완 예정
-
     @Operation(summary = "회원가입", description = "추가 정보를 입력하여 회원가입을 완료합니다.")
     @PostMapping("/member/profile")
     public ResponseEntity<ApiResponse<LoginResponse>> profile(
