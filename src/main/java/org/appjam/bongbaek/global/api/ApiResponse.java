@@ -3,10 +3,13 @@ package org.appjam.bongbaek.global.api;
 import org.appjam.bongbaek.global.common.ErrorCode;
 import org.appjam.bongbaek.global.common.SuccessCode;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public record ApiResponse<T>(
         boolean success,
         int status,
         String message,
+        @JsonInclude(value = JsonInclude.Include.NON_NULL)
         T data
 ) {
     // response body 없는 버전
