@@ -10,10 +10,14 @@ import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
+import org.appjam.bongbaek.global.jwt.util.JwtParser;
 import org.appjam.bongbaek.global.jwt.util.JwtProvider;
+import org.appjam.bongbaek.global.jwt.util.JwtValidator;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,6 +27,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final KakaoLoginClient kakaoLoginClient;
     private final JwtProvider jwtProvider;
+    private final JwtValidator jwtValidator;
+    private final JwtParser jwtParser;
 
     @Transactional
     public LoginResponse login(final String accessToken) {
@@ -66,5 +72,16 @@ public class MemberService {
         final String accessToken = jwtProvider.generateAccessToken(member.getMemberId());
         final String refreshToken = jwtProvider.generateRefreshToken(member.getMemberId());
         return TokenResponse.of(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public TokenResponse reissueTokens(final String refreshToken) {
+        jwtValidator.validateRefreshToken(refreshToken);
+
+        UUID memberId = jwtParser.getUserFromJwt(refreshToken);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.NOT_FOUND_MEMBER));
+
+        return generateTokensForMember(member);
     }
 }
