@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.util.Objects;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -40,7 +42,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleValidationException(MethodArgumentNotValidException e) {
         return ResponseEntity
                 .status(e.getStatusCode())
-                .body(ApiResponse.notValid(e.getMessage()));
+                .body(ApiResponse.notValid(Objects.requireNonNull(e.getFieldError()).getDefaultMessage()));
     }
 
     //NOTE : JSON 데이터 타입이 다른 경우
@@ -69,7 +71,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleInternalServerException(Exception e) {
-        e.printStackTrace();
         return ResponseEntity
                 .status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.INTERNAL_SERVER_ERROR));
