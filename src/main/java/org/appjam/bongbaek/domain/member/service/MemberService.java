@@ -58,7 +58,7 @@ public class MemberService {
         } // NOTE: 이미 가입된 회원인지 확인
 
         try {
-            IncomeType incomeType = parseIncomeType(signUpRequest.memberIncome());
+            IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
 
             Member member = signUpRequest.toMember(incomeType);
 
@@ -96,14 +96,4 @@ public class MemberService {
 
         return TokenResponse.of(accessToken, refreshToken);
     } // NOTE: 이미 토큰이 있다면 update, 없다면 새로 생성
-
-    private IncomeType parseIncomeType(String incomeString) {
-        if ("200만원 이상".equals(incomeString)) {
-            return IncomeType.OVER200;
-        } else if ("200만원 이하".equals(incomeString)) {
-            return IncomeType.UNDER200;
-        } else {
-            throw new CustomException(CommonErrorCode.BAD_REQUEST);
-        }
-    }
 }
