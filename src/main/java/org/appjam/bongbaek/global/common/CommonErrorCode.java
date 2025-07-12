@@ -6,9 +6,10 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum CommonErrorCode implements ErrorCode {
     // 400 Bad Request
-    BAD_REQUEST(false, HttpStatus.BAD_REQUEST, "잘못된 요청 값입니다."),
+    BAD_REQUEST(false, HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     VALIDATION_ERROR(false, HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     ALREADY_REGISTERED_MEMBER(false, HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다."),
+    NULL_POINTER_ERROR(false, HttpStatus.BAD_REQUEST, "필수 요청 값이 비어있습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(false, HttpStatus.UNAUTHORIZED,"인증에 실패했습니다."),
