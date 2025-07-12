@@ -30,10 +30,10 @@ public class MemberController {
         LoginResponse loginResponse = memberService.login(loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
-            return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.OK, loginResponse));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.success(CommonSuccessCode.OK, loginResponse));
         } else {
-            return ResponseEntity
-                    .status(202)
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, loginResponse));
         } // NOTE: 기존 회원과 최초 로그인의 응답을 다르게.
     }
@@ -45,8 +45,7 @@ public class MemberController {
     ) {
         LoginResponse loginResponse = memberService.signUp(signUpRequest);
 
-        return ResponseEntity
-                .status(201)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
     }
 }
