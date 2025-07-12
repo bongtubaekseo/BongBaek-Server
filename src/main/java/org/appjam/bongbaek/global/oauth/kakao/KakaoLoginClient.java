@@ -21,6 +21,11 @@ public class KakaoLoginClient {
     @Value("${kakao.redirect-url}")
     private String kakaoRedirectUrl;
 
+    /**
+     * 테스트용 메서드 - 인가코드로 토큰 발급
+     * 현재는 클라이언트에서 직접 토큰을 발급받아 전달하므로 사용되지 않음
+     */
+    @Deprecated
     public KakaoLoginResult login(final String code) {
 
         RestClient restClient = RestClient.create();

@@ -22,12 +22,12 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @Operation(summary = "카카오 로그인", description = "카카오 OAuth 인증 코드로 로그인합니다.")
+    @Operation(summary = "카카오 로그인", description = "카카오 액세스 토큰으로 로그인합니다.")
     @PostMapping("/oauth/kakao")
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @RequestBody final LoginRequest loginRequest
     ) {
-        LoginResponse loginResponse = memberService.login(loginRequest.authorizationCode());
+        LoginResponse loginResponse = memberService.login(loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
             return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.OK, loginResponse));

@@ -33,10 +33,8 @@ public class MemberService {
     private final JwtProvider jwtProvider;
 
     @Transactional
-    public LoginResponse login(final String code) {
-        final KakaoLoginResult kakaoLoginResult = kakaoLoginClient.login(code);
-        final Long kakaoId = kakaoLoginResult.kakaoId();
-        final String kakaoAccessToken = kakaoLoginResult.accessToken();
+    public LoginResponse login(final String accessToken) {
+        final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
         if (memberRepository.existsBykakaoId(kakaoId)) {
             Member member = memberRepository.findBykakaoId(kakaoId);
@@ -44,9 +42,9 @@ public class MemberService {
 
             return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId, null);
         } else {
-            return LoginResponse.of(null, false, kakaoId, kakaoAccessToken);
+            return LoginResponse.of(null, false, kakaoId, accessToken);
         }
-    } // NOTE: 기존에 가입이 되어 있지 않은 경우, kakao ID와 kakao Access Token을 반환
+    } // NOTE: 클라이언트에서 받은 액세스 토큰으로 카카오 사용자 정보 조회
 
     @Transactional
     public Void logout(final UUID memberId) {
