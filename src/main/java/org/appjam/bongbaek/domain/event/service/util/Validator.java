@@ -13,10 +13,13 @@ public class Validator {
         return note.isBlank();
     }
 
-    public static void validateLength(String note) {
+    public static String validateLength(String note) {
 
-        if (lengthWithEmoji(note) > 50) {
+        if (!note.isEmpty() && lengthWithEmoji(note) > 50) {
             throw new InvalidNoteException();
+        }
+        else{
+            return note;
         }
     }
 
