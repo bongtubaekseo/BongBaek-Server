@@ -22,23 +22,6 @@ public class SecurityConfig {
     private final CustomJwtAuthenticationEntryPoint customJwtAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    private static final String[] AUTH_WHITE_LIST = {
-            "/v3/api-docs/**",
-            "/swagger-resources/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/webjars/**",
-            "/test/**",
-            "/login/**",
-            "/callback",
-            "/api/v1/oauth/kakao",
-            "/api/v1/member/profile",
-            "/api/v1/member/logout",
-            "/swagger-ui/index.html",
-            "/",
-            "/favicon.ico"
-    };
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -52,12 +35,11 @@ public class SecurityConfig {
                 });
 
         http.authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(AUTH_WHITE_LIST).permitAll();
+                    auth.requestMatchers(AuthWhiteList.WHITE_LIST).permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }
