@@ -9,17 +9,13 @@ public class Validator {
     // 하나의 시각적 유니코드 grapheme의 정규식인 "\X"를 이용하여 문자열의 길이를 카운트
     private static final Pattern GRAPHEME_PATTERN = Pattern.compile("\\X");
 
-    public static Boolean isEmpty(String note) {
-        return note.isBlank();
-    }
-
     public static String validateLength(String note) {
 
-        if (!note.isEmpty() && lengthWithEmoji(note) > 50) {
-            throw new InvalidNoteException();
+        if (note != null && !note.isBlank() && lengthWithEmoji(note) <= 50) {
+            return note;
         }
         else{
-            return note;
+            throw new InvalidNoteException();
         }
     }
 

@@ -69,6 +69,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleInternalServerException(Exception e) {
+        e.printStackTrace();
         return ResponseEntity
                 .status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.INTERNAL_SERVER_ERROR));

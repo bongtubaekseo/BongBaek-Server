@@ -127,6 +127,5 @@ public class Event extends BaseEntity {
 		this.address = dto.locationInfo().address();
 		this.latitude = dto.locationInfo().latitude();
 		this.longitude = dto.locationInfo().longitude();
-
 	}
 }
