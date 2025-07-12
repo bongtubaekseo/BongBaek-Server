@@ -1,6 +1,5 @@
 package org.appjam.bongbaek.global.jwt.util;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

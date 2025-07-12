@@ -15,6 +15,7 @@ public enum CommonErrorCode implements ErrorCode {
     UNAUTHORIZED_MALFORMED_JWT(false, HttpStatus.UNAUTHORIZED, "JWT 형식이 올바르지 않습니다."),
     UNAUTHORIZED_EXPIRATION_JWT_EXCEPTION(false, HttpStatus.UNAUTHORIZED, "JWT가 만료되었습니다."),
     UNAUTHORIZED_UNSUPPORTED_JWT(false, HttpStatus.UNAUTHORIZED, "지원하지 않는 JWT입니다."),
+    INVALID_REFRESH_TOKEN(false, HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않거나 만료되었습니다."),
 
     // 403 Forbidden
     FORBIDDEN(false, HttpStatus.FORBIDDEN,"권한이 없습니다."),

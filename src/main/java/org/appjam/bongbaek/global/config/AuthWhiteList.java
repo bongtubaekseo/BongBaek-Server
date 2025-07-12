@@ -27,5 +27,6 @@ public class AuthWhiteList {
             // 인증 관련 API
             "/api/v1/oauth/kakao",
             "/api/v1/member/profile",
+            "/api/v1/member/reissue",
     };
 }
