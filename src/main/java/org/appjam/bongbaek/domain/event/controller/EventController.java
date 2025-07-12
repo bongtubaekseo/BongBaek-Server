@@ -40,7 +40,7 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createEvent(
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> createEvent(
             @RequestHeader(name = "memberId") final String memberId,
             @RequestBody @Valid final EventWriteDto eventWriteDto
     ) {
@@ -117,7 +117,7 @@ public class EventController {
     }
 
     @PutMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> updateEvent(
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> updateEvent(
             @PathVariable(name = "eventId") String eventId,
             @RequestHeader(name = "memberId") String memberId,
             @RequestBody @Valid EventUpdateRequestDto request
@@ -133,7 +133,7 @@ public class EventController {
     }
 
     @DeleteMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> deleteEventByEventId(
             @PathVariable(name = "eventId") String eventId,
             @RequestHeader(name = "memberId") String memberId
     ) {
@@ -149,7 +149,7 @@ public class EventController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deleteEvents(
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> deleteEvents(
             @RequestHeader(name = "memberId") String memberId,
             @RequestBody EventDeleteRequestDto request
     ){
