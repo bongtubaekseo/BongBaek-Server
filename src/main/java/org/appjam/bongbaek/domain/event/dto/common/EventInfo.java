@@ -19,9 +19,6 @@ public record EventInfo(
 		Integer dDay,
 		String note
 ) {
-	public EventInfo {
-		Validator.validateLength(note); // 이모지 포함 50자 검증
-	}
 
 	public static EventInfo from(Event event) {
 		return new EventInfo(event.getEventCategory().getDescription(),
