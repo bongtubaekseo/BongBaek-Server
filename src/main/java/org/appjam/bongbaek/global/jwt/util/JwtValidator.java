@@ -31,4 +31,16 @@ public class JwtValidator {
             throw new CustomException(CommonErrorCode.UNAUTHORIZED_MALFORMED_JWT);
         }
     }
+
+    public void validateRefreshToken(String refreshToken) {
+        try {
+            if (validateToken(refreshToken) != JwtValidationType.VALID_JWT) {
+                throw new CustomException(CommonErrorCode.INVALID_REFRESH_TOKEN);
+            }
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException(CommonErrorCode.INVALID_REFRESH_TOKEN);
+        }
+    }
 }

@@ -19,6 +19,7 @@ import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,12 +41,11 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createEvent(
-            @RequestHeader(name = "memberId") final String memberId,
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> createEvent(
+            @AuthenticationPrincipal final UUID memberId,
             @RequestBody @Valid final EventWriteDto eventWriteDto
     ) {
-        UUID testId = UUID.fromString(memberId);
-        eventService.createEventInfo(testId, eventWriteDto);
+        eventService.createEventInfo(memberId, eventWriteDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(CommonSuccessCode.CREATED));
@@ -53,79 +53,66 @@ public class EventController {
 
     @GetMapping(path = "/history/{page}")
     public ResponseEntity<ApiResponse<EventListDto>> getEventHistory(
-            @RequestHeader(name = "memberId") final String memberId,
-            @PathVariable(name = "page") int page,
-            @RequestParam(name = "category", required = false) String category,
-            @RequestParam(name = "attended", required = false) Boolean attended
+            @AuthenticationPrincipal final UUID memberId,
+            @PathVariable(name = "page") final int page,
+            @RequestParam(name = "category", required = false) final String category,
+            @RequestParam(name = "attended", required = false) final Boolean attended
     ) {
-        UUID testId = UUID.fromString(memberId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getEventHistory(testId, page, category, attended)));
+                        eventService.getEventHistory(memberId, page, category, attended)));
     }
 
     @GetMapping(path = "/upcoming/{page}")
     public ResponseEntity<ApiResponse<EventListDto>> getUpcomingEvents(
-            @RequestHeader(name = "memberId") final String memberId,
+            @AuthenticationPrincipal final UUID memberId,
             @PathVariable(name = "page") final int page,
             @RequestParam(name = "category", required = false) final String category
     ) {
-        UUID testId = UUID.fromString(memberId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getUpcomingEvents(testId, page, category)));
+                        eventService.getUpcomingEvents(memberId, page, category)));
     }
 
     @PostMapping(path = "/cost")
     public ResponseEntity<ApiResponse<CostProposalResponseDto>> createEventCost(
-            @RequestHeader(name = "memberId") final String memberId,
+            @AuthenticationPrincipal final UUID memberId,
             @RequestBody @Valid final CostProposalRequestDto costProposalRequestDto
     ){
-        UUID testId = UUID.fromString(memberId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getCostProposal(testId, costProposalRequestDto)));
+                        eventService.getCostProposal(memberId, costProposalRequestDto)));
     }
 
     @GetMapping(path = "/{eventId}")
     public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventByEventId(
-            @PathVariable(name = "eventId") String eventId,   // NOTE: 클라 요청 간에는 무조건 String
-            @RequestHeader(name = "memberId") String memberId    // TO DO: 멤버 JWT 구현 시 Refactor (현재 25-07-07 사용 X)
+            @AuthenticationPrincipal final UUID memberId,
+            @PathVariable(name = "eventId") UUID eventId   // NOTE: 클라 요청 간에는 무조건 String
     ){
-
-        UUID eventUUID = UUID.fromString(eventId);
-        UUID memberUUID = UUID.fromString(memberId);
-
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventByEventId(eventUUID, memberUUID)));
+                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventByEventId(eventId, memberId)));
     }
 
     @GetMapping(path = "/home")
     public ResponseEntity<ApiResponse<EventHomeResponseDto>> getEventsForHome(
-            @RequestHeader(name = "memberId") String memberId
+            @AuthenticationPrincipal final UUID memberId
     ){
-
-        UUID memberUUID = UUID.fromString(memberId);
-
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventsForHome(LocalDate.now(), memberUUID)));
+                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventsForHome(LocalDate.now(), memberId)));
     }
 
     @PutMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> updateEvent(
-            @PathVariable(name = "eventId") String eventId,
-            @RequestHeader(name = "memberId") String memberId,
-            @RequestBody @Valid EventUpdateRequestDto request
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> updateEvent(
+            @AuthenticationPrincipal final UUID memberId,
+            @PathVariable(name = "eventId") final UUID eventId,
+            @RequestBody @Valid final EventUpdateRequestDto request
     ){
-        UUID eventUUID = UUID.fromString(eventId);
-        UUID memberUUID = UUID.fromString(memberId);
-
-        eventService.updateEventByEventId(eventUUID, memberUUID, request);
+        eventService.updateEventByEventId(eventId, memberId, request);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -133,15 +120,11 @@ public class EventController {
     }
 
     @DeleteMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
-            @PathVariable(name = "eventId") String eventId,
-            @RequestHeader(name = "memberId") String memberId
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> deleteEventByEventId(
+            @AuthenticationPrincipal final UUID memberId,
+            @PathVariable(name = "eventId") UUID eventId
     ) {
-
-        UUID eventUUID = UUID.fromString(eventId);
-        UUID memberUUID = UUID.fromString(memberId);
-
-        eventService.deleteEventByEventId(eventUUID, memberUUID);
+        eventService.deleteEventByEventId(eventId, memberId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -149,17 +132,11 @@ public class EventController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deleteEvents(
-            @RequestHeader(name = "memberId") String memberId,
-            @RequestBody EventDeleteRequestDto request
+    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> deleteEvents(
+            @AuthenticationPrincipal final UUID memberId,
+            @RequestBody EventDeleteRequestDto eventDeleteRequest
     ){
-
-        UUID memberUUID = UUID.fromString(memberId);
-        List<UUID> eventList = request.eventIds().stream()
-                .map(UUID::fromString)
-                .toList();
-
-        eventService.deleteEvents(eventList, memberUUID);
+        eventService.deleteEvents(eventDeleteRequest, memberId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
