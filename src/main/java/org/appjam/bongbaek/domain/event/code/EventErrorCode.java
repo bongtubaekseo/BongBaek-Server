@@ -12,6 +12,7 @@ public enum EventErrorCode implements ErrorCode {
     // 400
     INVALID_EVENT_DATE(false, HttpStatus.BAD_REQUEST, "유효하지 않은 경조사 날짜입니다."),
     INVALID_UUID_FORMAT(false, HttpStatus.BAD_REQUEST, "유효하지 않은 UUID 포멧입니다."),
+    INVALID_NOTE_FORMAT(false, HttpStatus.BAD_REQUEST, "메모는 50자를 넘길 수 없습니다."),
 
     //403
     FORBIDDEN_USER(false, HttpStatus.FORBIDDEN, "해당 경조사의 접근 권한이 없습니다."),

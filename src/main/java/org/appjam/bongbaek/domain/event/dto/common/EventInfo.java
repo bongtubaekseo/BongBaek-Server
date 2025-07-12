@@ -3,10 +3,10 @@ package org.appjam.bongbaek.domain.event.dto.common;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Size;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.appjam.bongbaek.domain.event.service.util.Validator;
 
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public record EventInfo(
@@ -17,9 +17,12 @@ public record EventInfo(
 		Boolean isAttend,
 		LocalDate eventDate,
 		Integer dDay,
-		@Size(max = 50, message= "메모는 50자를 넘길 수 없습니다")
 		String note
 ) {
+	public EventInfo {
+		Validator.validateLength(note); // 이모지 포함 50자 검증
+	}
+
 	public static EventInfo from(Event event) {
 		return new EventInfo(event.getEventCategory().getDescription(),
 				event.getRelationship().getDescription(),
@@ -29,6 +32,7 @@ public record EventInfo(
 				null,
 				event.getNote());
 	}
+
 	public static EventInfo from(
 			String eventCategory,
 			String relationship,
