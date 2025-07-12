@@ -17,8 +17,6 @@ import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Slf4j
@@ -61,9 +59,8 @@ public class MemberService {
 
         try {
             IncomeType incomeType = parseIncomeType(signUpRequest.memberIncome());
-            LocalDate birthday = LocalDate.parse(signUpRequest.memberBirthday(), DateTimeFormatter.ISO_LOCAL_DATE);
 
-            Member member = signUpRequest.toMember(birthday, incomeType);
+            Member member = signUpRequest.toMember(incomeType);
 
             Member savedMember = memberRepository.save(member);
 
