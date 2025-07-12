@@ -69,6 +69,13 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.failure(CommonErrorCode.BAD_REQUEST));
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNullPointerException(NullPointerException e) {
+        return ResponseEntity
+                .status(CommonErrorCode.BAD_REQUEST.getStatus())
+                .body(ApiResponse.failure(CommonErrorCode.NULL_POINTER_ERROR));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleInternalServerException(Exception e) {
         return ResponseEntity
