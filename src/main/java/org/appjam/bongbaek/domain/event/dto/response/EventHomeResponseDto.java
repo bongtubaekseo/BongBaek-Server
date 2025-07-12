@@ -34,7 +34,7 @@ public record EventHomeResponseDto (
                             event.getEventDate(),
                             Period.between(LocalDate.now(), event.getEventDate()).getDays()
                     ),
-            LocationInfo.from(event));
+            LocationInfo.from(event.getLocation()));
         }
     }
 }
