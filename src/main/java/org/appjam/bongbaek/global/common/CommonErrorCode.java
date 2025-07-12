@@ -23,7 +23,6 @@ public enum CommonErrorCode implements ErrorCode {
     // 404 Not Found
     INVALID_URL_ERROR(false, HttpStatus.NOT_FOUND, "잘못된 URL 입니다."),
     MEMBER_NOT_FOUND(false, HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
-    NOT_FOUND_MEMBER(false, HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
 
     // 405 Method Not Allowed
     METHOD_NOT_ALLOWED_ERROR(false, HttpStatus.METHOD_NOT_ALLOWED, "잘못된 HTTP method 요청입니다."),

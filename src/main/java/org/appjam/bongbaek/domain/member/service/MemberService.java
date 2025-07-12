@@ -80,7 +80,7 @@ public class MemberService {
 
         UUID memberId = jwtParser.getUserFromJwt(refreshToken);
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(CommonErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         return generateTokensForMember(member);
     }
