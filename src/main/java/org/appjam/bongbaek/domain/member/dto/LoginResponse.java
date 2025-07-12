@@ -9,15 +9,13 @@ public record LoginResponse(
         @Schema(description = "회원 가입 완료 여부")
         boolean isCompletedSignUp,
         @Schema(description = "kakao ID", nullable = true)
-        Long kakaoId,
-        @Schema(description = "kakao Access Token", nullable = true)
-        String kakaoAccessToken
+        Long kakaoId
 ) {
-    public static LoginResponse of(final TokenResponse token, final boolean isCompletedSignUp, final Long kakaoId, final String kakaoAccessToken) {
-        return new LoginResponse(token, isCompletedSignUp, kakaoId, kakaoAccessToken);
+    public static LoginResponse of(final TokenResponse token, final boolean isCompletedSignUp, final Long kakaoId) {
+        return new LoginResponse(token, isCompletedSignUp, kakaoId);
     }
 
-    public static LoginResponse ofLoginSuccess(final TokenResponse token, final Long kakaoId, final String kakaoAccessToken) {
-        return new LoginResponse(token, true, kakaoId, kakaoAccessToken);
+    public static LoginResponse ofLoginSuccess(final TokenResponse token, final Long kakaoId) {
+        return new LoginResponse(token, true, kakaoId);
     }
 }

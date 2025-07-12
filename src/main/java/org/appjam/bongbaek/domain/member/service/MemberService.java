@@ -14,7 +14,6 @@ import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.appjam.bongbaek.global.jwt.util.JwtProvider;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
-import org.appjam.bongbaek.global.oauth.kakao.dto.KakaoLoginResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +39,9 @@ public class MemberService {
             Member member = memberRepository.findBykakaoId(kakaoId);
             TokenResponse tokenResponse = generateTokensForMember(member);
 
-            return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId, null);
+            return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId);
         } else {
-            return LoginResponse.of(null, false, kakaoId, accessToken);
+            return LoginResponse.of(null, false, kakaoId);
         }
     } // NOTE: 클라이언트에서 받은 액세스 토큰으로 카카오 사용자 정보 조회
 
@@ -56,20 +55,6 @@ public class MemberService {
 
     @Transactional
     public LoginResponse signUp(final SignUpRequest signUpRequest) {
-        Long validatedKakaoId;
-
-        try {
-            validatedKakaoId = kakaoLoginClient.validateKakaoAccessToken(signUpRequest.kakaoAccessToken());
-        } catch (Exception e) {
-            log.error("카카오 Access Token 검증 실패: {}", e.getMessage());
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-        }
-
-        if (!validatedKakaoId.equals(signUpRequest.kakaoId())) {
-            log.warn("요청된 카카오 ID({}), 검증된 카카오 ID({}) 불일치", signUpRequest.kakaoId(), validatedKakaoId);
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-        }
-
         if (memberRepository.existsBykakaoId(signUpRequest.kakaoId())) {
             throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
         } // NOTE: 이미 가입된 회원인지 확인
@@ -86,7 +71,7 @@ public class MemberService {
 
             log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
-            return LoginResponse.ofLoginSuccess(tokenResponse, signUpRequest.kakaoId(), signUpRequest.kakaoAccessToken());
+            return LoginResponse.ofLoginSuccess(tokenResponse, signUpRequest.kakaoId());
 
         } catch (CustomException e) {
             throw e;

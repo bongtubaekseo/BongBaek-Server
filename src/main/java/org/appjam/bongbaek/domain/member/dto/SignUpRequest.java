@@ -16,9 +16,7 @@ public record SignUpRequest(
         @Schema(description = "회원 생일", example = "2001-02-18")
         String memberBirthday,
         @Schema(description = "회원 소득", example = "200만원 이상")
-        String memberIncome,
-        @Schema(description = "kakao Access Token", example = "abc.def.ghi")
-        String kakaoAccessToken
+        String memberIncome
 ) {
     public Member toMember(LocalDate birthday, IncomeType incomeType) {
         return Member.builder()
