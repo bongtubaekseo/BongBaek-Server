@@ -15,8 +15,6 @@ import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,11 +28,11 @@ public class MemberService {
     public LoginResponse login(final String accessToken) {
         final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
-        if (!memberRepository.existsBykakaoId(kakaoId)) {
+        if (!memberRepository.existsByKakaoId(kakaoId)) {
             return LoginResponse.of(null, false, kakaoId);
         }
 
-        Member member = memberRepository.findBykakaoId(kakaoId);
+        Member member = memberRepository.findByKakaoId(kakaoId);
         TokenResponse tokenResponse = generateTokensForMember(member);
 
         return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId);
@@ -42,7 +40,7 @@ public class MemberService {
 
     @Transactional
     public LoginResponse signUp(final SignUpRequest signUpRequest) {
-        if (memberRepository.existsBykakaoId(signUpRequest.kakaoId())) {
+        if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
             throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
         } // NOTE: 이미 가입된 회원인지 확인
 

@@ -11,7 +11,6 @@ import java.util.UUID;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, UUID> {
 
-    boolean existsBykakaoId(final Long kakaoId);
-    Member findBykakaoId(final Long kakaoId);
-    Optional<Member> findById(UUID memberId);
+    boolean existsByKakaoId(final Long kakaoId);
+    Member findByKakaoId(final Long kakaoId);
 }
