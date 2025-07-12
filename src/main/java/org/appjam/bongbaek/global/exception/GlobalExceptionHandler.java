@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleValidationException(MethodArgumentNotValidException e) {
         return ResponseEntity
                 .status(e.getStatusCode())
-                .body(ApiResponse.failure(e.getFieldError().getDefaultMessage()));
+                .body(ApiResponse.notValid(e.getMessage()));
     }
 
     //NOTE : JSON 데이터 타입이 다른 경우
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e){
         return ResponseEntity
                 .status(CommonErrorCode.BAD_REQUEST.getStatus())
-                .body(ApiResponse.failure(e.getMessage()));
+                .body(ApiResponse.failure(CommonErrorCode.BAD_REQUEST));
     }
 
     // NOTE: ENUM 입력 데이터 오류
