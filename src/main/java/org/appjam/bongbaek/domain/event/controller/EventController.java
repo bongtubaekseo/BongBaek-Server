@@ -16,6 +16,7 @@ import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
 import org.appjam.bongbaek.domain.event.service.EventService;
 import org.appjam.bongbaek.global.api.ApiResponse;
+import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createEvent(
+    public ResponseEntity<ApiResponse<EmptyBody>> createEvent(
             @RequestHeader(name = "memberId") final String memberId,
             @RequestBody @Valid final EventWriteDto eventWriteDto
     ) {
@@ -117,7 +118,7 @@ public class EventController {
     }
 
     @PutMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> updateEvent(
+    public ResponseEntity<ApiResponse<EmptyBody>> updateEvent(
             @PathVariable(name = "eventId") String eventId,
             @RequestHeader(name = "memberId") String memberId,
             @RequestBody @Valid EventUpdateRequestDto request
@@ -133,7 +134,7 @@ public class EventController {
     }
 
     @DeleteMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<Void>> deleteEventByEventId(
+    public ResponseEntity<ApiResponse<EmptyBody>> deleteEventByEventId(
             @PathVariable(name = "eventId") String eventId,
             @RequestHeader(name = "memberId") String memberId
     ) {
@@ -149,7 +150,7 @@ public class EventController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> deleteEvents(
+    public ResponseEntity<ApiResponse<EmptyBody>> deleteEvents(
             @RequestHeader(name = "memberId") String memberId,
             @RequestBody EventDeleteRequestDto request
     ){
