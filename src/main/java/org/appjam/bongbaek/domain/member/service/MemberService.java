@@ -30,14 +30,14 @@ public class MemberService {
     public LoginResponse login(final String accessToken) {
         final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
-        if (memberRepository.existsBykakaoId(kakaoId)) {
-            Member member = memberRepository.findBykakaoId(kakaoId);
-            TokenResponse tokenResponse = generateTokensForMember(member);
-
-            return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId);
-        } else {
+        if (!memberRepository.existsBykakaoId(kakaoId)) {
             return LoginResponse.of(null, false, kakaoId);
         }
+
+        Member member = memberRepository.findBykakaoId(kakaoId);
+        TokenResponse tokenResponse = generateTokensForMember(member);
+
+        return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId);
     } // NOTE: 클라이언트에서 받은 액세스 토큰으로 카카오 사용자 정보 조회
 
     @Transactional
