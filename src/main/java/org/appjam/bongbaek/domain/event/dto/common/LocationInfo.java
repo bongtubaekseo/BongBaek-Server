@@ -19,10 +19,6 @@ public record LocationInfo(
 	}
 
 	public static LocationInfo from(String location) {
-		return new LocationInfo(
-				location,
-				null,
-				null,
-				null);
+		return new LocationInfo(location, null, null, null);
 	}
 }
