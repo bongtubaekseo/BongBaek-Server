@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
 import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
@@ -112,11 +113,11 @@ public class EventService {
     }
 
     @Transactional
-    public void deleteEvents(List<UUID> eventList, UUID memberId) {
+    public void deleteEvents(EventDeleteRequestDto eventDeleteRequest, UUID memberUUID) {
 
-        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventList, memberId);
+        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventDeleteRequest.eventIds(), memberUUID);
 
-        if (events.size() != eventList.size()) {
+        if (events.size() != eventDeleteRequest.eventIds().size()) {
             throw new NotFoundEventException();
         }
 

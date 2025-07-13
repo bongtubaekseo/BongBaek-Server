@@ -136,11 +136,8 @@ public class EventController {
             @AuthenticationPrincipal final UUID memberId,
             @RequestBody EventDeleteRequestDto eventDeleteRequest
     ){
-        List<UUID> eventList = eventDeleteRequest.eventIds().stream()
-                .map(UUID::fromString)
-                .toList();
 
-        eventService.deleteEvents(eventList, memberId);
+        eventService.deleteEvents(eventDeleteRequest, memberId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
