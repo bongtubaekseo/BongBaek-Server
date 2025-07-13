@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
+import org.appjam.bongbaek.domain.event.service.util.Validator;
 import org.appjam.bongbaek.domain.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -120,12 +121,11 @@ public class Event extends BaseEntity {
 		this.cost = dto.eventInfo().cost();
 		this.attended = dto.eventInfo().isAttend();
 		this.eventDate = dto.eventInfo().eventDate();
-		this.note = dto.eventInfo().note();
+		this.note = Validator.validateLength(dto.eventInfo().note());
 
 		this.location = dto.locationInfo().location();
 		this.address = dto.locationInfo().address();
 		this.latitude = dto.locationInfo().latitude();
 		this.longitude = dto.locationInfo().longitude();
-
 	}
 }

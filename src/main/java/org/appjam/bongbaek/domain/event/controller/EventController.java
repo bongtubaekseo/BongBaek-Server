@@ -1,7 +1,6 @@
 package org.appjam.bongbaek.domain.event.controller;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -16,6 +15,7 @@ import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
 import org.appjam.bongbaek.domain.event.service.EventService;
 import org.appjam.bongbaek.global.api.ApiResponse;
+import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,7 +40,7 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> createEvent(
+    public ResponseEntity<ApiResponse<EmptyBody>> createEvent(
             @AuthenticationPrincipal final UUID memberId,
             @RequestBody @Valid final EventWriteDto eventWriteDto
     ) {
@@ -107,7 +106,7 @@ public class EventController {
     }
 
     @PutMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> updateEvent(
+    public ResponseEntity<ApiResponse<EmptyBody>> updateEvent(
             @AuthenticationPrincipal final UUID memberId,
             @PathVariable(name = "eventId") final UUID eventId,
             @RequestBody @Valid final EventUpdateRequestDto request
@@ -120,7 +119,7 @@ public class EventController {
     }
 
     @DeleteMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> deleteEventByEventId(
+    public ResponseEntity<ApiResponse<EmptyBody>> deleteEventByEventId(
             @AuthenticationPrincipal final UUID memberId,
             @PathVariable(name = "eventId") UUID eventId
     ) {
@@ -132,10 +131,11 @@ public class EventController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<ApiResponse.EmptyBody>> deleteEvents(
+    public ResponseEntity<ApiResponse<EmptyBody>> deleteEvents(
             @AuthenticationPrincipal final UUID memberId,
             @RequestBody EventDeleteRequestDto eventDeleteRequest
     ){
+
         eventService.deleteEvents(eventDeleteRequest, memberId);
 
         return ResponseEntity
