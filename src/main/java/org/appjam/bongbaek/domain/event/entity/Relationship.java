@@ -23,6 +23,5 @@ public enum Relationship {
 				.filter(relationship -> relationship.description.equals(description))
 				.findFirst()
 				.orElse(null);
-				// .orElseThrow(IllegalArgumentException::new);
 	}
 }
