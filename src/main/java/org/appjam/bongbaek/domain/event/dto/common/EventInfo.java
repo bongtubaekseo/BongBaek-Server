@@ -6,9 +6,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public record EventInfo(
 		String eventCategory,
 		String relationship,
