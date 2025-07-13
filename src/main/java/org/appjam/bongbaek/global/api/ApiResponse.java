@@ -4,6 +4,7 @@ import org.appjam.bongbaek.global.common.ErrorCode;
 import org.appjam.bongbaek.global.common.SuccessCode;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.http.HttpStatus;
 
 public record ApiResponse<T>(
         boolean success,
@@ -24,6 +25,10 @@ public record ApiResponse<T>(
 
     public static <T> ApiResponse<T> failure(ErrorCode failureCode) {
         return new ApiResponse<>(failureCode.getSuccess(), failureCode.getStatus().value(), failureCode.getMessage(), null);
+    }
+
+    public static <T> ApiResponse<T> notValid(String message) {
+        return new ApiResponse<>(false, HttpStatus.BAD_REQUEST.value(), message, null);
     }
 
     public record EmptyBody() {}

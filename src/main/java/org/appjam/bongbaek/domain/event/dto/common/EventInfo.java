@@ -3,7 +3,6 @@ package org.appjam.bongbaek.domain.event.dto.common;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Size;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
 public record EventInfo(
@@ -14,7 +13,6 @@ public record EventInfo(
 		Boolean isAttend,
 		LocalDate eventDate,
 		Integer dDay,
-		@Size(max = 50, message= "메모는 50자를 넘길 수 없습니다")
 		String note
 ) {
 	public static EventInfo from(Event event) {
