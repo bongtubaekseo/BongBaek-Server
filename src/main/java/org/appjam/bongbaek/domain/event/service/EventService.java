@@ -48,7 +48,7 @@ public class EventService {
     }
 
     public EventListDto getEventHistory(final UUID memberId, final int page, final String category,
-            final Boolean attended) {
+                                        final Boolean attended) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(memberId,
                 Category.of(category), attended, pageable);
