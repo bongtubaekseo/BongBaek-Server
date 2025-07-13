@@ -77,44 +77,44 @@ public class EventService {
                 costProposalRequestDto.category(), costParams);
     }
 
-    public EventDetailResponseDto getEventByEventId(UUID eventUUID, UUID memberUUID) {
+    public EventDetailResponseDto getEventByEventId(UUID eventId, UUID memberId) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
                 .orElseThrow(NotFoundEventException::new);
 
         return EventDetailResponseDto.of(event);
     }
 
 
-    public EventHomeResponseDto getEventsForHome(LocalDate now, UUID memberUUID){
+    public EventHomeResponseDto getEventsForHome(LocalDate now, UUID memberId){
 
-        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberUUID);
+        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 
         return EventHomeResponseDto.from(events);
     }
 
     @Transactional
-    public void updateEventByEventId(UUID eventUUID, UUID memberUUID, EventUpdateRequestDto request) {
+    public void updateEventByEventId(UUID eventId, UUID memberId, EventUpdateRequestDto request) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
                 .orElseThrow(NotFoundEventException::new);
 
         event.updateFromDto(request);
     }
 
     @Transactional
-    public void deleteEventByEventId(UUID eventUUID, UUID memberUUID) {
+    public void deleteEventByEventId(UUID eventId, UUID memberId) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
                 .orElseThrow(NotFoundEventException::new);
 
         eventRepository.delete(event);
     }
 
     @Transactional
-    public void deleteEvents(List<UUID> eventList, UUID memberUUID) {
+    public void deleteEvents(List<UUID> eventList, UUID memberId) {
 
-        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventList, memberUUID);
+        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventList, memberId);
 
         if (events.size() != eventList.size()) {
             throw new NotFoundEventException();
