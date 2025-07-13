@@ -3,7 +3,6 @@ package org.appjam.bongbaek.domain.event.dto.common;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Size;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
 public record EventInfo(
