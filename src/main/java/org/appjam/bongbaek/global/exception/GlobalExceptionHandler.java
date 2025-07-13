@@ -69,6 +69,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.failure(CommonErrorCode.BAD_REQUEST));
     }
 
+    // 필수 입력 값이 비어있는 경우
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ApiResponse<Void>> handleNullPointerException(NullPointerException e) {
         return ResponseEntity

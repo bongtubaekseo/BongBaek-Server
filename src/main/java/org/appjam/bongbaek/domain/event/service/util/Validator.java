@@ -11,12 +11,11 @@ public class Validator {
 
     public static String validateLength(String note) {
 
-        if (note != null && !note.isBlank() && lengthWithEmoji(note) <= 50) {
-            return note;
-        }
-        else{
+        if (lengthWithEmoji(note) > 50){
             throw new InvalidNoteException();
         }
+
+        return note;
     }
 
     private static int lengthWithEmoji(String string) {
