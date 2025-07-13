@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
-import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
 import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
@@ -48,7 +47,7 @@ public class EventService {
     }
 
     public EventListDto getEventHistory(final UUID memberId, final int page, final String category,
-                                        final Boolean attended) {
+            final Boolean attended) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(memberId,
                 Category.of(category), attended, pageable);
@@ -78,46 +77,46 @@ public class EventService {
                 costProposalRequestDto.category(), costParams);
     }
 
-    public EventDetailResponseDto getEventByEventId(UUID eventUUID, UUID memberUUID) {
+    public EventDetailResponseDto getEventByEventId(UUID eventId, UUID memberId) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
                 .orElseThrow(NotFoundEventException::new);
 
         return EventDetailResponseDto.of(event);
     }
 
 
-    public EventHomeResponseDto getEventsForHome(LocalDate now, UUID memberUUID){
+    public EventHomeResponseDto getEventsForHome(LocalDate now, UUID memberId){
 
-        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberUUID);
+        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 
         return EventHomeResponseDto.from(events);
     }
 
     @Transactional
-    public void updateEventByEventId(UUID eventUUID, UUID memberUUID, EventUpdateRequestDto request) {
+    public void updateEventByEventId(UUID eventId, UUID memberId, EventUpdateRequestDto request) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
                 .orElseThrow(NotFoundEventException::new);
 
         event.updateFromDto(request);
     }
 
     @Transactional
-    public void deleteEventByEventId(UUID eventUUID, UUID memberUUID) {
+    public void deleteEventByEventId(UUID eventId, UUID memberId) {
 
-        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventUUID, memberUUID)
+        Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
                 .orElseThrow(NotFoundEventException::new);
 
         eventRepository.delete(event);
     }
 
     @Transactional
-    public void deleteEvents(EventDeleteRequestDto eventDeleteRequest, UUID memberUUID) {
+    public void deleteEvents(List<UUID> eventList, UUID memberId) {
 
-        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventDeleteRequest.eventIds(), memberUUID);
+        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventList, memberId);
 
-        if (events.size() != eventDeleteRequest.eventIds().size()) {
+        if (events.size() != eventList.size()) {
             throw new NotFoundEventException();
         }
 
