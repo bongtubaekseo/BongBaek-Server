@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 
 public record LoginResponse(
+        @Schema(description = "회원 이름")
         String name,
         @Schema(description = "jwt Token", nullable = true)
         TokenResponse token,
