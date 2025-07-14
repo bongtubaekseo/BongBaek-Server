@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 
 public record LoginResponse(
+        String name,
         @Schema(description = "jwt Token", nullable = true)
         TokenResponse token,
         @Schema(description = "회원 가입 완료 여부")
@@ -11,11 +12,11 @@ public record LoginResponse(
         @Schema(description = "kakao ID", nullable = true)
         Long kakaoId
 ) {
-    public static LoginResponse of(final TokenResponse token, final boolean isCompletedSignUp, final Long kakaoId) {
-        return new LoginResponse(token, isCompletedSignUp, kakaoId);
+    public static LoginResponse of(final String name, final TokenResponse token, final boolean isCompletedSignUp, final Long kakaoId) {
+        return new LoginResponse(name, token, isCompletedSignUp, kakaoId);
     }
 
-    public static LoginResponse ofLoginSuccess(final TokenResponse token, final Long kakaoId) {
-        return new LoginResponse(token, true, kakaoId);
+    public static LoginResponse ofLoginSuccess(final String name, final TokenResponse token, final Long kakaoId) {
+        return new LoginResponse(name, token, true, kakaoId);
     }
 }

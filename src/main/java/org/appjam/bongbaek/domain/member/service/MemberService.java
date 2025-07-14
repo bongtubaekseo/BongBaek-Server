@@ -35,13 +35,13 @@ public class MemberService {
         final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
         if (!memberRepository.existsByKakaoId(kakaoId)) {
-            return LoginResponse.of(null, false, kakaoId);
+            return LoginResponse.of(null, null, false, kakaoId);
         }
 
         Member member = memberRepository.findByKakaoId(kakaoId);
         TokenResponse tokenResponse = generateTokensForMember(member);
 
-        return LoginResponse.ofLoginSuccess(tokenResponse, kakaoId);
+        return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
     } // NOTE: 클라이언트에서 받은 액세스 토큰으로 카카오 사용자 정보 조회
 
     @Transactional
@@ -58,7 +58,7 @@ public class MemberService {
             TokenResponse tokenResponse = generateTokensForMember(savedMember);
             log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
-            return LoginResponse.ofLoginSuccess(tokenResponse, signUpRequest.kakaoId());
+            return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
 
         } catch (CustomException e) {
             throw e;
