@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.event.dto.common;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Max;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
@@ -12,6 +13,7 @@ public record EventInfo(
 		int cost,
 		Boolean isAttend,
 		LocalDate eventDate,
+		@JsonInclude(JsonInclude.Include.NON_NULL)
 		Integer dDay,
 		String note
 ) {
