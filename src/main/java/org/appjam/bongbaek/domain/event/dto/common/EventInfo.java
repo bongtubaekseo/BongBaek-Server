@@ -11,11 +11,11 @@ public record EventInfo(
 		String relationship,
 		@Max(value = 99999999, message = "경조사비는 99,999,999원 이하여야 합니다")
 		int cost,
+		@JsonInclude(JsonInclude.Include.NON_NULL)
 		Boolean isAttend,
 		LocalDate eventDate,
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		Integer dDay,
-		@JsonInclude(JsonInclude.Include.NON_NULL)
 		String note
 ) {
 	public static EventInfo from(Event event) {
