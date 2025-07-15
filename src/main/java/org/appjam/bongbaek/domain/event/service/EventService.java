@@ -73,9 +73,18 @@ public class EventService {
 
         CostParamInfo costParams = CostParamInfo.of(member, costProposalRequestDto);
 
+        // LocationInfo가 null인 경우 반환값 임시
+        if(costProposalRequestDto.locationInfo() == null){
+            return CostProposalResponseDto.of(cost, range,
+                    costProposalRequestDto.category(),
+                    null,
+                    costParams);
+        }
+
         return CostProposalResponseDto.of(cost, range,
+                costProposalRequestDto.category(),
                 costProposalRequestDto.locationInfo().location(),
-                costProposalRequestDto.category(), costParams);
+                costParams);
     }
 
     public EventDetailResponseDto getEventByEventId(UUID eventId, UUID memberId) {
