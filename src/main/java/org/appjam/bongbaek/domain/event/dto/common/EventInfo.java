@@ -15,6 +15,7 @@ public record EventInfo(
 		LocalDate eventDate,
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		Integer dDay,
+		@JsonInclude(JsonInclude.Include.NON_NULL)
 		String note
 ) {
 	public static EventInfo from(Event event) {
