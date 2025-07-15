@@ -6,7 +6,7 @@ import org.appjam.bongbaek.domain.event.dto.common.LocationInfo;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
 import java.time.LocalDate;
-import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +32,7 @@ public record EventHomeResponseDto (
                             event.getRelationship().getDescription(),
                             event.getCost(),
                             event.getEventDate(),
-                            Period.between(LocalDate.now(), event.getEventDate()).getDays()
+                            (int) ChronoUnit.DAYS.between(LocalDate.now(), event.getEventDate())
                     ),
             LocationInfo.from(event.getLocation()));
         }
