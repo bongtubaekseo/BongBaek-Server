@@ -11,7 +11,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum IncomeType {
 	OVER200("200만원 이상"),
-	UNDER200("200만원 이하"),
+	UNDER200("200만원 미만"),
 	NONE("없음");
 
 	private final String description;
