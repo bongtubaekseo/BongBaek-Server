@@ -21,13 +21,17 @@ public record EventWriteDto(
 		return Event.builder()
 				.hostName(hostInfo.hostName())
 				.hostNickname(hostInfo.hostNickname())
+
 				.contactFrequency(highAccuracy.contactFrequency())
 				.meetFrequency(highAccuracy.meetFrequency())
+
 				.eventCategory(Category.of(eventInfo.eventCategory()))
 				.relationship(Relationship.of(eventInfo.relationship()))
 				.eventDate(eventInfo.eventDate())
 				.cost(eventInfo.cost())
+				.note(eventInfo.note())
 				.attended(eventInfo.isAttend())
+
 				.location(locationInfo.location())
 				.address(locationInfo.address())
 				.latitude(locationInfo.latitude())
