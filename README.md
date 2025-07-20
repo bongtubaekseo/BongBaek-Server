@@ -52,4 +52,80 @@
 
 ## **⚒️ Tech Stacks**
 
+### Cooperation
+
+<img src="https://img.shields.io/badge/Git-F05032?style=flat&logo=Git&logoColor=white"/> <img src="https://img.shields.io/badge/Github-222222?style=flat&logo=Github&logoColor=white"/> <img src="https://img.shields.io/badge/CodeRabbit-FF570A?style=flat&logo=CodeRabbit&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Notion-000000?style=flat&logo=notion&logoColor=white"/> <img src="https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white"/>
+
+### Application
+
+<img src="https://img.shields.io/badge/Java-21-007396?style=flat&logo=openjdk&logoColor=white"/> <img src="https://img.shields.io/badge/Spring%20boot-3.5.3-6DB33F?style=flat&logo=Springboot&logoColor=white"/> <img src="https://img.shields.io/badge/Spring%20Security-3.5.3-6DB33F?style=flat&logo=Springsecurity&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/JWT-0.12.6-000000?style=flat&logo=jsonwebtokens&logoColor=white"/> <img src="https://img.shields.io/badge/Swagger-2.8.9-85EA2D?style=flat&logo=Swagger&logoColor=white"/>
+
+### Data 
+
+<img src="https://img.shields.io/badge/Spring%20Data%20JPA-3.5.3-6DB33F?style=flat&logo=hibernate&logoColor=white"/> <img src="https://img.shields.io/badge/MySQL-8.0.41-4479A1?style=flat&logo=MySQL&logoColor=white"/>  <img src="https://img.shields.io/badge/QueryDSL-5.1.0-0094FF?style=flat&logo=OSF&logoColor=white"/>
+
+### Infrastructure
+
+<img src="https://img.shields.io/badge/Github Actions-2088FF?style=flat&logo=githubactions&logoColor=white"/> <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=Docker&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/AWS EC2-FF9900?style=flat&logo=amazonec2&logoColor=white"/> <img src="https://img.shields.io/badge/AWS RDS-527FFF?style=flat&logo=amazonrds&logoColor=white"/>
+
+<br/>
+
 ## **🗂️ Project Structure**
+
+```
+🗃️ bongbaek
+├─ 🗃️ domain
+│  ├─ 📁 common
+│  ├─ 🗃️ event
+│  │  ├─ 📁 code
+│  │  ├─ 📁 controller
+│  │  ├─ 📁 dto
+│  │  │  ├─ 📁 common
+│  │  │  ├─ 📁 request
+│  │  │  └─ 📁 response
+│  │  ├─ 📁 entity
+│  │  ├─ 📁 exception 
+│  │  ├─ 📁 repository
+│  │  └─ 📁 service
+│  └─ 🗃️ member
+│     ├─ 📁 code
+│     ├─ 📁 controller
+│     ├─ 📁 dto
+│     │  ├─ 📁 common
+│     │  ├─ 📁 request
+│     │  └─ 📁 response
+│     ├─ 📁 entity
+│     ├─ 📁 exception 
+│     ├─ 📁 repository
+│     └─ 📁 service
+│
+├─ 🗃️ global
+│  ├─ 🗃️ api
+│  ├─ 🗃️ common
+│  ├─ 📁 config
+│  ├─ 📁 exception
+│  ├─ 🗃️ jwt
+│  │  ├─ 📁 dto
+│  │  ├─ 📁 enums
+│  │  ├─ 📁 exception
+│  │  ├─ 📁 util
+│  └─ 🗃️ oauth
+│     └─ 📁 kakao
+│
+└─ ▶️ BongbaekApplication
+```
+
+<br/>
+
+## **🏗️ Service Architecture**
+
+<img width="800" height="885" alt="서비스 아키텍쳐" src="https://github.com/user-attachments/assets/40d60d95-6357-4e73-bdb6-b8b453152315" />
+
+
+<br/>
