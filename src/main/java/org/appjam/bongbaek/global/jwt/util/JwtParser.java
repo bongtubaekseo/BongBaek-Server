@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.UUID;
 
 @Component
 public class JwtParser {
@@ -25,9 +24,10 @@ public class JwtParser {
                 .getBody();
     }
 
-    public UUID getUserFromJwt(String token) {
+    public String getUserFromJwt(String token) {
         Claims claims = getBody(token);
-        return UUID.fromString(claims.get(MEMBER_ID).toString());
+
+        return claims.get(MEMBER_ID).toString();
     }
 
     public SecretKey getSigningKey() {
