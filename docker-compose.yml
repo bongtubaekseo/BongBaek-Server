@@ -6,11 +6,19 @@ services:
     ports:
       - "6379:6379"
 
-  bongbaek-server:
+  blue:
     image: ${DOCKER_USERNAME}/bongbaek-server:latest
-    container_name: bongbaek-server
+    container_name: blue-container
     ports:
       - "8080:8080"
+    depends_on:
+      - redis
+
+  green:
+    image: ${DOCKER_USERNAME}/bongbaek-server:latest
+    container_name: green-container
+    ports:
+      - "8081:8080"
     depends_on:
       - redis
 
