@@ -2,8 +2,6 @@ package org.appjam.bongbaek.domain.event.repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
-
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.entity.QEvent;
@@ -11,10 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
-
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -24,7 +20,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 
 	@Override
 	public Slice<Event> findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(
-			UUID memberId,
+            String memberId,
 			Category category,
 			Boolean attended,
 			Pageable pageable
@@ -53,8 +49,11 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 	}
 
 	@Override
-	public Slice<Event> findUpcomingEventsByMemberIdAndCategoryOrderBy(UUID memberId, Category category,
-			Pageable pageable) {
+	public Slice<Event> findUpcomingEventsByMemberIdAndCategoryOrderBy(
+        String memberId,
+        Category category,
+        Pageable pageable
+    ) {
 		QEvent qEvent = QEvent.event;
 		int pageSize = pageable.getPageSize();
 

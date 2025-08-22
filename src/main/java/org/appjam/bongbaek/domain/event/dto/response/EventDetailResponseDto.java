@@ -3,10 +3,8 @@ package org.appjam.bongbaek.domain.event.dto.response;
 import org.appjam.bongbaek.domain.event.dto.common.*;
 import org.appjam.bongbaek.domain.event.entity.Event;
 
-import java.util.UUID;
-
 public record EventDetailResponseDto(
-        UUID eventId,
+        String eventId,
         HostInfo hostInfo,
         EventInfo eventInfo,
         LocationInfo locationInfo

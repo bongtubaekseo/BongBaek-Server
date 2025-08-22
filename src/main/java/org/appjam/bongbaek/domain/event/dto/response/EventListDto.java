@@ -1,8 +1,6 @@
 package org.appjam.bongbaek.domain.event.dto.response;
 
 import java.util.List;
-import java.util.UUID;
-
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.dto.common.EventInfo;
 import org.appjam.bongbaek.domain.event.dto.common.HostInfo;
@@ -21,7 +19,7 @@ public record EventListDto(
 		return new EventListDto(elements, events.getNumber(), events.isLast());
 	}
 
-	private record EventListElement(UUID eventId, HostInfo hostInfo, EventInfo eventInfo) {
+	private record EventListElement(String eventId, HostInfo hostInfo, EventInfo eventInfo) {
 		private static EventListElement from(Event event) {
 			return new EventListElement(event.getEventId(), HostInfo.from(event),
 					EventInfo.from(
