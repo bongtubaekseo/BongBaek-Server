@@ -1,7 +1,9 @@
 package org.appjam.bongbaek.domain.event.entity;
 
+import io.hypersistence.utils.hibernate.id.Tsid;
+import jakarta.persistence.ConstraintMode;
+import jakarta.persistence.ForeignKey;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
@@ -22,6 +24,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -31,11 +34,13 @@ import lombok.NoArgsConstructor;
 				@Index(name = "idx_member_id", columnList = "member_id")
 		}
 )
+@Comment("경조사 정보")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Event extends BaseEntity {
 	@Id
-	@Column(name = "event_id", columnDefinition = "BINARY(16)")
-	private UUID eventId;
+    @Tsid
+	@Column(name = "event_id", length = 13)
+	private String eventId;
 
 	// host
 	@Column(name = "host_name", length = 30, nullable = false)
@@ -85,7 +90,7 @@ public class Event extends BaseEntity {
 	private double longitude;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
+	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
 	@Builder
@@ -93,7 +98,6 @@ public class Event extends BaseEntity {
 			int meetFrequency,
 			Category eventCategory, LocalDate eventDate, boolean attended, String note, int cost,
 			String location, String address, double latitude, double longitude, Member member) {
-		this.eventId = UUID.randomUUID();
 		this.hostName = hostName;
 		this.hostNickname = hostNickname;
 		this.relationship = relationship;
