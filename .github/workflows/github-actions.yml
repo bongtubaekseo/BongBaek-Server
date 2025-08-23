@@ -122,8 +122,6 @@ jobs:
               NEW_PORT=8080
             fi
             
-            docker compose down
-
             docker compose up -d $NEW_SERVICE 
             
             curl -f http://localhost:$NEW_PORT/actuator/health || (echo "$NEW_SERVICE 헬스체크 실패" && exit 1)
