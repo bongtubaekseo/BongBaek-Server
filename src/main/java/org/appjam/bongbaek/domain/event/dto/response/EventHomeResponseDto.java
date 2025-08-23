@@ -8,7 +8,6 @@ import org.appjam.bongbaek.domain.event.entity.Event;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 
 public record EventHomeResponseDto (
         List<EventResponseDto> events
@@ -22,7 +21,7 @@ public record EventHomeResponseDto (
                      );
     }
 
-    private record EventResponseDto (UUID eventId, HostInfo hostInfo, EventInfo eventInfo, LocationInfo locationInfo) {
+    private record EventResponseDto (String eventId, HostInfo hostInfo, EventInfo eventInfo, LocationInfo locationInfo) {
 
         private static EventResponseDto from(Event event) {
             return new  EventResponseDto(event.getEventId(),
@@ -38,5 +37,3 @@ public record EventHomeResponseDto (
         }
     }
 }
-
-

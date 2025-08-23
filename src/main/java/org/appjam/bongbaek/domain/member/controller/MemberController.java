@@ -54,7 +54,7 @@ public class MemberController {
     @PostMapping("/member/reissue")
     public ResponseEntity<ApiResponse<TokenResponse>> reissueTokens(
             @RequestBody final ReissueRequest reissueRequest
-            ) {
+    ) {
         TokenResponse tokenResponse = memberService.reissueTokens(reissueRequest.refreshToken());
 
         return ResponseEntity.status(HttpStatus.OK)

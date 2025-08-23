@@ -17,8 +17,6 @@ import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -71,6 +69,7 @@ public class MemberService {
     private TokenResponse generateTokensForMember(Member member) {
         final String accessToken = jwtProvider.generateAccessToken(member.getMemberId());
         final String refreshToken = jwtProvider.generateRefreshToken(member.getMemberId());
+
         return TokenResponse.of(accessToken, refreshToken);
     }
 
@@ -78,7 +77,7 @@ public class MemberService {
     public TokenResponse reissueTokens(final String refreshToken) {
         jwtValidator.validateRefreshToken(refreshToken);
 
-        UUID memberId = jwtParser.getUserFromJwt(refreshToken);
+        String memberId = jwtParser.getUserFromJwt(refreshToken);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 

@@ -3,9 +3,7 @@ package org.appjam.bongbaek.global.jwt.util;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.Date;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -19,22 +17,22 @@ public class JwtProvider {
 
     private final JwtParser jwtParser;
 
-    private String generateToken(UUID memberId, Long expirationTime) {
+    private String generateToken(String memberId, Long expirationTime) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationTime))
-                .claim(MEMBER_ID, memberId.toString())
+                .claim(MEMBER_ID, memberId)
                 .signWith(jwtParser.getSigningKey())
                 .compact();
     }
 
-    public String generateAccessToken(UUID memberId) {
+    public String generateAccessToken(String memberId) {
         return generateToken(memberId, ACCESS_TOKEN_EXPIRATION_TIME);
     } // NOTE: header.payload.signature 형태 생성
 
-    public String generateRefreshToken(UUID memberId) {
+    public String generateRefreshToken(String memberId) {
         return generateToken(memberId, REFRESH_TOKEN_EXPIRATION_TIME);
     }
 }

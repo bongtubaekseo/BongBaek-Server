@@ -1,9 +1,8 @@
 package org.appjam.bongbaek.domain.member.entity;
 
+import io.hypersistence.utils.hibernate.id.Tsid;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,15 +13,18 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
 @Table(name = "member")
+@Comment("회원 정보")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 	@Id
-	@Column(name = "member_id", columnDefinition = "BINARY(16)")
-	private UUID memberId;
+    @Tsid
+	@Column(name = "member_id", length = 13)
+	private String memberId;
 
 	@Column(name = "member_name", length = 30, nullable = false)
 	private String memberName;
@@ -42,7 +44,6 @@ public class Member {
 
 	@Builder
 	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, Long kakaoId) {
-		this.memberId = UUID.randomUUID();
 		this.memberName = memberName;
 		this.memberBirthday = memberBirthday;
 		this.memberIncome = memberIncome;
