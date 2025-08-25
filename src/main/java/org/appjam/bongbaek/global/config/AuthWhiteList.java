@@ -28,5 +28,8 @@ public class AuthWhiteList {
             "/api/v1/oauth/kakao",
             "/api/v1/member/profile",
             "/api/v1/member/reissue",
+
+            // Health Check
+            "/health"
     };
 }
