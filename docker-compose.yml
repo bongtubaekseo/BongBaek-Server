@@ -6,9 +6,9 @@ services:
     ports:
       - "6379:6379"
 
-  blue:
+  blue: # TO DO: 토의 후 이름 변경 및 서버 분리할지 결정
     image: ${DOCKER_USERNAME}/bongbaek-server:latest
-    container_name: blue-container
+    container_name: bongbaek-blue-server
     ports:
       - "8080:8080"
     depends_on:
@@ -16,7 +16,7 @@ services:
 
   green:
     image: ${DOCKER_USERNAME}/bongbaek-server:latest
-    container_name: green-container
+    container_name: bongbaek-green-server
     ports:
       - "8081:8080"
     depends_on:
@@ -33,3 +33,16 @@ services:
       DOZZLE_USERNAME: ${DOZZLE_USERNAME}
       DOZZLE_PASSWORD: ${DOZZLE_PASSWORD}
     restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - blue
+      - green
