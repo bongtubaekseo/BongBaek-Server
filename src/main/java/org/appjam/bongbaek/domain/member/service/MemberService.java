@@ -10,6 +10,7 @@ import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
+import org.appjam.bongbaek.global.jwt.dto.TokenResponse.Token;
 import org.appjam.bongbaek.global.jwt.util.JwtParser;
 import org.appjam.bongbaek.global.jwt.util.JwtProvider;
 import org.appjam.bongbaek.global.jwt.util.JwtValidator;
@@ -67,14 +68,14 @@ public class MemberService {
     }
 
     private TokenResponse generateTokensForMember(Member member) {
-        final String accessToken = jwtProvider.generateAccessToken(member.getMemberId());
-        final String refreshToken = jwtProvider.generateRefreshToken(member.getMemberId());
+        final Token accessToken = jwtProvider.generateAccessToken(member.getMemberId());
+        final Token refreshToken = jwtProvider.generateRefreshToken(member.getMemberId());
 
         return TokenResponse.of(accessToken, refreshToken);
     }
 
     @Transactional
-    public TokenResponse reissueTokens(final String refreshToken) {
+    public TokenResponse reissueTokens(final Token refreshToken) {
         jwtValidator.validateRefreshToken(refreshToken);
 
         String memberId = jwtParser.getUserFromJwt(refreshToken);

@@ -7,7 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.appjam.bongbaek.global.exception.CustomException;
+import org.appjam.bongbaek.global.jwt.enums.JwtValidationType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -28,27 +29,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        try {
-            final String token = getJwtFromRequest(request);
+        final String token = resolveToken(request);
 
-            if (token != null && jwtValidator.validateToken(token) == VALID_JWT) {
-                String memberId = jwtParser.getUserFromJwt(token);
-                MemberAuthentication authentication = MemberAuthentication.createMemberAuthentication(memberId);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication); // NOTE: 메타데이터, 스레드에 인증 저장
-                log.info("Authentication successful for member: {}", memberId);
+        try {
+            JwtValidationType result = jwtValidator.validateToken(token);
+
+            if (result == VALID_JWT) {
+                Authentication authentication = jwtParser.getAuthentication(token);
+
+                if (authentication != null) {
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
-        } catch (CustomException exception) {
-            log.warn("JWT authentication failed: {}", exception.getMessage());
+        } catch (Exception e) {
             SecurityContextHolder.clearContext();
+            request.setAttribute("exception", e);
         }
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
+    /**
+     * Header에서 Token을 추출
+     *
+     * @return Token
+     */
+    private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring("Bearer ".length()); // NOTE: Bearer 확인 후 제거
+            return bearerToken.substring(7);
         }
         return null;
     }
