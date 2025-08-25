@@ -8,7 +8,7 @@ services:
 
   blue: # TO DO: 토의 후 이름 변경 및 서버 분리할지 결정
     image: ${DOCKER_USERNAME}/bongbaek-server:latest
-    container_name: bongbaek-blue-server
+    container_name: bongbaek1-container
     ports:
       - "8080:8080"
     depends_on:
@@ -21,7 +21,7 @@ services:
 
   green:
     image: ${DOCKER_USERNAME}/bongbaek-server:latest
-    container_name: bongbaek-green-server
+    container_name: bongbaek2-container
     ports:
       - "8081:8080"
     depends_on:

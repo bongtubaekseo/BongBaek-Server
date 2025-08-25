@@ -1,21 +1,18 @@
 set -e
 
 APP_NAME="bongbaek-server"
-BLUE_CONTAINER="blue-container"
-GREEN_CONTAINER="green-container"
+OLD_CONTAINER="bongbaek1-container"
 
 # DOCKER 로그인
 docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
 # 실행중인 컨테이너 확인
-if docker ps --format '{{.Names}}' | grep -q "$BLUE_CONTAINER"; then
-  CURRENT="blue"
-  IDLE="green"
-  IDLE_PORT=8081
+if docker ps --format '{{.Names}}' | grep -q "$OLD_CONTAINER"; then
+  CURRENT="bongbaek1"
+  IDLE="bongbaek2"
 else
-  CURRENT="green"
-  IDLE="blue"
-  IDLE_PORT=8080
+  CURRENT="bongbaek2"
+  IDLE="bongbaek1"
 fi
 
 # 이미지 가져오기
