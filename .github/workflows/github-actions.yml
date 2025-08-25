@@ -82,15 +82,16 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/bongbaek-server
 
-      # docker-compose.yml 업로드
+      # docker-compose.yml 및 nginx와 배포.sh 업로드
       - name: Upload docker-compose
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml"
+          source: "./docker-compose.yml,./proxy,./deploy.sh"
           target: "/home/ubuntu/bongbaek-server"
+          rm: true
 
       # EC2에 ssh 접속 후
       - name: Deploy on EC2
@@ -103,35 +104,12 @@ jobs:
             cd /home/ubuntu/bongbaek-server
 
             export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            
+            export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
 
             export DOZZLE_USERNAME=${{ secrets.DOZZLE_USERNAME }}
 
             export DOZZLE_PASSWORD=${{ secrets.DOZZLE_PASSWORD }}
             
-            CURRENT_CONF=$(sudo readlink /etc/nginx/sites-enabled/current || echo "")
-            
-            if [[ "$CURRENT_CONF" == *"blue"* ]]; then
-              NEW_SERVICE="green"
-              OLD_SERVICE="blue"
-              NEW_CONF="/etc/nginx/sites-available/green.conf"
-              NEW_PORT=8081
-            else
-              NEW_SERVICE="blue"
-              OLD_SERVICE="green"
-              NEW_CONF="/etc/nginx/sites-available/blue.conf"
-              NEW_PORT=8080
-            fi
-            
-            docker compose up -d $NEW_SERVICE 
-            
-            curl -f http://localhost:$NEW_PORT/actuator/health || (echo "$NEW_SERVICE 헬스체크 실패" && exit 1)
-            sleep 2
-            
-            sudo ln -sf $NEW_CONF /etc/nginx/sites-enabled/current
-            sudo systemctl reload nginx
-            
-            docker compose stop $OLD_SERVICE
-            
-            docker compose rm -f $OLD_SERVICE
-
-            docker image prune -f
+            chmod +x deploy.sh
+            ./deploy.sh ${{ secrets.DOCKER_USERNAME }}
