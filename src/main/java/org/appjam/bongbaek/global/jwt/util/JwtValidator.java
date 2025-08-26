@@ -17,7 +17,7 @@ public class JwtValidator {
 
     public JwtValidationType validateToken(String token) {
         try {
-            jwtParser.getBody(token);
+            jwtParser.parseClaims(token);
             return JwtValidationType.VALID_JWT;
         } catch (MalformedJwtException ex) {
             throw new CustomException(CommonErrorCode.UNAUTHORIZED_MALFORMED_JWT);
