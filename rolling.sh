@@ -1,8 +1,8 @@
 set -e
 
 APP_NAME="bongbaek-server"
-BLUE="bongbaek1-server"
-GREEN="bongbaek2-server"
+BLUE="bongbaek1-container"
+GREEN="bongbaek2-container"
 
 # DOCKER 로그인
 docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
