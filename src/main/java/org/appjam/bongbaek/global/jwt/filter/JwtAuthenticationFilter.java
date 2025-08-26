@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.appjam.bongbaek.global.jwt.enums.JwtValidationType;
 import org.appjam.bongbaek.global.jwt.util.JwtParser;
 import org.appjam.bongbaek.global.jwt.util.JwtValidator;
 import org.springframework.security.core.Authentication;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
-
-import static org.appjam.bongbaek.global.jwt.enums.JwtValidationType.VALID_JWT;
 
 @Component
 @Slf4j
@@ -33,9 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = resolveToken(request);
 
         try {
-            JwtValidationType result = jwtValidator.validateToken(token);
-
-            if (result == VALID_JWT) {
+            if (token != null && !token.isBlank() && jwtValidator.validateToken(token)) {
                 Authentication authentication = jwtParser.getAuthentication(token);
 
                 if (authentication != null) {

@@ -1,12 +1,12 @@
 package org.appjam.bongbaek.global.jwt.util;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
-import org.appjam.bongbaek.global.jwt.enums.JwtValidationType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,32 +15,27 @@ public class JwtValidator {
 
     private final JwtParser jwtParser;
 
-    public JwtValidationType validateToken(String token) {
+    /**
+     * 토큰 유효성 검증
+     * - 성공하면 true 반환
+     * - 실패하면 CustomException 바로 던짐
+     */
+    public boolean validateToken(String token) {
         try {
-            jwtParser.parseClaims(token);
-            return JwtValidationType.VALID_JWT;
-        } catch (MalformedJwtException ex) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED_MALFORMED_JWT);
-        } catch (ExpiredJwtException ex) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED_EXPIRATION_JWT_EXCEPTION);
-        } catch (UnsupportedJwtException ex) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED_UNSUPPORTED_JWT);
-        } catch (IllegalArgumentException ex) {
-            return JwtValidationType.EMPTY_JWT;
-        } catch (SecurityException ex) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED_MALFORMED_JWT);
-        }
-    }
+            Jwts.parser()
+                .verifyWith(jwtParser.getSigningKey())
+                .build()
+                .parseSignedClaims(token);
 
-    public void validateRefreshToken(String refreshToken) {
-        try {
-            if (validateToken(refreshToken) != JwtValidationType.VALID_JWT) {
-                throw new CustomException(CommonErrorCode.INVALID_REFRESH_TOKEN);
-            }
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new CustomException(CommonErrorCode.INVALID_REFRESH_TOKEN);
+            return true;
+        } catch (SecurityException e) {
+            throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
+        } catch (MalformedJwtException e) {
+            throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
+        } catch (UnsupportedJwtException e) {
+            throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
         }
     }
 }
