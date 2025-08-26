@@ -21,7 +21,7 @@ public class JwtProvider {
 
     public TokenResponse generateToken(Authentication authentication) {
         TokenResponse.Token accessToken  = generateAccessToken(authentication);
-        TokenResponse.Token refreshToken = generateRefreshToken();
+        TokenResponse.Token refreshToken = generateRefreshToken(authentication);
 
         return TokenResponse.of(accessToken, refreshToken);
     }
@@ -50,10 +50,11 @@ public class JwtProvider {
     /**
      * Refresh Token 생성
      */
-    private TokenResponse.Token generateRefreshToken() {
+    private TokenResponse.Token generateRefreshToken(Authentication authentication) {
         long expiredAt = System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME;
 
         String token = Jwts.builder()
+            .subject(authentication.getName())
             .expiration(new Date(expiredAt))
             .signWith(jwtParser.getSigningKey())
             .compact();
