@@ -17,11 +17,15 @@ import java.io.IOException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Component
-@RequiredArgsConstructor
 public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    @Qualifier("handlerExceptionResolver")
     private final HandlerExceptionResolver resolver;
+
+    public CustomJwtAuthenticationEntryPoint(
+        @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver
+    ) {
+        this.resolver = resolver;
+    }
 
     @Override
     public void commence(

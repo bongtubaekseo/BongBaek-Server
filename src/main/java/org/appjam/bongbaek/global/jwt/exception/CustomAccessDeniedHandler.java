@@ -18,11 +18,16 @@ import java.io.IOException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Component
-@RequiredArgsConstructor
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    @Qualifier("handlerExceptionResolver")
     private final HandlerExceptionResolver resolver;
+
+    public CustomAccessDeniedHandler(
+        @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver
+    ) {
+        this.resolver = resolver;
+    }
+
 
     @Override
     public void handle(
