@@ -1,8 +1,8 @@
 set -e
 
 APP_NAME="bongbaek-server"
-BLUE="bongbaek1-container"
-GREEN="bongbaek2-container"
+BLUE="blue"
+GREEN="green"
 
 # rolling 사용시 bongbaek-server 이미지 태그를 버전별로 관리해야함.
 PREV_VERSION="1.0.0"

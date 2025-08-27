@@ -1,18 +1,18 @@
 set -e
 
 APP_NAME="bongbaek-server"
-OLD_CONTAINER="bongbaek1-container"
+OLD_CONTAINER="blue"
 
 # DOCKER 로그인
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 # 실행중인 컨테이너 확인
 if docker ps --format '{{.Names}}' | grep -q "$OLD_CONTAINER"; then
-  CURRENT="bongbaek1-container"
-  IDLE="bongbaek2-container"
+  CURRENT="blue"
+  IDLE="green"
 else
-  CURRENT="bongbaek2-container"
-  IDLE="bongbaek1-container"
+  CURRENT="green"
+  IDLE="blue"
 fi
 
 # 이미지 가져오기
@@ -34,8 +34,8 @@ done
 
 if [ "$(docker inspect -f '{{.State.Health.Status}}' "$IDLE")" != "healthy" ]; then
   echo "헬스 체크 실패"
-  docker stop "$IDLE"
-  docker rm "$IDLE"
+  docker stop ${IDLE}
+  docker rm ${IDLE}
   exit 1
 fi
 
@@ -45,8 +45,8 @@ echo "헬스 체크 성공"
 docker compose up -d nginx
 
 # 기존 컨테이너 종료
-docker stop "$CURRENT" || true
-docker rm "$CURRENT" || true
+docker stop "${CURRENT}"
+docker rm "${CURRENT}"
 
 docker image prune -f
 
