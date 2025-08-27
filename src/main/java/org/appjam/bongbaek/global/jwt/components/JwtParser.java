@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -72,8 +73,6 @@ public class JwtParser {
      * SecretKey를 생성하는 메소드
      */
     public SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(JWT_SECRET);
-
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
     }
 }
