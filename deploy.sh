@@ -11,6 +11,7 @@ DEPLOY_VERSION=$(tr -d '\r' < version)
 PREV_VERSION=$(docker inspect --format='{{index .Config.Image}}' "$FIRST$CONTAINER" 2>/dev/null | awk -F: '{print $2}')
 
 export APP_VERSION="$DEPLOY_VERSION"
+echo "APP_VERSION: $DEPLOY_VERSION"
 
 # DOCKER 로그인
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -19,6 +20,8 @@ echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 docker pull "$DOCKER_USERNAME/$APP_NAME:$DEPLOY_VERSION"
 
 # 새 버전 컨테이너 실행
+docker compose up -d dozzle redis || true
+
 for SERVICE in "$FIRST" "$SECOND"; do
 
   docker stop "$SERVICE$CONTAINER" || true
@@ -39,6 +42,7 @@ for SERVICE in "$FIRST" "$SECOND"; do
     docker rm "$SERVICE$CONTAINER" || true
 
     APP_VERSION="$PREV_VERSION" docker compose up -d "$SERVICE"
+    echo "롤백 버전: $APP_VERSION"
     exit 1
   fi
 
