@@ -6,8 +6,8 @@ services:
     ports:
       - "6379:6379"
 
-  blue: # TO DO: 토의 후 이름 변경 및 서버 분리할지 결정
-    image: ${DOCKER_USERNAME}/bongbaek-server:latest
+  bongbaek1: # TO DO: 토의 후 이름 변경 및 서버 분리할지 결정
+    image: ${DOCKER_USERNAME}/bongbaek-server:${APP_VERSION}
     container_name: bongbaek1-container
     ports:
       - "8080:8080"
@@ -19,8 +19,8 @@ services:
       timeout: 5s
       retries: 5
 
-  green:
-    image: ${DOCKER_USERNAME}/bongbaek-server:latest
+  bongbaek2:
+    image: ${DOCKER_USERNAME}/bongbaek-server:${APP_VERSION}
     container_name: bongbaek2-container
     ports:
       - "8081:8080"
@@ -54,5 +54,5 @@ services:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
-      - blue
-      - green
+      - bongbaek1
+      - bongbaek2
