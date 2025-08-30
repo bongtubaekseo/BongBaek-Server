@@ -96,7 +96,7 @@ jobs:
           host: ${{ env.HOST }}
           username: ubuntu
           key: ${{ env.SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./proxy, ./deploy.sh, ./prometheus.yml, ./my.cnf"
+          source: "./docker-compose.yml,./proxy,./deploy.sh,./prometheus.yml,./my.cnf"
           target: "/home/ubuntu/bongbaek-server"
           rm: true
 
