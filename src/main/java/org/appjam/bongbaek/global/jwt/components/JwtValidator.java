@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtValidator {
 
-    private final JwtParser jwtParser;
+    private final SecretKey secretKey;
 
     /**
      * 토큰 유효성 검증
@@ -23,7 +24,7 @@ public class JwtValidator {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                .verifyWith(jwtParser.getSigningKey())
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token);
 

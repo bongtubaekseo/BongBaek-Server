@@ -3,6 +3,7 @@ package org.appjam.bongbaek.global.jwt.components;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
 import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.springframework.security.core.Authentication;
@@ -17,7 +18,7 @@ public class JwtProvider {
     private static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14;
     private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14 * 2;
 
-    private final JwtParser jwtParser;
+    private final SecretKey secretKey;
 
     public TokenResponse generateToken(Authentication authentication) {
         TokenResponse.Token accessToken  = generateAccessToken(authentication);
@@ -41,7 +42,7 @@ public class JwtProvider {
             .subject(authentication.getName())
             .claim("role", authorities)
             .expiration(new Date(expiredAt))
-            .signWith(jwtParser.getSigningKey(), SIG.HS256)
+            .signWith(secretKey, SIG.HS256)
             .compact();
 
         return TokenResponse.Token.of(token, expiredAt);
@@ -56,7 +57,7 @@ public class JwtProvider {
         String token = Jwts.builder()
             .subject(authentication.getName())
             .expiration(new Date(expiredAt))
-            .signWith(jwtParser.getSigningKey())
+            .signWith(secretKey)
             .compact();
 
         return TokenResponse.Token.of(token, expiredAt);
