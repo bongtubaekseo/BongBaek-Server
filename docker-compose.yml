@@ -7,30 +7,21 @@ services:
       - "6379:6379"
 
   bongbaek1: # TO DO: 토의 후 이름 변경 및 서버 분리할지 결정
-    image: ${DOCKER_USERNAME}/bongbaek-server:${APP_VERSION}
-    container_name: bongbaek1-container
-    ports:
-      - "8080:8080"
-    depends_on:
-      - redis
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  bongbaek2:
-    image: ${DOCKER_USERNAME}/bongbaek-server:${APP_VERSION}
-    container_name: bongbaek2-container
+    image: ${DOCKER_USERNAME}/bongbaek-server:latest
+    container_name: bongbaek1
     ports:
       - "8081:8080"
     depends_on:
       - redis
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+
+  bongbaek2:
+    image: ${DOCKER_USERNAME}/bongbaek-server:latest
+    container_name: bongbaek2
+    ports:
+      - "8081:8080"
+    depends_on:
+      - redis
+      - bongbaek1
 
   dozzle:
     container_name: dozzle
@@ -45,7 +36,7 @@ services:
     restart: always
 
   nginx:
-    image: nginx:1.27.2-alpine
+    image: nginx:alpine
     container_name: nginx
     ports:
       - "80:80"
@@ -56,3 +47,52 @@ services:
     depends_on:
       - bongbaek1
       - bongbaek2
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  mysqld_exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysqld_exporter
+    restart: unless-stopped
+    ports:
+      - "9104:9104"
+    volumes:
+      - ./my.cnf:/my.cnf:ro
+    command:
+      --config.my-cnf=/my.cnf
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    ports:
+      - "9113:9113"
+    command:
+      - "-nginx.scrape-uri=http://nginx:80/stub_status"
+    depends_on:
+      - nginx
+
+  redis_exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis_exporter
+    ports:
+      - "9121:9121"
+    command:
+      - "--redis.addr=redis:6379"
+    depends_on:
+      - redis
