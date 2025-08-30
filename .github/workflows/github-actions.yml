@@ -74,13 +74,10 @@ jobs:
       # 도커 이미지를 빌드하고 도커 허브에 업로드
       - name: Docker image build & push
         run: |
-          DEPLOY_VERSION=$(cat version | tr -d '\r\n')
-          echo ">>> DEPLOY_VERSION: $DEPLOY_VERSION"
-          
           docker buildx build \
           --platform linux/amd64 \
           --push \
-          -t ${{ secrets.DOCKER_USERNAME }}/bongbaek-serve:$DEPLOY_VERSION .
+          -t ${{ secrets.DOCKER_USERNAME }}/bongbaek-server .
 
       # 디렉토리 사전 생성
       - name: Ensure remote dir
@@ -99,7 +96,7 @@ jobs:
           host: ${{ env.HOST }}
           username: ubuntu
           key: ${{ env.SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./proxy, ./deploy.sh, ./version, ./prometheus.yml, .my.cnf"
+          source: "./docker-compose.yml, ./proxy, ./deploy.sh, ./prometheus.yml, .my.cnf"
           target: "/home/ubuntu/bongbaek-server"
           rm: true
 
