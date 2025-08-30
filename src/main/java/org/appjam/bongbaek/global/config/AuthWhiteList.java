@@ -30,6 +30,6 @@ public class AuthWhiteList {
             "/api/v1/member/reissue",
 
             // Health Check
-            "/health"
+            "/actuator/**"
     };
 }
