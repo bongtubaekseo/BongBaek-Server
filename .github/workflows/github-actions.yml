@@ -4,10 +4,8 @@ on:
   # 배포 테스트
   workflow_dispatch:
 
-#  push:
-#    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  push:
+    branches: [ "main", "develop" ]
 
 permissions:
   contents: read
@@ -15,6 +13,12 @@ permissions:
 jobs:
   integrate:
     runs-on: ubuntu-latest
+
+    env:
+      HOST: ${{ github.ref == 'refs/heads/main' && secrets.HOST || secrets.TEST_HOST }}
+      SSH_PRIVATE_KEY: ${{ github.ref == 'refs/heads/main' && secrets.SSH_PRIVATE_KEY || secrets.TEST_SSH_PRIVATE_KEY }}
+      APPLICATION: ${{ github.ref == 'refs/heads/main' && secrets.APPLICATION || secrets.TEST_APPLICATION }}
+      MY_CNF: ${{ github.ref == 'refs/heads/main' && secrets.MY_CNF || secrets.TEST_MY_CNF }}
 
     steps:
       # GitHub Actions Runner로 repository 내용을 복사
@@ -39,11 +43,14 @@ jobs:
             ${{ runner.os }}-gradle-
 
       # 빌드에 필요한 리소스 파일 생성 및 작성
-      - name: Generate application.yml
+      - name: Generate application.yml & my.cnf
         run: |
           mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
-          printf '%s' "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+          printf '%s' "${{ env.APPLICATION }}" > ./src/main/resources/application.yml
+          touch ./my.cnf
+          printf '%s' "${{ env.MY_CNF }}" > ./my.cnf
+
         shell: bash
 
       # 빌드 수행(테스트 제외)
@@ -79,9 +86,9 @@ jobs:
       - name: Ensure remote dir
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ env.HOST }}
           username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
             mkdir -p /home/ubuntu/bongbaek-server
 
@@ -89,10 +96,10 @@ jobs:
       - name: Upload docker-compose
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ env.HOST }}
           username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./proxy, ./deploy.sh, ./version"
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          source: "./docker-compose.yml, ./proxy, ./deploy.sh, ./version, ./prometheus.yml, .my.cnf"
           target: "/home/ubuntu/bongbaek-server"
           rm: true
 
@@ -100,9 +107,9 @@ jobs:
       - name: Deploy on EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ env.HOST }}
           username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/bongbaek-server
 
