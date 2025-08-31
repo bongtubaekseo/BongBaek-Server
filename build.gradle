@@ -43,7 +43,7 @@ dependencies {
 
     // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.9.9'
+    implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.10.3'
 
     // mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
