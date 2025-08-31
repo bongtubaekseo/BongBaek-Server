@@ -34,7 +34,7 @@ public class JwtValidator {
         } catch (MalformedJwtException e) {
             throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
+            throw new CustomException(CommonErrorCode.EXPIRED_ACCESS_TOKEN);
         } catch (UnsupportedJwtException e) {
             throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
         }
