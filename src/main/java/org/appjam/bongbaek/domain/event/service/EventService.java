@@ -18,6 +18,8 @@ import org.appjam.bongbaek.domain.event.service.util.RangeCalculator;
 import org.appjam.bongbaek.domain.event.service.util.vo.CostParamInfo;
 import org.appjam.bongbaek.domain.event.service.util.vo.RangeInfo;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.appjam.bongbaek.global.exception.CustomException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -43,8 +45,14 @@ public class EventService {
         final String memberId,
         final EventWriteDto eventWriteDto
     ) {
+
+        if (!memberRepository.existsById(memberId)) {
+            throw new CustomException(CommonErrorCode.MEMBER_NOT_FOUND);
+        }
+
         Member memberProxy = memberRepository.getReferenceById(memberId);
         Event event = eventWriteDto.toEntity(memberProxy);
+
         eventRepository.save(event);
     }
 
