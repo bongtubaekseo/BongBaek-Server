@@ -45,10 +45,7 @@ public class EventService {
         final String memberId,
         final EventWriteDto eventWriteDto
     ) {
-
-        if (!memberRepository.existsById(memberId)) {
-            throw new CustomException(CommonErrorCode.MEMBER_NOT_FOUND);
-        }
+        assertMemberExists(memberId);
 
         Member memberProxy = memberRepository.getReferenceById(memberId);
         Event event = eventWriteDto.toEntity(memberProxy);
@@ -62,6 +59,8 @@ public class EventService {
         final String category,
         final Boolean attended
     ) {
+        assertMemberExists(memberId);
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(
             memberId,
@@ -78,6 +77,8 @@ public class EventService {
         final int page,
         final String category
     ) {
+        assertMemberExists(memberId);
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Slice<Event> result = eventRepository.findUpcomingEventsByMemberIdAndCategoryOrderBy(
             memberId,
@@ -92,7 +93,8 @@ public class EventService {
         String memberId,
         CostProposalRequestDto costProposalRequestDto
     ) {
-        Member member = memberRepository.findById(memberId).orElseThrow(IllegalArgumentException::new);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         int cost = CostCalculator.calculateCost(member, costProposalRequestDto);
 
@@ -135,6 +137,8 @@ public class EventService {
         LocalDate now,
         String memberId
     ) {
+        assertMemberExists(memberId);
+
         List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 
         return EventHomeResponseDto.from(events);
@@ -175,5 +179,13 @@ public class EventService {
         }
 
         eventRepository.deleteAll(events);
+    }
+
+    private void assertMemberExists(
+        final String memberId
+    ) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new CustomException(CommonErrorCode.MEMBER_NOT_FOUND);
+        }
     }
 }
