@@ -47,10 +47,10 @@ public class EventService {
         final String memberId,
         final EventWriteDto eventWriteDto
     ) {
-        assertMemberExists(memberId);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
-        Member memberProxy = memberRepository.getReferenceById(memberId);
-        Event event = eventWriteDto.toEntity(memberProxy);
+        Event event = eventWriteDto.toEntity(member);
 
         eventRepository.save(event);
     }
