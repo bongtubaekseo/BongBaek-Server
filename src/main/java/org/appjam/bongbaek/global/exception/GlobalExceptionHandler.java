@@ -1,8 +1,10 @@
 package org.appjam.bongbaek.global.exception;
 
+import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -82,5 +84,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.INTERNAL_SERVER_ERROR));
+    }
+
+    @ExceptionHandler(SignUpRequiredException.class)
+    public ResponseEntity<LoginResponse> handleSignUpRequired(SignUpRequiredException e) {
+        return ResponseEntity
+            .status(CommonErrorCode.SIGN_UP_REQUIRED.getStatus())
+            .body(LoginResponse.of(null, null, false, e.getKakaoId()));
     }
 }

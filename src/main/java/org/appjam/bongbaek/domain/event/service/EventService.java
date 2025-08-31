@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.event.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
@@ -18,6 +19,8 @@ import org.appjam.bongbaek.domain.event.service.util.RangeCalculator;
 import org.appjam.bongbaek.domain.event.service.util.vo.CostParamInfo;
 import org.appjam.bongbaek.domain.event.service.util.vo.RangeInfo;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.appjam.bongbaek.global.exception.CustomException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,13 +29,14 @@ import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.repository.EventRepository;
 import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class EventService {
-
     private static final int PAGE_SIZE = 10;
 
     private final EventRepository eventRepository;
@@ -43,8 +47,11 @@ public class EventService {
         final String memberId,
         final EventWriteDto eventWriteDto
     ) {
-        Member memberProxy = memberRepository.getReferenceById(memberId);
-        Event event = eventWriteDto.toEntity(memberProxy);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        Event event = eventWriteDto.toEntity(member);
+
         eventRepository.save(event);
     }
 
@@ -54,6 +61,8 @@ public class EventService {
         final String category,
         final Boolean attended
     ) {
+        assertMemberExists(memberId);
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(
             memberId,
@@ -70,6 +79,8 @@ public class EventService {
         final int page,
         final String category
     ) {
+        assertMemberExists(memberId);
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Slice<Event> result = eventRepository.findUpcomingEventsByMemberIdAndCategoryOrderBy(
             memberId,
@@ -84,7 +95,8 @@ public class EventService {
         String memberId,
         CostProposalRequestDto costProposalRequestDto
     ) {
-        Member member = memberRepository.findById(memberId).orElseThrow(IllegalArgumentException::new);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         int cost = CostCalculator.calculateCost(member, costProposalRequestDto);
 
@@ -127,6 +139,8 @@ public class EventService {
         LocalDate now,
         String memberId
     ) {
+        assertMemberExists(memberId);
+
         List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 
         return EventHomeResponseDto.from(events);
@@ -167,5 +181,13 @@ public class EventService {
         }
 
         eventRepository.deleteAll(events);
+    }
+
+    private void assertMemberExists(
+        final String memberId
+    ) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new CustomException(CommonErrorCode.MEMBER_NOT_FOUND);
+        }
     }
 }
