@@ -34,7 +34,9 @@ public class MemberService {
     private final JwtParser jwtParser;
 
     @Transactional
-    public LoginResponse login(final String accessToken) {
+    public LoginResponse login(
+        final String accessToken
+    ) {
         final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
         Member member = memberRepository.findByKakaoId(kakaoId)
@@ -46,7 +48,9 @@ public class MemberService {
     }
 
     @Transactional
-    public LoginResponse signUp(final SignUpRequest signUpRequest) {
+    public LoginResponse signUp(
+        final SignUpRequest signUpRequest
+    ) {
         // 이미 가입된 회원인지 확인
         if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
             throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
@@ -70,7 +74,9 @@ public class MemberService {
         }
     }
 
-    private TokenResponse generateTokensForMember(Member member) {
+    private TokenResponse generateTokensForMember(
+        Member member
+    ) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
             member.getMemberId(),
             "", // credentials 미사용
@@ -81,7 +87,9 @@ public class MemberService {
     }
 
     @Transactional
-    public TokenResponse reissueTokens(final String refreshToken) {
+    public TokenResponse reissueTokens(
+        final String refreshToken
+    ) {
         // refresh token 유효성 검사
         jwtValidator.validateToken(refreshToken);
 
