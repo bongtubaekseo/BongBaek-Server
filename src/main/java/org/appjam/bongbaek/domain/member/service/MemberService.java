@@ -10,8 +10,8 @@ import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
+import org.appjam.bongbaek.global.exception.SignUpRequiredException;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
-import org.appjam.bongbaek.global.jwt.dto.TokenResponse.Token;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
@@ -37,12 +37,9 @@ public class MemberService {
     public LoginResponse login(final String accessToken) {
         final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
-        // 최초 로그인 : 추가 정보 필요
-        if (!memberRepository.existsByKakaoId(kakaoId)) {
-            return LoginResponse.of(null, null, false, kakaoId);
-        }
+        Member member = memberRepository.findByKakaoId(kakaoId)
+            .orElseThrow(() -> new SignUpRequiredException(kakaoId));
 
-        Member member = memberRepository.findByKakaoId(kakaoId);
         TokenResponse tokenResponse = generateTokensForMember(member);
 
         return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
