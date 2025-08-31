@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.jwt.filter;
+package org.appjam.bongbaek.global.jwt.util;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

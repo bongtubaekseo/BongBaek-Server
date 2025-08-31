@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.event.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
@@ -28,13 +29,14 @@ import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.repository.EventRepository;
 import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class EventService {
-
     private static final int PAGE_SIZE = 10;
 
     private final EventRepository eventRepository;

@@ -79,6 +79,10 @@ dependencies {
 
     // dotenv
     implementation("me.paulschwarz:spring-dotenv:3.0.0")
+
+    // prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
