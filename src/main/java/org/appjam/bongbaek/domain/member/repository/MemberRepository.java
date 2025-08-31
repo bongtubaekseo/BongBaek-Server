@@ -8,7 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, String> {
-
     boolean existsByKakaoId(final Long kakaoId);
     Optional<Member> findByKakaoId(final Long kakaoId);
 }
