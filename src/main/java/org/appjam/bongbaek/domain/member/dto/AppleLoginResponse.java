@@ -10,7 +10,7 @@ public record AppleLoginResponse (
         TokenResponse token,
         @Schema(description = "회원 가입 완료 여부")
         boolean isCompletedSignUp,
-        @Schema(description = "kakao ID", nullable = true)
+        @Schema(description = "apple ID", nullable = true)
         Long appleId
 ) {
         public static AppleLoginResponse of(final String name, final TokenResponse token, final boolean isCompletedSignUp, final Long appleId) {
