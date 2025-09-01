@@ -1,6 +1,6 @@
-package org.appjam.bongbaek.domain.member.enums
+package org.appjam.bongbaek.domain.member.enums;
 
-enum class WithdrawalReason {
+public enum WithdrawalReason {
     INCONVENIENT,
     PRIVACY_CONCERN,
     RARELY_USED,
