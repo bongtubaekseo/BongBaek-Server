@@ -38,7 +38,7 @@ public class AppleLoginClient {
         if (!issuer.equals(claims.getIssuer())) {
             throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
         }
-        if (!clientId.equals(claims.getAudience().toString())) {
+        if (claims.getAudience() == null || !claims.getAudience().contains(clientId)) {
             throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
         }
 
