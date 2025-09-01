@@ -18,14 +18,14 @@ do
 
     # Health check
     echo "Waiting for $service to be healthy..."
-    until curl -s http://localhost:$(docker compose port $service 8080 | cut -d':' -f2)/actuator/health | grep -q '"status":"UP"'; do
-        echo "  $service is not ready yet. Waiting 3s..."
-        sleep 3
-    done
+    until [ "$(docker inspect --format='{{.State.Health.Status}}' $service)" = "healthy" ]; do
+            echo "  $service is not ready yet. Waiting 5s..."
+            sleep 5
+        done
     echo "  $service is healthy!"
 done
 
-# 4. 불필요한 이미지 정리
+# 불필요한 이미지 정리
 docker image prune -f
 
 echo "===== Deployment Completed ====="
