@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
+import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
@@ -128,5 +129,13 @@ public class MemberService {
         jwtRefreshStore.save(member.getMemberId(), tokenResponse.refreshToken().token(), refreshTtlSec);
 
         return tokenResponse;
+    }
+
+    @Transactional
+    public void updateProfile(final String memberId, final UpdateMemberRequest request) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        member.update(request);
     }
 }

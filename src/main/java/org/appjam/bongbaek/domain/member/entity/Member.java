@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -50,6 +51,12 @@ public class Member {
 		this.appleId = appleId;
 		this.kakaoId = kakaoId;
 	}
+
+    public void update(UpdateMemberRequest request){
+        this.memberName=request.memberName().trim();
+        this.memberBirthday=request.memberBirthday();
+        this.memberIncome=IncomeType.of(request.memberIncome());
+    }
 
 	public int getAge(){
 		return Period.between(this.memberBirthday, LocalDate.now()).getYears();
