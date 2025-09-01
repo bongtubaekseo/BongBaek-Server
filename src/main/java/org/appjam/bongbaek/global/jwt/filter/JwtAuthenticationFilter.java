@@ -33,10 +33,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             if (token != null && !token.isBlank()) {
-                // 블랙리스트, 로그아웃된 토큰인지 확인
-                if (jwtBlacklistManager.contains("Bearer " + token)) {
+                // 서명/형식/만료 등 유효성 검증
+                jwtValidator.validateToken(token);
+
+                // 검증 통과 후, 로그아웃된 토큰 조회
+                if (jwtBlacklistManager.contains(token)) {
                     SecurityContextHolder.clearContext();
-                } else if (jwtValidator.validateToken(token)) {
+                } else {
+                    // 정상 토큰이면 subject(memberId) 파싱 후 SecurityContext 설정
                     String memberId = jwtParser.getMemberIdFromAccessToken(token);
                     MemberAuthentication authentication = MemberAuthentication.createMemberAuthentication(memberId);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
