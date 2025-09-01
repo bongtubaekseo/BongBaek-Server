@@ -9,6 +9,7 @@ import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.ReissueRequest;
 import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
@@ -84,6 +85,20 @@ public class MemberController {
         @RequestBody @Valid final UpdateMemberRequest request
     ) {
         memberService.updateProfile(memberId, request);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ApiResponse.success(CommonSuccessCode.OK, null));
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "탈퇴 사유(INCONVENIENT/PRIVACY_CONCERN/RARELY_USED/BUG_OR_ERROR/NEW_ACCOUNT) 또는 탈퇴 상세 사유(50자 이내)로 탈퇴합니다.")
+    @PostMapping("/member/withdraw")
+    public ResponseEntity<ApiResponse<EmptyBody>> withdraw(
+        @RequestHeader(value = "Authorization") final String accessToken,
+        @AuthenticationPrincipal final String memberId,
+        @Valid @RequestBody final WithdrawRequest request
+    ) {
+        memberService.withdraw(accessToken, memberId, request);
 
         return ResponseEntity
             .status(HttpStatus.OK)
