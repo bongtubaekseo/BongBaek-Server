@@ -1,23 +1,25 @@
 package org.appjam.bongbaek.domain.member.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.domain.member.dto.LoginRequest;
-import org.appjam.bongbaek.domain.member.dto.LoginResponse;
-import org.appjam.bongbaek.domain.member.dto.ReissueRequest;
-import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
-import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.*;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
+import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @Tag(name = "회원", description = "회원 관련 API")
 @RestController
@@ -43,15 +45,39 @@ public class MemberController {
         } // NOTE: 기존 회원과 최초 로그인의 응답을 다르게.
     }
 
+    @Operation(summary = "애플 로그인", description = "애플 토큰으로 로그인합니다.")
+    @PostMapping("/oauth/apple")
+    public ResponseEntity<ApiResponse<AppleLoginResponse>> loginByApple(
+            @RequestBody final AppleLoginRequest loginRequest
+    ) throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
+        AppleLoginResponse loginResponse = memberService.loginByApple(loginRequest.identityToken());
+
+        if (loginResponse.isCompletedSignUp()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.success(CommonSuccessCode.OK, loginResponse));
+        } else {
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, loginResponse));
+        }
+    }
+
     @Operation(summary = "회원가입", description = "추가 정보를 입력하여 회원가입을 완료합니다.")
     @PostMapping("/member/profile")
-    public ResponseEntity<ApiResponse<LoginResponse>> profile(
+    public ResponseEntity<ApiResponse<?>> profile(
             @RequestBody final SignUpRequest signUpRequest
     ) {
-        LoginResponse loginResponse = memberService.signUp(signUpRequest);
+        if (signUpRequest.kakaoId() != null) {
+            LoginResponse loginResponse = memberService.signUp(signUpRequest);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
+        }
+        if (signUpRequest.appleId() != null) {
+            AppleLoginResponse loginResponse = memberService.signUpByApple(signUpRequest);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
+        }
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
+        throw new CustomException(CommonErrorCode.BAD_REQUEST);
     }
 
     @Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
