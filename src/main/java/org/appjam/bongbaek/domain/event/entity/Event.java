@@ -89,7 +89,7 @@ public class Event extends BaseEntity {
 	@Column(name = "longitude", nullable = false)
 	private double longitude;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
