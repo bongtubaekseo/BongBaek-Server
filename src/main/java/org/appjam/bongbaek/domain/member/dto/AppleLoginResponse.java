@@ -11,13 +11,13 @@ public record AppleLoginResponse (
         @Schema(description = "회원 가입 완료 여부")
         boolean isCompletedSignUp,
         @Schema(description = "apple ID", nullable = true)
-        Long appleId
+        String appleId
 ) {
-        public static AppleLoginResponse of(final String name, final TokenResponse token, final boolean isCompletedSignUp, final Long appleId) {
+        public static AppleLoginResponse of(final String name, final TokenResponse token, final boolean isCompletedSignUp, final String appleId) {
                 return new AppleLoginResponse(name, token, isCompletedSignUp, appleId);
         }
 
-        public static AppleLoginResponse ofLoginSuccess(final String name, final TokenResponse token, final Long appleId) {
+        public static AppleLoginResponse ofLoginSuccess(final String name, final TokenResponse token, final String appleId) {
                 return new AppleLoginResponse(name, token, true, appleId);
         }
 }
