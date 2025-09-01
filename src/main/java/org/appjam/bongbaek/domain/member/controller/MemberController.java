@@ -53,9 +53,9 @@ public class MemberController {
     @Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
     @PostMapping("/member/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
-        @RequestHeader("Authorization") String authorization
+        @RequestHeader("Authorization") String accessToken
     ) {
-        memberService.logout(authorization);
+        memberService.logout(accessToken);
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(ApiResponse.success(CommonSuccessCode.OK, null));

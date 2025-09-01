@@ -79,19 +79,19 @@ public class MemberService {
     }
 
     @Transactional
-    public void logout(final String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) return;
+    public void logout(final String accessToken) {
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) return;
 
-        String accessToken = authorization.substring("Bearer ".length());
-        jwtValidator.validateToken(accessToken);
+        String accessTokenNoBearer = accessToken.substring("Bearer ".length());
+        jwtValidator.validateToken(accessTokenNoBearer);
 
-        String memberId = jwtParser.parseClaims(accessToken).getSubject();
+        String memberId = jwtParser.parseClaims(accessTokenNoBearer).getSubject();
 
         // 유저의 모든 refreshToken 제거
         jwtRefreshStore.deleteAllForUser(memberId);
 
         // 현재 accessToken 차단
-        jwtBlacklistManager.add(authorization);
+        jwtBlacklistManager.add(accessToken);
     }
 
     @Transactional
