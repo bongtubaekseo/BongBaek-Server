@@ -87,6 +87,6 @@ public class MemberController {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK));
+            .body(ApiResponse.success(CommonSuccessCode.OK, null));
     }
 }
