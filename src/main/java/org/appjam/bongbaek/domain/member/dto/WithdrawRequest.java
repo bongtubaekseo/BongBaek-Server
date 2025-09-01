@@ -15,6 +15,7 @@ public record WithdrawRequest (
 ) {
     // 검증 단계
     @AssertTrue(message = "사전 정의 사유를 선택하거나 상세 사유를 1~50자 입력해야 합니다.")
+    @Schema(hidden = true)
     public boolean isValid() {
         if (withdrawalReason == null) {
             return detail != null && !detail.isBlank() && detail.trim().length() <= 50;
