@@ -1,8 +1,9 @@
 package org.appjam.bongbaek.domain.member.service;
 
-import java.util.Collections;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.appjam.bongbaek.domain.member.dto.AppleLoginResponse;
 import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
@@ -18,11 +19,14 @@ import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
+import org.appjam.bongbaek.global.oauth.apple.AppleLoginClient;
+import org.appjam.bongbaek.global.oauth.apple.dto.AppleInfoResponse;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @Slf4j
 @Service
@@ -31,6 +35,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final KakaoLoginClient kakaoLoginClient;
+    private final AppleLoginClient appleLoginClient;
 
     private final JwtProvider jwtProvider;
     private final JwtValidator jwtValidator;
@@ -53,6 +58,21 @@ public class MemberService {
     }
 
     @Transactional
+    public AppleLoginResponse loginByApple(
+            final String identityToken
+    ) throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
+        final AppleInfoResponse userData = appleLoginClient.validateAppleIdentityToken(identityToken);
+        final String appleId = userData.id();
+
+        Member member = memberRepository.findByAppleId(appleId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        TokenResponse tokenResponse = generateTokensForMember(member);
+
+        return AppleLoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+    }
+
+    @Transactional
     public LoginResponse signUp(
         final SignUpRequest signUpRequest
     ) {
@@ -70,6 +90,33 @@ public class MemberService {
             log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
             return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("회원가입 처리 중 오류 발생: {}", e.getMessage());
+            throw new CustomException(CommonErrorCode.BAD_REQUEST);
+        }
+    }
+
+    @Transactional
+    public AppleLoginResponse signUpByApple(
+            final SignUpRequest signUpRequest
+    ) {
+        // 이미 가입된 회원인지 확인
+        if (memberRepository.existsByAppleId(signUpRequest.appleId())) {
+            throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
+        }
+
+        try {
+            IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
+            Member member = signUpRequest.toAppleMember(incomeType);
+            Member savedMember = memberRepository.save(member);
+
+            TokenResponse tokenResponse = generateTokensForMember(savedMember);
+            log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
+
+            return AppleLoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
 
         } catch (CustomException e) {
             throw e;
