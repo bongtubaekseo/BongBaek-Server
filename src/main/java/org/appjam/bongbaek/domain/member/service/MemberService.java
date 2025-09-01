@@ -170,7 +170,7 @@ public class MemberService {
         jwtRefreshStore.deleteAllForUser(memberId);
 
         // 탈퇴 이력 저장
-        memberWithdrawalRepository.save(new MemberWithdrawal(memberId, request));
+        memberWithdrawalRepository.save(new MemberWithdrawal(request));
 
         // 회원 정보 삭제
         memberRepository.delete(member);

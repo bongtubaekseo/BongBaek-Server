@@ -27,9 +27,6 @@ public class MemberWithdrawal extends BaseEntity {
     @Column(name = "withdrawal_id", length = 13)
     private String withdrawalId;
 
-    @Column(name = "member_id", nullable = false, length = 30)
-    private String memberId;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "withdrawal_reason", columnDefinition = "VARCHAR(50)")
     private WithdrawalReason withdrawalReason;
@@ -37,8 +34,7 @@ public class MemberWithdrawal extends BaseEntity {
     @Column(name = "detail", length = 150)
     private String detail;
 
-    public MemberWithdrawal(String memberId, WithdrawRequest request) {
-        this.memberId = memberId;
+    public MemberWithdrawal(WithdrawRequest request) {
         this.withdrawalReason = request.withdrawalReason();
 
         // reason이 없을 때만 detail 저장
