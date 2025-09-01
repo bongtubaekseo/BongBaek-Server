@@ -50,6 +50,18 @@ public class MemberController {
                 .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
     }
 
+    @Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
+    @PostMapping("/member/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+        @RequestHeader("Authorization") String authorization
+    ) {
+        memberService.logout(authorization);
+
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ApiResponse.success(CommonSuccessCode.OK, null));
+    }
+
+
     @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.")
     @PostMapping("/member/reissue")
     public ResponseEntity<ApiResponse<TokenResponse>> reissueTokens(
