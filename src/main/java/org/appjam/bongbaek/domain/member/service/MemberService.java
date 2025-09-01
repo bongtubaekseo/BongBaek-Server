@@ -120,10 +120,7 @@ public class MemberService {
      * + refreshtoken Redis 저장
      * */
     private TokenResponse generateTokensForMember(Member member) {
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-            member.getMemberId(), "", Collections.emptyList()
-        );
-        TokenResponse tokenResponse = jwtProvider.generateToken(auth);
+        TokenResponse tokenResponse = jwtProvider.generateToken(member.getMemberId());
 
         long refreshTtlSec = Math.max(1, (tokenResponse.refreshToken().expiredAt() - System.currentTimeMillis()) / 1000);
 

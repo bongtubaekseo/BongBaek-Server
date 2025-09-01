@@ -20,27 +20,21 @@ public class JwtProvider {
 
     private final SecretKey secretKey;
 
-    public TokenResponse generateToken(Authentication authentication) {
-        TokenResponse.Token accessToken  = generateAccessToken(authentication);
-        TokenResponse.Token refreshToken = generateRefreshToken(authentication);
-
-        return TokenResponse.of(accessToken, refreshToken);
+    public TokenResponse generateToken(String subject) {
+        TokenResponse.Token access  = generateAccessToken(subject);
+        TokenResponse.Token refresh = generateRefreshToken(subject);
+        return TokenResponse.of(access, refresh);
     }
 
     /**
      * Access Token 생성
      */
-    public TokenResponse.Token generateAccessToken(Authentication authentication) {
+    public TokenResponse.Token generateAccessToken(String subject) {
         long expiredAt = System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME;
 
-        // 권한 CSV (비어있어도 OK)
-        String authorities = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
-
         String token = Jwts.builder()
-            .subject(authentication.getName())
-            .claim("role", authorities)
+            .subject(subject)
+            .claim("role", "")
             .expiration(new Date(expiredAt))
             .signWith(secretKey, SIG.HS256)
             .compact();
@@ -51,11 +45,11 @@ public class JwtProvider {
     /**
      * Refresh Token 생성
      */
-    private TokenResponse.Token generateRefreshToken(Authentication authentication) {
+    private TokenResponse.Token generateRefreshToken(String subject) {
         long expiredAt = System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME;
 
         String token = Jwts.builder()
-            .subject(authentication.getName())
+            .subject(subject)
             .expiration(new Date(expiredAt))
             .signWith(secretKey)
             .compact();
