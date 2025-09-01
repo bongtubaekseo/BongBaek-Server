@@ -6,9 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.domain.member.entity.MemberWithdrawal;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
+import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.exception.SignUpRequiredException;
@@ -30,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final MemberWithdrawalRepository memberWithdrawalRepository;
+
     private final KakaoLoginClient kakaoLoginClient;
 
     private final JwtProvider jwtProvider;
@@ -137,5 +142,37 @@ public class MemberService {
             .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         member.update(request);
+    }
+
+    @Transactional
+    public void withdraw(final String authorization, final String memberId, final WithdrawRequest request) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
+        }
+
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        final String accessToken = authorization.substring(7);
+
+        // 유효성 검증 실패시 예외
+        jwtValidator.validateToken(accessToken);
+
+        // 토큰 주체와 사용자 일치 확인
+        final String subject = jwtParser.parseClaims(accessToken).getSubject();
+
+        if (!memberId.equals(subject)) {
+            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
+        }
+
+        // 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
+        jwtBlacklistManager.add(authorization);
+        jwtRefreshStore.deleteAllForUser(memberId);
+
+        // 탈퇴 이력 저장
+        memberWithdrawalRepository.save(new MemberWithdrawal(memberId, request));
+
+        // 회원 정보 삭제
+        memberRepository.delete(member);
     }
 }
