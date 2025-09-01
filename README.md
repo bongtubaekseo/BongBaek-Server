@@ -68,7 +68,11 @@
 
 <img src="https://img.shields.io/badge/Spring%20Data%20JPA-3.5.3-6DB33F?style=flat&logo=hibernate&logoColor=white"/> <img src="https://img.shields.io/badge/MySQL-8.0.41-4479A1?style=flat&logo=MySQL&logoColor=white"/>  <img src="https://img.shields.io/badge/QueryDSL-5.1.0-0094FF?style=flat&logo=OSF&logoColor=white"/>
 
+<img src="https://img.shields.io/badge/Redis-8.0.2-FF4438?style=flat&logo=Redis&logoColor=white"/>
+
 ### Infrastructure
+
+<img src="https://img.shields.io/badge/NGINX-009639?style=flat&logo=NGINX&logoColor=white"/> <img src="https://img.shields.io/badge/Prometheus-E6522C?style=flat&logo=Prometheus&logoColor=white"/> <img src="https://img.shields.io/badge/Grafana-F46800?style=flat&logo=Grafana&logoColor=white"/>
 
 <img src="https://img.shields.io/badge/Github Actions-2088FF?style=flat&logo=githubactions&logoColor=white"/> <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=Docker&logoColor=white"/>
 
