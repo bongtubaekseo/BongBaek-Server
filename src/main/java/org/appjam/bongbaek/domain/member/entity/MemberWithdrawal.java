@@ -27,7 +27,7 @@ public class MemberWithdrawal extends BaseEntity {
     @Column(name = "withdrawal_id", length = 13)
     private String withdrawalId;
 
-    @Column(name = "member_id", nullable = false, length = 13)
+    @Column(name = "member_id", nullable = false, length = 30)
     private String memberId;
 
     @Enumerated(EnumType.STRING)
