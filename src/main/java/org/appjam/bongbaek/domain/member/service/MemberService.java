@@ -11,6 +11,8 @@ import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.exception.SignUpRequiredException;
+import org.appjam.bongbaek.global.jwt.JwtBlacklistManager;
+import org.appjam.bongbaek.global.jwt.JwtRefreshStore;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
@@ -32,6 +34,8 @@ public class MemberService {
     private final JwtProvider jwtProvider;
     private final JwtValidator jwtValidator;
     private final JwtParser jwtParser;
+    private final JwtRefreshStore jwtRefreshStore;
+    private final JwtBlacklistManager jwtBlacklistManager;
 
     @Transactional
     public LoginResponse login(
@@ -74,32 +78,58 @@ public class MemberService {
         }
     }
 
-    private TokenResponse generateTokensForMember(
-        Member member
-    ) {
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-            member.getMemberId(),
-            "", // credentials 미사용
-            Collections.emptyList() // role 미사용
-        );
+    @Transactional
+    public void logout(final String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) return;
 
-        return jwtProvider.generateToken(authentication);
+        String accessToken = authorization.substring("Bearer ".length());
+        jwtValidator.validateToken(accessToken);
+
+        String memberId = jwtParser.parseClaims(accessToken).getSubject();
+
+        // 유저의 모든 refreshToken 제거
+        jwtRefreshStore.deleteAllForUser(memberId);
+
+        // 현재 accessToken 차단
+        jwtBlacklistManager.add(authorization);
     }
 
     @Transactional
-    public TokenResponse reissueTokens(
-        final String refreshToken
-    ) {
-        // refresh token 유효성 검사
+    public TokenResponse reissueTokens(final String refreshToken) {
         jwtValidator.validateToken(refreshToken);
 
-        // refresh 토큰에서 sub(=memberId) 파싱
+        // 저장된 refreshToken인지 확인
+        if (!jwtRefreshStore.exists(refreshToken)) {
+            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
+        }
+
         String memberId = jwtParser.parseClaims(refreshToken).getSubject();
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
-        // 토큰 재발급
+        // 사용한 refreshToken 폐기
+        jwtRefreshStore.deleteToken(refreshToken);
+
+        // 새로운 access+refresh 토큰 발급
         return generateTokensForMember(member);
+    }
+
+    /**
+     * 새 access+refresh 토큰 발급
+     * + refreshtoken Redis 저장
+     * */
+    private TokenResponse generateTokensForMember(Member member) {
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+            member.getMemberId(), "", Collections.emptyList()
+        );
+        TokenResponse tokenResponse = jwtProvider.generateToken(auth);
+
+        long refreshTtlSec = Math.max(1, (tokenResponse.refreshToken().expiredAt() - System.currentTimeMillis()) / 1000);
+
+        // refresh token redis에 저장
+        jwtRefreshStore.save(member.getMemberId(), tokenResponse.refreshToken().token(), refreshTtlSec);
+
+        return tokenResponse;
     }
 }
