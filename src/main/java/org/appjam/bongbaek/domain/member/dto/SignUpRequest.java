@@ -27,4 +27,14 @@ public record SignUpRequest(
                 .memberIncome(incomeType)
                 .build();
     }
+
+    public Member toAppleMember(IncomeType incomeType) {
+        return Member.builder()
+                .kakaoId(null)
+                .appleId(this.appleId)
+                .memberName(this.memberName)
+                .memberBirthday(this.memberBirthday)
+                .memberIncome(incomeType)
+                .build();
+    }
 }
