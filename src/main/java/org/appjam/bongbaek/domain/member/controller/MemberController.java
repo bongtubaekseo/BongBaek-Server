@@ -2,17 +2,21 @@ package org.appjam.bongbaek.domain.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.domain.member.dto.LoginRequest;
 import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.ReissueRequest;
 import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
+import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.ApiResponse;
+import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "회원", description = "회원 관련 API")
@@ -71,5 +75,18 @@ public class MemberController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(CommonSuccessCode.TOKEN_REISSUED, tokenResponse));
+    }
+
+    @Operation(summary = "회원 프로필 수정", description = "이름/생일/소득을 전달하여 프로필을 전체 교체합니다.")
+    @PutMapping(path = "/member/profile")
+    public ResponseEntity<ApiResponse<EmptyBody>> updateProfile(
+        @AuthenticationPrincipal final String memberId,
+        @RequestBody @Valid final UpdateMemberRequest request
+    ) {
+        memberService.updateProfile(memberId, request);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ApiResponse.success(CommonSuccessCode.OK));
     }
 }
