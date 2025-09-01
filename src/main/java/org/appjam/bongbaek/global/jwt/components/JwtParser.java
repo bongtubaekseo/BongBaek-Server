@@ -3,6 +3,7 @@ package org.appjam.bongbaek.global.jwt.components;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
@@ -43,5 +44,14 @@ public class JwtParser {
         Claims claims = parseClaims(token);
 
         return claims.getSubject();
+    }
+
+    public Date getExpire(final String token) {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .getExpiration();
     }
 }

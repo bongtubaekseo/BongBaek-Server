@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.appjam.bongbaek.global.jwt.JwtBlacklistManager;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
 import org.appjam.bongbaek.global.jwt.data.MemberAuthentication;
@@ -22,6 +23,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtValidator jwtValidator;
     private final JwtParser jwtParser;
+    private final JwtBlacklistManager jwtBlacklistManager;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -30,10 +32,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = resolveToken(request);
 
         try {
-            if (token != null && !token.isBlank() && jwtValidator.validateToken(token)) {
-                String memberId = jwtParser.getMemberIdFromAccessToken(token);
-                MemberAuthentication authentication = MemberAuthentication.createMemberAuthentication(memberId);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (token != null && !token.isBlank()) {
+                // 블랙리스트, 로그아웃된 토큰인지 확인
+                if (jwtBlacklistManager.contains("Bearer " + token)) {
+                    SecurityContextHolder.clearContext();
+                } else if (jwtValidator.validateToken(token)) {
+                    String memberId = jwtParser.getMemberIdFromAccessToken(token);
+                    MemberAuthentication authentication = MemberAuthentication.createMemberAuthentication(memberId);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
