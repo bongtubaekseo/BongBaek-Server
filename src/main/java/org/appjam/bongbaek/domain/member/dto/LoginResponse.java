@@ -11,13 +11,13 @@ public record LoginResponse(
         @Schema(description = "회원 가입 완료 여부")
         boolean isCompletedSignUp,
         @Schema(description = "kakao ID", nullable = true)
-        Long kakaoId
+        String oauthId
 ) {
-    public static LoginResponse of(final String name, final TokenResponse token, final boolean isCompletedSignUp, final Long kakaoId) {
-        return new LoginResponse(name, token, isCompletedSignUp, kakaoId);
+    public static LoginResponse of(final String name, final TokenResponse token, final boolean isCompletedSignUp, final String oauthId) {
+        return new LoginResponse(name, token, isCompletedSignUp, oauthId);
     }
 
-    public static LoginResponse ofLoginSuccess(final String name, final TokenResponse token, final Long kakaoId) {
-        return new LoginResponse(name, token, true, kakaoId);
+    public static LoginResponse ofLoginSuccess(final String name, final TokenResponse token, final String oauthId) {
+        return new LoginResponse(name, token, true, oauthId);
     }
 }

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public record SignUpRequest(
         @Schema(description = "kakao Id", example = "12345678")
-        Long kakaoId,
+        String kakaoId,
         @Schema(description = "apple Id", example = "null")
         String appleId,
         @Schema(description = "회원 이름", example = "김민경")
