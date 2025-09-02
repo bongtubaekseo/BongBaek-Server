@@ -1,6 +1,5 @@
 package org.appjam.bongbaek.domain.member.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.appjam.bongbaek.domain.member.dto.AppleLoginResponse;
@@ -24,9 +23,6 @@ import org.appjam.bongbaek.global.oauth.apple.dto.AppleInfoResponse;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 @Slf4j
 @Service
@@ -58,14 +54,21 @@ public class MemberService {
     }
 
     @Transactional
-    public AppleLoginResponse loginByApple(
-            final String identityToken
-    ) throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
-        final AppleInfoResponse userData = appleLoginClient.validateAppleIdentityToken(identityToken);
+    public AppleLoginResponse loginByApple(final String identityToken) {
+                final AppleInfoResponse userData;
+
+                try {
+                    userData = appleLoginClient.validateAppleIdentityToken(identityToken);
+
+                } catch (Exception e) {
+                    log.error("애플 Identity Token 검증 실패: {}", e.getMessage());
+                    throw new CustomException(CommonErrorCode.UNAUTHORIZED);
+                }
+
         final String appleId = userData.id();
 
         Member member = memberRepository.findByAppleId(appleId)
-                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new SignUpRequiredException(appleId));
 
         TokenResponse tokenResponse = generateTokensForMember(member);
 
