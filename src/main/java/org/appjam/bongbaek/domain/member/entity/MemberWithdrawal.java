@@ -39,13 +39,13 @@ public class MemberWithdrawal extends BaseEntity {
     @Builder
     private MemberWithdrawal(WithdrawalReason withdrawalReason, String detail) {
         this.withdrawalReason = withdrawalReason;
-        this.detail = validateAndNormalizeDetail(withdrawalReason, detail);
+        this.detail = validateWithdrawalDetail(withdrawalReason, detail);
     }
 
     /**
      * 탈퇴 사유와 상세 사유를 검증
      */
-    private String validateAndNormalizeDetail(WithdrawalReason reason, String detail) {
+    private String validateWithdrawalDetail(WithdrawalReason reason, String detail) {
         if (reason == WithdrawalReason.OTHER) {
             String trimmed = detail == null ? null : detail.trim();
             if (trimmed == null || trimmed.isBlank() || trimmed.length() > 50) {
