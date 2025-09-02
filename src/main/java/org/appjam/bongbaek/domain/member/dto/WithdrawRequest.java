@@ -1,9 +1,9 @@
 package org.appjam.bongbaek.domain.member.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.appjam.bongbaek.domain.member.entity.MemberWithdrawal;
 import org.appjam.bongbaek.domain.member.enums.WithdrawalReason;
 
 public record WithdrawRequest (
@@ -21,16 +21,10 @@ public record WithdrawRequest (
     @Size(max = 50, message = "상세 사유는 50자 이내로 입력해주세요.")
     String detail
 ) {
-    // 검증 단계
-    @AssertTrue(message = "사유가 OTHER인 경우 상세 사유를 1~50자로 입력해야 합니다. OTHER가 아니면 상세 사유를 null로 보내야 합니다.")
-    @Schema(hidden = true)
-    public boolean isDetailValidWhenOther() {
-        if (withdrawalReason == WithdrawalReason.OTHER) {
-            // OTHER → detail 필수 (1~50자)
-            return detail != null && !detail.isBlank() && detail.trim().length() <= 50;
-        } else {
-            // OTHER가 아닐 때 → detail 반드시 null
-            return detail == null;
-        }
+    public MemberWithdrawal toEntity() {
+        return MemberWithdrawal.builder()
+            .withdrawalReason(withdrawalReason)
+            .detail(detail)
+            .build();
     }
 }

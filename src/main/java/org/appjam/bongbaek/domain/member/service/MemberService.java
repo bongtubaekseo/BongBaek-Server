@@ -1,5 +1,6 @@
 package org.appjam.bongbaek.domain.member.service;
 
+import jakarta.persistence.EntityManager;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class MemberService {
     private final JwtParser jwtParser;
     private final JwtRefreshStore jwtRefreshStore;
     private final JwtBlacklistManager jwtBlacklistManager;
+    private final EntityManager entityManager;
 
     @Transactional
     public LoginResponse login(
@@ -86,7 +88,7 @@ public class MemberService {
 
     @Transactional
     public void logout(final String accessToken) {
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) return;
+        if (!jwtValidator.isBearer(accessToken)) return;
 
         String accessTokenNoBearer = accessToken.substring("Bearer ".length());
         jwtValidator.validateToken(accessTokenNoBearer);
@@ -146,7 +148,7 @@ public class MemberService {
 
     @Transactional
     public void withdraw(final String accessToken, final String memberId, final WithdrawRequest request) {
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+        if (!jwtValidator.isBearer(accessToken)) {
             throw new CustomException(CommonErrorCode.UNAUTHORIZED);
         }
 
@@ -165,14 +167,16 @@ public class MemberService {
             throw new CustomException(CommonErrorCode.UNAUTHORIZED);
         }
 
-        // 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
-        jwtBlacklistManager.add(accessToken);
-        jwtRefreshStore.deleteAllForUser(memberId);
-
         // 탈퇴 이력 저장
-        memberWithdrawalRepository.save(new MemberWithdrawal(request));
+        memberWithdrawalRepository.save(request.toEntity());
 
         // 회원 정보 삭제
         memberRepository.delete(member);
+
+        entityManager.flush();
+
+        // 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
+        jwtBlacklistManager.add(accessToken);
+        jwtRefreshStore.deleteAllForUser(memberId);
     }
 }

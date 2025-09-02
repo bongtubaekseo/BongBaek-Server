@@ -8,11 +8,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.appjam.bongbaek.domain.common.BaseEntity;
-import org.appjam.bongbaek.domain.member.dto.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.enums.WithdrawalReason;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.appjam.bongbaek.global.exception.CustomException;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -34,14 +36,20 @@ public class MemberWithdrawal extends BaseEntity {
     @Column(name = "detail", length = 150)
     private String detail;
 
-    public MemberWithdrawal(WithdrawRequest request) {
-        this.withdrawalReason = request.withdrawalReason();
-
-        // reason이 없을 때만 detail 저장
-        if (this.withdrawalReason == WithdrawalReason.OTHER) {
-            this.detail = (request.detail() == null) ? null : request.detail().trim();
+    @Builder
+    private MemberWithdrawal(WithdrawalReason withdrawalReason, String detail) {
+        if (withdrawalReason == WithdrawalReason.OTHER) {
+            String trimmed = detail == null ? null : detail.trim();
+            if (trimmed == null || trimmed.isBlank() || trimmed.length() > 50) {
+                throw new CustomException(CommonErrorCode.INVALID_WITHDRAWAL_DETAIL);
+            }
+            this.detail = trimmed;
         } else {
+            if (detail != null) {
+                throw new CustomException(CommonErrorCode.WITHDRAWAL_DETAIL_NOT_ALLOWED);
+            }
             this.detail = null;
         }
+        this.withdrawalReason = withdrawalReason;
     }
 }
