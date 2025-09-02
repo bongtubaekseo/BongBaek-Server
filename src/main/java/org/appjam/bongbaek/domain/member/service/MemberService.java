@@ -1,16 +1,14 @@
 package org.appjam.bongbaek.domain.member.service;
 
 import jakarta.persistence.EntityManager;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.appjam.bongbaek.domain.member.dto.LoginResponse;
-import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
-import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
-import org.appjam.bongbaek.domain.member.dto.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
+import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
-import org.appjam.bongbaek.domain.member.entity.MemberWithdrawal;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
@@ -23,8 +21,6 @@ import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
