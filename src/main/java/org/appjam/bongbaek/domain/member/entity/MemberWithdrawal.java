@@ -30,7 +30,7 @@ public class MemberWithdrawal extends BaseEntity {
     private String withdrawalId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "withdrawal_reason", columnDefinition = "VARCHAR(50)")
+    @Column(name = "withdrawal_reason", nullable = false, columnDefinition = "VARCHAR(50)")
     private WithdrawalReason withdrawalReason;
 
     @Column(name = "detail", length = 150)
