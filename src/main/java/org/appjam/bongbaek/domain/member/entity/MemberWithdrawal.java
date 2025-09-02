@@ -38,7 +38,7 @@ public class MemberWithdrawal extends BaseEntity {
         this.withdrawalReason = request.withdrawalReason();
 
         // reason이 없을 때만 detail 저장
-        if (this.withdrawalReason == null) {
+        if (this.withdrawalReason == WithdrawalReason.OTHER) {
             this.detail = (request.detail() == null) ? null : request.detail().trim();
         } else {
             this.detail = null;

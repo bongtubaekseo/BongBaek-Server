@@ -145,28 +145,28 @@ public class MemberService {
     }
 
     @Transactional
-    public void withdraw(final String authorization, final String memberId, final WithdrawRequest request) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+    public void withdraw(final String accessToken, final String memberId, final WithdrawRequest request) {
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             throw new CustomException(CommonErrorCode.UNAUTHORIZED);
         }
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
-        final String accessToken = authorization.substring(7);
+        final String accessTokenNoBearer = accessToken.substring(7);
 
         // 유효성 검증 실패시 예외
-        jwtValidator.validateToken(accessToken);
+        jwtValidator.validateToken(accessTokenNoBearer);
 
         // 토큰 주체와 사용자 일치 확인
-        final String subject = jwtParser.parseClaims(accessToken).getSubject();
+        final String subject = jwtParser.parseClaims(accessTokenNoBearer).getSubject();
 
         if (!memberId.equals(subject)) {
             throw new CustomException(CommonErrorCode.UNAUTHORIZED);
         }
 
         // 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
-        jwtBlacklistManager.add(authorization);
+        jwtBlacklistManager.add(accessToken);
         jwtRefreshStore.deleteAllForUser(memberId);
 
         // 탈퇴 이력 저장

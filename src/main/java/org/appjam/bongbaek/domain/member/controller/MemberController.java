@@ -91,7 +91,15 @@ public class MemberController {
             .body(ApiResponse.success(CommonSuccessCode.OK, null));
     }
 
-    @Operation(summary = "회원 탈퇴", description = "탈퇴 사유(INCONVENIENT/PRIVACY_CONCERN/RARELY_USED/BUG_OR_ERROR/NEW_ACCOUNT) 또는 탈퇴 상세 사유(50자 이내)로 탈퇴합니다.")
+    @Operation(
+        summary = "회원 탈퇴",
+        description = """
+        사전 정의 사유(INCONVENIENT/PRIVACY_CONCERN/RARELY_USED/BUG_OR_ERROR/NEW_ACCOUNT/OTHER)로 탈퇴합니다.
+        - reason: 필수
+        - reason=OTHER일 때 detail: 1~50자 필수
+        - 그 외 사유일 때 detail: null 필수
+        """
+    )
     @PostMapping("/member/withdraw")
     public ResponseEntity<ApiResponse<EmptyBody>> withdraw(
         @RequestHeader(value = "Authorization") final String accessToken,
