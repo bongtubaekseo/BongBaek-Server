@@ -1,6 +1,5 @@
 package org.appjam.bongbaek.domain.member.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,8 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 @Tag(name = "회원", description = "회원 관련 API")
 @RestController
@@ -49,7 +46,7 @@ public class MemberController {
     @PostMapping("/oauth/apple")
     public ResponseEntity<ApiResponse<AppleLoginResponse>> loginByApple(
             @RequestBody final AppleLoginRequest loginRequest
-    ) throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
+    ) {
         AppleLoginResponse loginResponse = memberService.loginByApple(loginRequest.identityToken());
 
         if (loginResponse.isCompletedSignUp()) {
