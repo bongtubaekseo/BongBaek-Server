@@ -2,7 +2,6 @@ package org.appjam.bongbaek.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.appjam.bongbaek.domain.member.dto.AppleLoginResponse;
 import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
@@ -19,7 +18,6 @@ import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
 import org.appjam.bongbaek.global.oauth.apple.AppleLoginClient;
-import org.appjam.bongbaek.global.oauth.apple.dto.AppleInfoResponse;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,43 +38,34 @@ public class MemberService {
     private final JwtBlacklistManager jwtBlacklistManager;
 
     @Transactional
-    public LoginResponse login(
+    public LoginResponse loginByKakao(
         final String accessToken
     ) {
-        final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
+        final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
         Member member = memberRepository.findByKakaoId(kakaoId)
             .orElseThrow(() -> new SignUpRequiredException(kakaoId));
 
         TokenResponse tokenResponse = generateTokensForMember(member);
 
-        return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+        return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
     }
 
     @Transactional
-    public AppleLoginResponse loginByApple(final String identityToken) {
-                final AppleInfoResponse userData;
+    public LoginResponse loginByApple(final String identityToken) {
 
-                try {
-                    userData = appleLoginClient.validateAppleIdentityToken(identityToken);
-
-                } catch (Exception e) {
-                    log.error("애플 Identity Token 검증 실패: {}", e.getMessage());
-                    throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-                }
-
-        final String appleId = userData.id();
+        final String appleId = appleLoginClient.validateAppleIdentityToken(identityToken);
 
         Member member = memberRepository.findByAppleId(appleId)
                 .orElseThrow(() -> new SignUpRequiredException(appleId));
 
         TokenResponse tokenResponse = generateTokensForMember(member);
 
-        return AppleLoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+        return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
     }
 
     @Transactional
-    public LoginResponse signUp(
+    public LoginResponse signUpByKakao(
         final SignUpRequest signUpRequest
     ) {
         // 이미 가입된 회원인지 확인
@@ -92,7 +81,7 @@ public class MemberService {
             TokenResponse tokenResponse = generateTokensForMember(savedMember);
             log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
-            return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
+            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
 
         } catch (CustomException e) {
             throw e;
@@ -103,7 +92,7 @@ public class MemberService {
     }
 
     @Transactional
-    public AppleLoginResponse signUpByApple(
+    public LoginResponse signUpByApple(
             final SignUpRequest signUpRequest
     ) {
         // 이미 가입된 회원인지 확인
@@ -119,7 +108,7 @@ public class MemberService {
             TokenResponse tokenResponse = generateTokensForMember(savedMember);
             log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
 
-            return AppleLoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
+            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
 
         } catch (CustomException e) {
             throw e;
