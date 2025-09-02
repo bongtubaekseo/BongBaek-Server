@@ -44,7 +44,7 @@ public class MemberService {
         final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
         Member member = memberRepository.findByKakaoId(kakaoId)
-            .orElseThrow(() -> new SignUpRequiredException(kakaoId));
+            .orElseThrow(() -> new SignUpRequiredException(kakaoId, "kakao"));
 
         TokenResponse tokenResponse = generateTokensForMember(member);
 
@@ -57,7 +57,7 @@ public class MemberService {
         final String appleId = appleLoginClient.validateAppleIdentityToken(identityToken);
 
         Member member = memberRepository.findByAppleId(appleId)
-                .orElseThrow(() -> new SignUpRequiredException(appleId));
+                .orElseThrow(() -> new SignUpRequiredException(appleId, "apple"));
 
         TokenResponse tokenResponse = generateTokensForMember(member);
 
