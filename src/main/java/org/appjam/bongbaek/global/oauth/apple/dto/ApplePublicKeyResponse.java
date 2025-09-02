@@ -8,6 +8,6 @@ public record ApplePublicKeyResponse(List<ApplePublicKey> keys) {
         return keys.stream()
                 .filter(key -> key.kid().equals(kid) && key.alg().equals(alg))
                 .findAny()
-                .orElseThrow();
-    }
+                .orElseThrow(() -> new IllegalArgumentException(
+                String.format("일치하는 RSA키가 없습니다 : %s, alg: %s", kid, alg)));    }
 }
