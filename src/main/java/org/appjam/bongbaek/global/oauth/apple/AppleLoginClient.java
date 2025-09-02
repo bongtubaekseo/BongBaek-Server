@@ -7,6 +7,7 @@ import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.oauth.apple.dto.AppleInfoResponse;
 import org.appjam.bongbaek.global.oauth.apple.dto.ApplePublicKeyResponse;
 import org.appjam.bongbaek.global.oauth.apple.jwt.AppleJwtParser;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -21,10 +22,10 @@ public class AppleLoginClient {
 
     private final AppleJwtParser jwtParser;
     private final ApplePublicKeyGenerator applePublicKeyGenerator;
-
-    private final String issuer = "https://appleid.apple.com";
-    private final String clientId = "com.appjam.bongbaek.ios";
-    // TO DO: 아요 개발자 선생님이 주시는 ID 값들을 추후 저장
+    @Value("${apple.issuer}")
+    private String issuer;
+    @Value("${apple.client-id}")
+    private String clientId;
 
     public String validateAppleIdentityToken(String identityToken) {
 
