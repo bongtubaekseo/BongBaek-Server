@@ -7,6 +7,7 @@ import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
@@ -117,6 +118,14 @@ public class MemberService {
 
         // 새로운 access+refresh 토큰 발급
         return generateTokensForMember(member);
+    }
+
+    @Transactional(readOnly = true)
+    public MyInfoResponse getMyInfo(String memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        return MyInfoResponse.fromEntity(member);
     }
 
     /**
