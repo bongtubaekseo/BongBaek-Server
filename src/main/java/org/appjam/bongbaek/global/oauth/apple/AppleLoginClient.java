@@ -1,6 +1,5 @@
 package org.appjam.bongbaek.global.oauth.apple;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
@@ -27,7 +26,9 @@ public class AppleLoginClient {
     private final String clientId = "com.appjam.bongbaek.ios";
     // TO DO: 아요 개발자 선생님이 주시는 ID 값들을 추후 저장
 
-    public AppleInfoResponse validateAppleIdentityToken(String identityToken) throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
+    public AppleInfoResponse validateAppleIdentityToken(String identityToken) {
+
+        try {
         Map<String, String> headers = jwtParser.parseHeaders(identityToken);
 
         ApplePublicKeyResponse suspectPublicKey = getAppleAuthPublicKey();
@@ -43,7 +44,12 @@ public class AppleLoginClient {
         }
 
         return AppleInfoResponse.of(claims);
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     private ApplePublicKeyResponse getAppleAuthPublicKey() {
         RestClient restClient = RestClient.create();
