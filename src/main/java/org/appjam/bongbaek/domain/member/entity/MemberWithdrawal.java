@@ -38,18 +38,26 @@ public class MemberWithdrawal extends BaseEntity {
 
     @Builder
     private MemberWithdrawal(WithdrawalReason withdrawalReason, String detail) {
-        if (withdrawalReason == WithdrawalReason.OTHER) {
+        this.withdrawalReason = withdrawalReason;
+        this.detail = validateAndNormalizeDetail(withdrawalReason, detail);
+    }
+
+    /**
+     * 탈퇴 사유와 상세 사유를 검증
+     */
+    private String validateAndNormalizeDetail(WithdrawalReason reason, String detail) {
+        if (reason == WithdrawalReason.OTHER) {
             String trimmed = detail == null ? null : detail.trim();
             if (trimmed == null || trimmed.isBlank() || trimmed.length() > 50) {
                 throw new CustomException(CommonErrorCode.INVALID_WITHDRAWAL_DETAIL);
             }
-            this.detail = trimmed;
-        } else {
-            if (detail != null) {
-                throw new CustomException(CommonErrorCode.WITHDRAWAL_DETAIL_NOT_ALLOWED);
-            }
-            this.detail = null;
+            return trimmed;
         }
-        this.withdrawalReason = withdrawalReason;
+
+        if (detail != null) {
+            throw new CustomException(CommonErrorCode.WITHDRAWAL_DETAIL_NOT_ALLOWED);
+        }
+
+        return null;
     }
 }
