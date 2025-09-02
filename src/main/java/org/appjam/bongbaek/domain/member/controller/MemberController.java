@@ -4,12 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.domain.member.dto.LoginRequest;
-import org.appjam.bongbaek.domain.member.dto.LoginResponse;
-import org.appjam.bongbaek.domain.member.dto.ReissueRequest;
-import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
-import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
-import org.appjam.bongbaek.domain.member.dto.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.request.LoginRequest;
+import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
+import org.appjam.bongbaek.domain.member.dto.request.ReissueRequest;
+import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
@@ -111,5 +112,15 @@ public class MemberController {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(ApiResponse.success(CommonSuccessCode.OK, null));
+    }
+
+    @Operation(summary = "마이페이지 회원 정보 조회", description = "마이페이지 속 이름/생일/소득을 조회합니다. 소득 구간 OVER200: 월 소득 200만원 이상, UNDER200: 월 소득 200만원 미만, NONE: 없음")
+    @GetMapping(path = "/member/profile")
+    public ResponseEntity<ApiResponse<MyInfoResponse>> getMyInfo(
+        @AuthenticationPrincipal final String memberId
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ApiResponse.success(CommonSuccessCode.OK, memberService.getMyInfo(memberId)));
     }
 }

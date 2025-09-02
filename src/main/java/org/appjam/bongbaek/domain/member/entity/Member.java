@@ -13,7 +13,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.hibernate.annotations.Comment;
 
 @Entity

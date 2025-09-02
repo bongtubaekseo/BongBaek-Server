@@ -1,11 +1,10 @@
 package org.appjam.bongbaek.global.exception;
 
-import org.appjam.bongbaek.domain.member.dto.LoginResponse;
+import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
