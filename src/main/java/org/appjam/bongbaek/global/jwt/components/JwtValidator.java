@@ -39,4 +39,11 @@ public class JwtValidator {
             throw new CustomException(CommonErrorCode.INVALID_ACCESS_TOKEN);
         }
     }
+
+    /**
+     * 토큰이 Bearer로 시작하는지 확인
+     */
+    public boolean isBearer(String token) {
+        return token != null && token.startsWith("Bearer ");
+    }
 }
