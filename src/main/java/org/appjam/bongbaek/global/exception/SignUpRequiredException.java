@@ -7,13 +7,8 @@ import org.appjam.bongbaek.global.common.CommonErrorCode;
 public class SignUpRequiredException extends CustomException {
     private final String id;
 
-    public SignUpRequiredException(Long kakaoId) {
+    public SignUpRequiredException(String oauthId) {
         super(CommonErrorCode.SIGN_UP_REQUIRED);
-        this.id = kakaoId.toString();
-    }
-
-    public SignUpRequiredException(String appleId) {
-        super(CommonErrorCode.SIGN_UP_REQUIRED);
-        this.id = appleId;
+        this.id = oauthId;
     }
 }

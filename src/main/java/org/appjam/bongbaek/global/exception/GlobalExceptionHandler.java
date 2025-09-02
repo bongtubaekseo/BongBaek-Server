@@ -5,7 +5,6 @@ import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -89,7 +88,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(SignUpRequiredException.class)
     public ResponseEntity<ApiResponse<LoginResponse>> handleSignUpRequired(SignUpRequiredException e) {
-        LoginResponse payload = LoginResponse.of(null, null, false, e.getKakaoId());
+        LoginResponse payload = LoginResponse.of(null, null, false, e.getId());
 
         return ResponseEntity
             .status(CommonSuccessCode.ACCEPTED.getStatus()) // 202
