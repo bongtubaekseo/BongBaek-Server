@@ -9,5 +9,5 @@ public record ApplePublicKeyResponse(List<ApplePublicKey> keys) {
                 .filter(key -> key.kid().equals(kid) && key.alg().equals(alg))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException(
-                String.format("일치하는 RSA키가 없습니다 : %s, alg: %s", kid, alg)));    }
+                String.format("일치하는 RSA키가 없습니다 kid : %s, alg: %s", kid, alg)));    }
 }

@@ -1,10 +1,13 @@
 package org.appjam.bongbaek.global.oauth.apple.jwt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.security.PublicKey;
+import java.util.Base64;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -12,27 +15,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppleJwtParser {
 
-    public Map<String, String> parseHeaders(
-            String identityToken
-    ){
+    public Map<String, String> parseHeaders(String token)  {
+        // TO DO: 실제 테스트를 위해 예외 처리를 메시지로 처리, 완료 후 수정
         try {
-        Header header = Jwts.parser()
-                .build()
-                .parseSignedClaims(identityToken)
-                .getHeader();
+            String[] parts = token.split("\\.");
 
-        return header.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> String.valueOf(e.getValue())
-                ));
-        } catch (MalformedJwtException e) {
-            throw new IllegalArgumentException("잘못된 형식의 JWT 토큰입니다", e);
-        } catch (JwtException e) {
-            throw new IllegalArgumentException("JWT 토큰 파싱 중 오류가 발생했습니다", e);
+            String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
+            Map<String, Object> header = new ObjectMapper().readValue(headerJson, Map.class);
+
+            return header.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> String.valueOf(e.getValue())
+                    ));
+        } catch (JsonProcessingException e) {
+            throw new  IllegalArgumentException("JWT 헤더가 유효하지 않습니다.");
         }
     }
-
     public Claims getTokenClaimsByPublicKey(
             String identityToken,
             PublicKey publicKey
