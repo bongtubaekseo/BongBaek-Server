@@ -26,7 +26,7 @@ public class AppleLoginClient {
     private final String clientId = "com.appjam.bongbaek.ios";
     // TO DO: 아요 개발자 선생님이 주시는 ID 값들을 추후 저장
 
-    public AppleInfoResponse validateAppleIdentityToken(String identityToken) {
+    public String validateAppleIdentityToken(String identityToken) {
 
         try {
         Map<String, String> headers = jwtParser.parseHeaders(identityToken);
@@ -43,7 +43,9 @@ public class AppleLoginClient {
             throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
         }
 
-        return AppleInfoResponse.of(claims);
+        AppleInfoResponse userData = AppleInfoResponse.of(claims);
+
+        return userData.id();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
