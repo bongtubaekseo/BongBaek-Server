@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, String> {
-    boolean existsByKakaoId(final Long kakaoId);
+    boolean existsByKakaoId(final String kakaoId);
     boolean existsByAppleId(final String appleId);
-    Optional<Member> findByKakaoId(final Long kakaoId);
+    Optional<Member> findByKakaoId(final String kakaoId);
     Optional<Member> findByAppleId(final String appleId);
 }

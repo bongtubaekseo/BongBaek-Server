@@ -41,10 +41,10 @@ public class Member {
 	private String appleId;
 
 	@Column(name = "kakao_id", updatable = false)
-	private Long kakaoId;
+	private String kakaoId;
 
 	@Builder
-	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, Long kakaoId) {
+	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId) {
 		this.memberName = memberName;
 		this.memberBirthday = memberBirthday;
 		this.memberIncome = memberIncome;
