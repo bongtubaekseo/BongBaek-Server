@@ -31,7 +31,7 @@ public class MemberController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @RequestBody final LoginRequest loginRequest
     ) {
-        LoginResponse loginResponse = memberService.login(loginRequest.accessToken());
+        LoginResponse loginResponse = memberService.loginByKakao(loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -44,10 +44,10 @@ public class MemberController {
 
     @Operation(summary = "애플 로그인", description = "애플 토큰으로 로그인합니다.")
     @PostMapping("/oauth/apple")
-    public ResponseEntity<ApiResponse<AppleLoginResponse>> loginByApple(
-            @RequestBody final AppleLoginRequest loginRequest
+    public ResponseEntity<ApiResponse<LoginResponse>> loginByApple(
+            @RequestBody final LoginRequest loginRequest
     ) {
-        AppleLoginResponse loginResponse = memberService.loginByApple(loginRequest.identityToken());
+        LoginResponse loginResponse = memberService.loginByApple(loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -64,12 +64,12 @@ public class MemberController {
             @RequestBody final SignUpRequest signUpRequest
     ) {
         if (signUpRequest.kakaoId() != null) {
-            LoginResponse loginResponse = memberService.signUp(signUpRequest);
+            LoginResponse loginResponse = memberService.signUpByKakao(signUpRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
         }
         if (signUpRequest.appleId() != null) {
-            AppleLoginResponse loginResponse = memberService.signUpByApple(signUpRequest);
+            LoginResponse loginResponse = memberService.signUpByApple(signUpRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
         }
