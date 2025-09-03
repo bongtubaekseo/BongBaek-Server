@@ -18,12 +18,12 @@ public record LoginResponse(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String appleId
 ) {
-    public static LoginResponse ofKakao(final String name, final TokenResponse token, final boolean isCompletedSignUp, final String kakaoId) {
-        return new LoginResponse(name, token, isCompletedSignUp, kakaoId, null);
+    public static LoginResponse ofKakaoLoginFailure(final String kakaoId) {
+        return new LoginResponse(null, null, false, kakaoId, null);
     }
 
-    public static LoginResponse ofApple(final String name, final TokenResponse token, final boolean isCompletedSignUp, final String appleId) {
-        return new LoginResponse(name, token, isCompletedSignUp, null, appleId);
+    public static LoginResponse ofAppleLoginFailure(final String appleId) {
+        return new LoginResponse(null, null, false, null, appleId);
     }
 
     public static LoginResponse ofKakaoLoginSuccess(final String name, final TokenResponse token, final String kakaoId) {

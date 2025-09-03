@@ -46,24 +46,32 @@ public class MemberService {
         if (oAuthProvider.equals(OAuthProvider.KAKAO)) {
             final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
-            Member member = memberRepository.findByKakaoId(kakaoId)
-                    .orElseThrow(() -> new SignUpRequiredException(kakaoId, "kakao"));
+            try {
+                Member member = memberRepository.findByKakaoId(kakaoId)
+                        .orElseThrow(() -> new SignUpRequiredException(kakaoId));
 
-            TokenResponse tokenResponse = generateTokensForMember(member);
+                TokenResponse tokenResponse = generateTokensForMember(member);
 
-            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+                return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+            } catch(SignUpRequiredException e){
+                return LoginResponse.ofKakaoLoginFailure(kakaoId);
+            }
         }
+
         if (oAuthProvider.equals(OAuthProvider.APPLE)) {
             final String appleId = appleLoginClient.validateAppleIdentityToken(accessToken);
 
-            Member member = memberRepository.findByAppleId(appleId)
-                    .orElseThrow(() -> new SignUpRequiredException(appleId, "apple"));
+            try {
+                Member member = memberRepository.findByAppleId(appleId)
+                        .orElseThrow(() -> new SignUpRequiredException(appleId));
 
-            TokenResponse tokenResponse = generateTokensForMember(member);
+                TokenResponse tokenResponse = generateTokensForMember(member);
 
-            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+                return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+            } catch(SignUpRequiredException e){
+                return LoginResponse.ofAppleLoginFailure(appleId);
+            }
         }
-
         throw new CustomException(CommonErrorCode.UNAUTHORIZED);
     }
 
@@ -79,6 +87,7 @@ public class MemberService {
 
             Member member = createMember(signUpRequest);
             TokenResponse tokenResponse = generateTokensForMember(member);
+            log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
             return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
         }
@@ -87,8 +96,10 @@ public class MemberService {
             if (memberRepository.existsByAppleId(signUpRequest.appleId())) {
                 throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
             }
+
             Member member = createMember(signUpRequest);
             TokenResponse tokenResponse = generateTokensForMember(member);
+            log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
 
             return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
         }
