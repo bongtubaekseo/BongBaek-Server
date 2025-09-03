@@ -30,23 +30,25 @@ public class AppleLoginClient {
     public String validateAppleIdentityToken(String identityToken) {
 
         try {
-        Map<String, String> headers = jwtParser.parseHeaders(identityToken);
+            // 헤더 kid , alg 추출
+            Map<String, String> headers = jwtParser.parseHeaders(identityToken);
+            // RSA 후보 가져오기
+            ApplePublicKeyResponse suspectPublicKey = getAppleAuthPublicKey();
+            // Identity Token에 맞는 RSA 찾기
+            PublicKey publicKey = applePublicKeyGenerator.generatePublicKey(headers, suspectPublicKey);
+            // 사인 검증 및 Claim 추출
+            Claims claims = jwtParser.getTokenClaimsByPublicKey(identityToken, publicKey);
+            // 발신처, 수신처 확인
+            if (claims.getIssuer() == null || !issuer.equals(claims.getIssuer())) {
+                throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
+            }
+            if (claims.getAudience() == null || !claims.getAudience().contains(clientId)) {
+                throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
+            }
 
-        ApplePublicKeyResponse suspectPublicKey = getAppleAuthPublicKey();
-        PublicKey publicKey = applePublicKeyGenerator.generatePublicKey(headers, suspectPublicKey);
+            AppleInfoResponse userData = AppleInfoResponse.of(claims);
 
-        Claims claims = jwtParser.getTokenClaimsByPublicKey(identityToken, publicKey);
-
-        if (!issuer.equals(claims.getIssuer())) {
-            throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
-        }
-        if (claims.getAudience() == null || !claims.getAudience().contains(clientId)) {
-            throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
-        }
-
-        AppleInfoResponse userData = AppleInfoResponse.of(claims);
-
-        return userData.id();
+            return userData.id();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
