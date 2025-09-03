@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.appjam.bongbaek.global.exception.CustomException;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -41,10 +43,13 @@ public class Member {
 	private String appleId;
 
 	@Column(name = "kakao_id", updatable = false)
-	private Long kakaoId;
+	private String kakaoId;
 
 	@Builder
-	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, Long kakaoId) {
+	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId) {
+		if ((appleId == null) == (kakaoId == null)) {
+			throw new CustomException(CommonErrorCode.INVALID_OAUTH_ACCOUNT);
+			}
 		this.memberName = memberName;
 		this.memberBirthday = memberBirthday;
 		this.memberIncome = memberIncome;

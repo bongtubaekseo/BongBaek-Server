@@ -1,9 +1,7 @@
 package org.appjam.bongbaek.global.exception;
 
-import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -49,7 +47,7 @@ public class GlobalExceptionHandler {
 
     //NOTE : JSON 데이터 타입이 다른 경우
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e){
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return ResponseEntity
                 .status(CommonErrorCode.BAD_REQUEST.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.BAD_REQUEST));
@@ -84,14 +82,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.INTERNAL_SERVER_ERROR));
-    }
-
-    @ExceptionHandler(SignUpRequiredException.class)
-    public ResponseEntity<ApiResponse<LoginResponse>> handleSignUpRequired(SignUpRequiredException e) {
-        LoginResponse payload = LoginResponse.of(null, null, false, e.getKakaoId());
-
-        return ResponseEntity
-            .status(CommonSuccessCode.ACCEPTED.getStatus()) // 202
-            .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, payload));
     }
 }

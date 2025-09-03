@@ -2,7 +2,6 @@ package org.appjam.bongbaek.domain.event.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
@@ -119,14 +118,14 @@ public class EventService {
             cost,
             range,
             costProposalRequestDto.category(),
-            costProposalRequestDto.locationInfo().location(),
-            costParams
+                costProposalRequestDto.locationInfo().location(),
+                costParams
         );
     }
 
     public EventDetailResponseDto getEventByEventId(
-        String eventId,
-        String memberId
+            String eventId,
+            String memberId
     ) {
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
             .orElseThrow(NotFoundEventException::new);
@@ -140,6 +139,9 @@ public class EventService {
         String memberId
     ) {
         assertMemberExists(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 

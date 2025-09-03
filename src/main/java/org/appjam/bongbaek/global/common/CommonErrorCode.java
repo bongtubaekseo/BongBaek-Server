@@ -10,6 +10,7 @@ public enum CommonErrorCode implements ErrorCode {
     VALIDATION_ERROR(false, HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     ALREADY_REGISTERED_MEMBER(false, HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다."),
     NULL_POINTER_ERROR(false, HttpStatus.BAD_REQUEST, "필수 요청 값이 비어있습니다."),
+    INVALID_OAUTH_ACCOUNT(false, HttpStatus.BAD_REQUEST, "OAuthID 값은 반드시 하나가 필요합니다."),
 
     INVALID_WITHDRAWAL_DETAIL(false, HttpStatus.BAD_REQUEST, "사유가 OTHER인 경우 상세 사유를 1~50자로 입력해야 합니다."),
     WITHDRAWAL_DETAIL_NOT_ALLOWED(false, HttpStatus.BAD_REQUEST, "사유가 OTHER이 아닌 경우 상세 사유를 null로 보내야 합니다."),
@@ -26,7 +27,7 @@ public enum CommonErrorCode implements ErrorCode {
     // 404 Not Found
     INVALID_URL_ERROR(false, HttpStatus.NOT_FOUND, "잘못된 URL 입니다."),
     MEMBER_NOT_FOUND(false, HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
-    SIGN_UP_REQUIRED(false, HttpStatus.NOT_FOUND, "해당 카카오 계정으로 가입된 사용자가 없습니다."),
+    SIGN_UP_REQUIRED(false, HttpStatus.NOT_FOUND, "회원가입을 진행해주세요."),
 
     // 405 Method Not Allowed
     METHOD_NOT_ALLOWED_ERROR(false, HttpStatus.METHOD_NOT_ALLOWED, "잘못된 HTTP method 요청입니다."),

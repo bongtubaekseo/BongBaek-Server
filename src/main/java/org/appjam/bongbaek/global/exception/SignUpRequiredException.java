@@ -5,10 +5,10 @@ import org.appjam.bongbaek.global.common.CommonErrorCode;
 
 @Getter
 public class SignUpRequiredException extends CustomException {
-    private final Long kakaoId;
+    private final String id;
 
-    public SignUpRequiredException(Long kakaoId) {
+    public SignUpRequiredException(String oauthId) {
         super(CommonErrorCode.SIGN_UP_REQUIRED);
-        this.kakaoId = kakaoId;
+        this.id = oauthId;
     }
 }

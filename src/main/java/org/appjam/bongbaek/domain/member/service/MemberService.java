@@ -10,6 +10,7 @@ import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
@@ -21,6 +22,7 @@ import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
+import org.appjam.bongbaek.global.oauth.apple.AppleLoginClient;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ public class MemberService {
     private final MemberWithdrawalRepository memberWithdrawalRepository;
 
     private final KakaoLoginClient kakaoLoginClient;
+    private final AppleLoginClient appleLoginClient;
 
     private final JwtProvider jwtProvider;
     private final JwtValidator jwtValidator;
@@ -44,43 +47,71 @@ public class MemberService {
 
     @Transactional
     public LoginResponse login(
-        final String accessToken
+            OAuthProvider oAuthProvider,
+            final String accessToken
     ) {
-        final Long kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
+        if (oAuthProvider.equals(OAuthProvider.KAKAO)) {
+            final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
-        Member member = memberRepository.findByKakaoId(kakaoId)
-            .orElseThrow(() -> new SignUpRequiredException(kakaoId));
+            try {
+                Member member = memberRepository.findByKakaoId(kakaoId)
+                        .orElseThrow(() -> new SignUpRequiredException(kakaoId));
 
-        TokenResponse tokenResponse = generateTokensForMember(member);
+                TokenResponse tokenResponse = generateTokensForMember(member);
 
-        return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+                return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+            } catch(SignUpRequiredException e){
+                return LoginResponse.ofKakaoLoginFailure(kakaoId);
+            }
+        }
+
+        if (oAuthProvider.equals(OAuthProvider.APPLE)) {
+            final String appleId = appleLoginClient.validateAppleIdentityToken(accessToken);
+
+            try {
+                Member member = memberRepository.findByAppleId(appleId)
+                        .orElseThrow(() -> new SignUpRequiredException(appleId));
+
+                TokenResponse tokenResponse = generateTokensForMember(member);
+
+                return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+            } catch(SignUpRequiredException e){
+                return LoginResponse.ofAppleLoginFailure(appleId);
+            }
+        }
+        throw new CustomException(CommonErrorCode.UNAUTHORIZED);
     }
 
     @Transactional
     public LoginResponse signUp(
         final SignUpRequest signUpRequest
     ) {
-        // 이미 가입된 회원인지 확인
-        if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
-            throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
-        }
+        if(signUpRequest.kakaoId() != null && !signUpRequest.kakaoId().isEmpty()) {
+            // 이미 가입된 회원인지 확인
+            if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
+                throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
+            }
 
-        try {
-            IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
-            Member member = signUpRequest.toMember(incomeType);
-            Member savedMember = memberRepository.save(member);
-
-            TokenResponse tokenResponse = generateTokensForMember(savedMember);
+            Member member = createMember(signUpRequest);
+            TokenResponse tokenResponse = generateTokensForMember(member);
             log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
-            return LoginResponse.ofLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
-
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("회원가입 처리 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(CommonErrorCode.BAD_REQUEST);
+            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
         }
+
+        if(signUpRequest.appleId() != null && !signUpRequest.appleId().isEmpty()) {
+            if (memberRepository.existsByAppleId(signUpRequest.appleId())) {
+                throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
+            }
+
+            Member member = createMember(signUpRequest);
+            TokenResponse tokenResponse = generateTokensForMember(member);
+            log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
+
+            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
+        }
+
+        throw new CustomException(CommonErrorCode.UNAUTHORIZED);
     }
 
     @Transactional
@@ -151,6 +182,15 @@ public class MemberService {
         member.update(request);
     }
 
+    private Member createMember(
+            final SignUpRequest signUpRequest
+    ) {
+        IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
+        Member member = signUpRequest.toMember(incomeType);
+
+        return memberRepository.save(member);
+    }
+
     @Transactional
     public void withdraw(final String accessToken, final String memberId, final WithdrawRequest request) {
         if (!jwtValidator.isBearer(accessToken)) {
@@ -185,3 +225,4 @@ public class MemberService {
         jwtRefreshStore.deleteAllForUser(memberId);
     }
 }
+

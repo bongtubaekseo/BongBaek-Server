@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 @Component
 public class KakaoLoginClient {
 
-    public Long validateKakaoAccessToken(final String accessToken) {
+    public String validateKakaoAccessToken(final String accessToken) {
         try {
             RestClient restClient = RestClient.create();
 
@@ -24,7 +24,7 @@ public class KakaoLoginClient {
                 throw new IllegalArgumentException("카카오 사용자 정보를 가져올 수 없습니다.");
             }
 
-            return Long.parseLong(kakaoInfoResponse.id());
+            return kakaoInfoResponse.id();
         } catch (Exception e) {
             log.error("카카오 Access Token 검증 실패: {}", e.getMessage());
             throw new IllegalArgumentException("유효하지 않은 kakao Access Token입니다.");

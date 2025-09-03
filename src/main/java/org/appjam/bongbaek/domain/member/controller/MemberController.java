@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.dto.request.LoginRequest;
 import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.request.ReissueRequest;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
 @Tag(name = "회원", description = "회원 관련 API")
 @RestController
 @RequestMapping("/api/v1")
@@ -31,10 +33,10 @@ public class MemberController {
 
     @Operation(summary = "카카오 로그인", description = "카카오 액세스 토큰으로 로그인합니다.")
     @PostMapping("/oauth/kakao")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
+    public ResponseEntity<ApiResponse<LoginResponse>> loginByKakao(
             @RequestBody final LoginRequest loginRequest
     ) {
-        LoginResponse loginResponse = memberService.login(loginRequest.accessToken());
+        LoginResponse loginResponse = memberService.login(OAuthProvider.KAKAO, loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -43,6 +45,22 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, loginResponse));
         } // NOTE: 기존 회원과 최초 로그인의 응답을 다르게.
+    }
+
+    @Operation(summary = "애플 로그인", description = "애플 토큰으로 로그인합니다.")
+    @PostMapping("/oauth/apple")
+    public ResponseEntity<ApiResponse<LoginResponse>> loginByApple(
+            @RequestBody final LoginRequest loginRequest
+    ) {
+        LoginResponse loginResponse = memberService.login(OAuthProvider.APPLE, loginRequest.accessToken());
+
+        if (loginResponse.isCompletedSignUp()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.success(CommonSuccessCode.OK, loginResponse));
+        } else {
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, loginResponse));
+        }
     }
 
     @Operation(summary = "회원가입", description = "추가 정보를 입력하여 회원가입을 완료합니다.")
