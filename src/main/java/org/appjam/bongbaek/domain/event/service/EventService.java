@@ -119,14 +119,14 @@ public class EventService {
             cost,
             range,
             costProposalRequestDto.category(),
-            costProposalRequestDto.locationInfo().location(),
-            costParams
+                costProposalRequestDto.locationInfo().location(),
+                costParams
         );
     }
 
     public EventDetailResponseDto getEventByEventId(
-        String eventId,
-        String memberId
+            String eventId,
+            String memberId
     ) {
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
             .orElseThrow(NotFoundEventException::new);
@@ -141,7 +141,7 @@ public class EventService {
     ) {
         assertMemberExists(memberId);
 
-        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
+        List<Event> events = eventRepository.findTop3ByEventDateAndMemberId(now, memberId);
 
         return EventHomeResponseDto.from(events);
     }
