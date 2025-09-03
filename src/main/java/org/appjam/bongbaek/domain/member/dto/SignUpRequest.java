@@ -21,16 +21,6 @@ public record SignUpRequest(
     public Member toMember(IncomeType incomeType) {
         return Member.builder()
                 .kakaoId(this.kakaoId)
-                .appleId(null)
-                .memberName(this.memberName)
-                .memberBirthday(this.memberBirthday)
-                .memberIncome(incomeType)
-                .build();
-    }
-
-    public Member toAppleMember(IncomeType incomeType) {
-        return Member.builder()
-                .kakaoId(null)
                 .appleId(this.appleId)
                 .memberName(this.memberName)
                 .memberBirthday(this.memberBirthday)
