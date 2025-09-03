@@ -7,6 +7,7 @@ import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
@@ -38,84 +39,61 @@ public class MemberService {
     private final JwtBlacklistManager jwtBlacklistManager;
 
     @Transactional
-    public LoginResponse loginByKakao(
-        final String accessToken
+    public LoginResponse login(
+            OAuthProvider oAuthProvider,
+            final String accessToken
     ) {
-        final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
+        if (oAuthProvider.equals(OAuthProvider.KAKAO)) {
+            final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
 
-        Member member = memberRepository.findByKakaoId(kakaoId)
-            .orElseThrow(() -> new SignUpRequiredException(kakaoId, "kakao"));
+            Member member = memberRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new SignUpRequiredException(kakaoId, "kakao"));
 
-        TokenResponse tokenResponse = generateTokensForMember(member);
+            TokenResponse tokenResponse = generateTokensForMember(member);
 
-        return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+        }
+        if (oAuthProvider.equals(OAuthProvider.APPLE)) {
+            final String appleId = appleLoginClient.validateAppleIdentityToken(accessToken);
+
+            Member member = memberRepository.findByAppleId(appleId)
+                    .orElseThrow(() -> new SignUpRequiredException(appleId, "apple"));
+
+            TokenResponse tokenResponse = generateTokensForMember(member);
+
+            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+        }
+
+        throw new CustomException(CommonErrorCode.UNAUTHORIZED);
     }
 
     @Transactional
-    public LoginResponse loginByApple(final String identityToken) {
-
-        final String appleId = appleLoginClient.validateAppleIdentityToken(identityToken);
-
-        Member member = memberRepository.findByAppleId(appleId)
-                .orElseThrow(() -> new SignUpRequiredException(appleId, "apple"));
-
-        TokenResponse tokenResponse = generateTokensForMember(member);
-
-        return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
-    }
-
-    @Transactional
-    public LoginResponse signUpByKakao(
+    public LoginResponse signUp(
         final SignUpRequest signUpRequest
     ) {
-        // 이미 가입된 회원인지 확인
-        if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
-            throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
-        }
+        if(signUpRequest.kakaoId() != null && !signUpRequest.kakaoId().isEmpty()) {
+            // 이미 가입된 회원인지 확인
+            if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
+                throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
+            }
 
-        try {
-            IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
-            Member member = signUpRequest.toMember(incomeType);
-            Member savedMember = memberRepository.save(member);
-
-            TokenResponse tokenResponse = generateTokensForMember(savedMember);
-            log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
+            Member member = createMember(signUpRequest);
+            TokenResponse tokenResponse = generateTokensForMember(member);
 
             return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
-
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("회원가입 처리 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(CommonErrorCode.BAD_REQUEST);
-        }
-    }
-
-    @Transactional
-    public LoginResponse signUpByApple(
-            final SignUpRequest signUpRequest
-    ) {
-        // 이미 가입된 회원인지 확인
-        if (memberRepository.existsByAppleId(signUpRequest.appleId())) {
-            throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
         }
 
-        try {
-            IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
-            Member member = signUpRequest.toAppleMember(incomeType);
-            Member savedMember = memberRepository.save(member);
-
-            TokenResponse tokenResponse = generateTokensForMember(savedMember);
-            log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
+        if(signUpRequest.appleId() != null && !signUpRequest.appleId().isEmpty()) {
+            if (memberRepository.existsByAppleId(signUpRequest.appleId())) {
+                throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
+            }
+            Member member = createMember(signUpRequest);
+            TokenResponse tokenResponse = generateTokensForMember(member);
 
             return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
-
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("회원가입 처리 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(CommonErrorCode.BAD_REQUEST);
         }
+
+        throw new CustomException(CommonErrorCode.UNAUTHORIZED);
     }
 
     @Transactional
@@ -177,4 +155,14 @@ public class MemberService {
 
         member.update(request);
     }
+
+    private Member createMember(
+            final SignUpRequest signUpRequest
+    ) {
+        IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
+        Member member = signUpRequest.toMember(incomeType);
+
+        return memberRepository.save(member);
+    }
 }
+
