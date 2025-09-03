@@ -10,6 +10,7 @@ public enum CommonErrorCode implements ErrorCode {
     VALIDATION_ERROR(false, HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     ALREADY_REGISTERED_MEMBER(false, HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다."),
     NULL_POINTER_ERROR(false, HttpStatus.BAD_REQUEST, "필수 요청 값이 비어있습니다."),
+    INVALID_OAUTH_ACCOUNT(false, HttpStatus.BAD_REQUEST, "OAuthID 값은 반드시 하나가 필요합니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(false, HttpStatus.UNAUTHORIZED,"인증에 실패했습니다."),
