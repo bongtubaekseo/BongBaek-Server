@@ -2,7 +2,6 @@ package org.appjam.bongbaek.domain.event.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;

@@ -1,6 +1,5 @@
 package org.appjam.bongbaek.global.exception;
 
-import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.springframework.dao.DataIntegrityViolationException;

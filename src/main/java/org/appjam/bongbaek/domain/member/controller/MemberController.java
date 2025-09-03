@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.domain.member.dto.*;
 import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.dto.request.LoginRequest;
 import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
