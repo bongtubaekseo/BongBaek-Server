@@ -141,7 +141,10 @@ public class EventService {
     ) {
         assertMemberExists(memberId);
 
-        List<Event> events = eventRepository.findTop3ByEventDateAndMemberId(now, memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 
         return EventHomeResponseDto.from(events);
     }
