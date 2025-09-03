@@ -6,6 +6,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.domain.member.dto.*;
 import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
+import org.appjam.bongbaek.domain.member.dto.request.LoginRequest;
+import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
+import org.appjam.bongbaek.domain.member.dto.request.ReissueRequest;
+import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
@@ -102,5 +109,37 @@ public class MemberController {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(ApiResponse.success(CommonSuccessCode.OK, null));
+    }
+
+    @Operation(
+        summary = "회원 탈퇴",
+        description = """
+        사전 정의 사유(INCONVENIENT/PRIVACY_CONCERN/RARELY_USED/BUG_OR_ERROR/NEW_ACCOUNT/OTHER)로 탈퇴합니다.
+        - reason: 필수
+        - reason=OTHER일 때 detail: 1~50자 필수
+        - 그 외 사유일 때 detail: null 필수
+        """
+    )
+    @PostMapping("/member/withdraw")
+    public ResponseEntity<ApiResponse<EmptyBody>> withdraw(
+        @RequestHeader(value = "Authorization") final String accessToken,
+        @AuthenticationPrincipal final String memberId,
+        @Valid @RequestBody final WithdrawRequest request
+    ) {
+        memberService.withdraw(accessToken, memberId, request);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ApiResponse.success(CommonSuccessCode.OK, null));
+    }
+
+    @Operation(summary = "마이페이지 회원 정보 조회", description = "마이페이지 속 이름/생일/소득을 조회합니다. 소득 구간 OVER200: 월 소득 200만원 이상, UNDER200: 월 소득 200만원 미만, NONE: 없음")
+    @GetMapping(path = "/member/profile")
+    public ResponseEntity<ApiResponse<MyInfoResponse>> getMyInfo(
+        @AuthenticationPrincipal final String memberId
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ApiResponse.success(CommonSuccessCode.OK, memberService.getMyInfo(memberId)));
     }
 }

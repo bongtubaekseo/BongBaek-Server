@@ -12,6 +12,9 @@ public enum CommonErrorCode implements ErrorCode {
     NULL_POINTER_ERROR(false, HttpStatus.BAD_REQUEST, "필수 요청 값이 비어있습니다."),
     INVALID_OAUTH_ACCOUNT(false, HttpStatus.BAD_REQUEST, "OAuthID 값은 반드시 하나가 필요합니다."),
 
+    INVALID_WITHDRAWAL_DETAIL(false, HttpStatus.BAD_REQUEST, "사유가 OTHER인 경우 상세 사유를 1~50자로 입력해야 합니다."),
+    WITHDRAWAL_DETAIL_NOT_ALLOWED(false, HttpStatus.BAD_REQUEST, "사유가 OTHER이 아닌 경우 상세 사유를 null로 보내야 합니다."),
+
     // 401 Unauthorized
     UNAUTHORIZED(false, HttpStatus.UNAUTHORIZED,"인증에 실패했습니다."),
     INVALID_ACCESS_TOKEN(false, HttpStatus.UNAUTHORIZED, "유효하지 않은 Access Token입니다."),

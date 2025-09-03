@@ -1,14 +1,18 @@
 package org.appjam.bongbaek.domain.member.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.appjam.bongbaek.domain.member.dto.LoginResponse;
-import org.appjam.bongbaek.domain.member.dto.SignUpRequest;
-import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
+import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
+import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.exception.SignUpRequiredException;
@@ -29,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final MemberWithdrawalRepository memberWithdrawalRepository;
+
     private final KakaoLoginClient kakaoLoginClient;
     private final AppleLoginClient appleLoginClient;
 
@@ -37,6 +43,7 @@ public class MemberService {
     private final JwtParser jwtParser;
     private final JwtRefreshStore jwtRefreshStore;
     private final JwtBlacklistManager jwtBlacklistManager;
+    private final EntityManager entityManager;
 
     @Transactional
     public LoginResponse login(
@@ -109,7 +116,7 @@ public class MemberService {
 
     @Transactional
     public void logout(final String accessToken) {
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) return;
+        if (!jwtValidator.isBearer(accessToken)) return;
 
         String accessTokenNoBearer = accessToken.substring("Bearer ".length());
         jwtValidator.validateToken(accessTokenNoBearer);
@@ -144,6 +151,14 @@ public class MemberService {
         return generateTokensForMember(member);
     }
 
+    @Transactional(readOnly = true)
+    public MyInfoResponse getMyInfo(String memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        return MyInfoResponse.fromEntity(member);
+    }
+
     /**
      * 새 access+refresh 토큰 발급
      * + refreshtoken Redis 저장
@@ -174,6 +189,40 @@ public class MemberService {
         Member member = signUpRequest.toMember(incomeType);
 
         return memberRepository.save(member);
+    }
+
+    @Transactional
+    public void withdraw(final String accessToken, final String memberId, final WithdrawRequest request) {
+        if (!jwtValidator.isBearer(accessToken)) {
+            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
+        }
+
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        final String accessTokenNoBearer = accessToken.substring(7);
+
+        // 유효성 검증 실패시 예외
+        jwtValidator.validateToken(accessTokenNoBearer);
+
+        // 토큰 주체와 사용자 일치 확인
+        final String subject = jwtParser.parseClaims(accessTokenNoBearer).getSubject();
+
+        if (!memberId.equals(subject)) {
+            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
+        }
+
+        // 탈퇴 이력 저장
+        memberWithdrawalRepository.save(request.toEntity());
+
+        // 회원 정보 삭제
+        memberRepository.delete(member);
+
+        entityManager.flush();
+
+        // 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
+        jwtBlacklistManager.add(accessToken);
+        jwtRefreshStore.deleteAllForUser(memberId);
     }
 }
 

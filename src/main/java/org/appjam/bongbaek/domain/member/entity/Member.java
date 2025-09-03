@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import org.appjam.bongbaek.domain.member.dto.UpdateMemberRequest;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.exception.CustomException;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.hibernate.annotations.Comment;
 
 @Entity
