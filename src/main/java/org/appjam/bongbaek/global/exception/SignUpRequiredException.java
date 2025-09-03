@@ -6,11 +6,9 @@ import org.appjam.bongbaek.global.common.CommonErrorCode;
 @Getter
 public class SignUpRequiredException extends CustomException {
     private final String id;
-    private final String provider;
 
-    public SignUpRequiredException(String oauthId, String authProvider) {
+    public SignUpRequiredException(String oauthId) {
         super(CommonErrorCode.SIGN_UP_REQUIRED);
         this.id = oauthId;
-        this.provider = authProvider;
     }
 }

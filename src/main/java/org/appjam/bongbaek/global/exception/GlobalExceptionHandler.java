@@ -1,9 +1,7 @@
 package org.appjam.bongbaek.global.exception;
 
-import org.appjam.bongbaek.domain.member.dto.LoginResponse;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.common.CommonSuccessCode;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -84,22 +82,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.INTERNAL_SERVER_ERROR));
-    }
-
-    @ExceptionHandler(SignUpRequiredException.class)
-    public ResponseEntity<ApiResponse<LoginResponse>> handleSignUpRequired(SignUpRequiredException e) {
-
-        if (e.getProvider().equals("kakao")) {
-            LoginResponse payload = LoginResponse.ofKakao(null, null, false, e.getId());
-
-            return ResponseEntity
-                    .status(CommonSuccessCode.ACCEPTED.getStatus()) // 202
-                    .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, payload));
-        }
-        LoginResponse payload = LoginResponse.ofApple(null, null, false, e.getId());
-
-        return ResponseEntity
-                .status(CommonSuccessCode.ACCEPTED.getStatus()) // 202
-                .body(ApiResponse.success(CommonSuccessCode.ACCEPTED, payload));
     }
 }
