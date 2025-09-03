@@ -5,12 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.appjam.bongbaek.domain.member.dto.*;
+import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.ApiResponse;
 import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
-import org.appjam.bongbaek.global.common.CommonErrorCode;
 import org.appjam.bongbaek.global.common.CommonSuccessCode;
-import org.appjam.bongbaek.global.exception.CustomException;
 import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +27,10 @@ public class MemberController {
 
     @Operation(summary = "카카오 로그인", description = "카카오 액세스 토큰으로 로그인합니다.")
     @PostMapping("/oauth/kakao")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
+    public ResponseEntity<ApiResponse<LoginResponse>> loginByKakao(
             @RequestBody final LoginRequest loginRequest
     ) {
-        LoginResponse loginResponse = memberService.loginByKakao(loginRequest.accessToken());
+        LoginResponse loginResponse = memberService.login(OAuthProvider.KAKAO, loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -47,7 +46,7 @@ public class MemberController {
     public ResponseEntity<ApiResponse<LoginResponse>> loginByApple(
             @RequestBody final LoginRequest loginRequest
     ) {
-        LoginResponse loginResponse = memberService.loginByApple(loginRequest.accessToken());
+        LoginResponse loginResponse = memberService.login(OAuthProvider.APPLE, loginRequest.accessToken());
 
         if (loginResponse.isCompletedSignUp()) {
             return ResponseEntity.status(HttpStatus.OK)
@@ -60,21 +59,13 @@ public class MemberController {
 
     @Operation(summary = "회원가입", description = "추가 정보를 입력하여 회원가입을 완료합니다.")
     @PostMapping("/member/profile")
-    public ResponseEntity<ApiResponse<?>> profile(
+    public ResponseEntity<ApiResponse<LoginResponse>> profile(
             @RequestBody final SignUpRequest signUpRequest
     ) {
-        if (signUpRequest.kakaoId() != null) {
-            LoginResponse loginResponse = memberService.signUpByKakao(signUpRequest);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
-        }
-        if (signUpRequest.appleId() != null) {
-            LoginResponse loginResponse = memberService.signUpByApple(signUpRequest);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
-        }
+        LoginResponse loginResponse = memberService.signUp(signUpRequest);
 
-        throw new CustomException(CommonErrorCode.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(CommonSuccessCode.SIGNUP_COMPLETED, loginResponse));
     }
 
     @Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
