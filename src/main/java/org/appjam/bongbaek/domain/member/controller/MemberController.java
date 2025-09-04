@@ -76,13 +76,13 @@ public class MemberController {
 
     @Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
     @PostMapping("/member/logout")
-    public ResponseEntity<ApiResponse<EmptyBody>> logout(
+    public ResponseEntity<ApiResponse<Void>> logout(
         @RequestHeader("Authorization") String accessToken
     ) {
         memberService.logout(accessToken);
 
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK));
+            .body(ApiResponse.success(CommonSuccessCode.OK, null));
     }
 
 
@@ -99,7 +99,7 @@ public class MemberController {
 
     @Operation(summary = "회원 프로필 수정", description = "이름/생일/소득을 전달하여 프로필을 전체 교체합니다.")
     @PutMapping(path = "/member/profile")
-    public ResponseEntity<ApiResponse<EmptyBody>> updateProfile(
+    public ResponseEntity<ApiResponse<Void>> updateProfile(
         @AuthenticationPrincipal final String memberId,
         @RequestBody @Valid final UpdateMemberRequest request
     ) {
@@ -107,7 +107,7 @@ public class MemberController {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK));
+            .body(ApiResponse.success(CommonSuccessCode.OK,null));
     }
 
     @Operation(
@@ -120,7 +120,7 @@ public class MemberController {
         """
     )
     @PostMapping("/member/withdraw")
-    public ResponseEntity<ApiResponse<EmptyBody>> withdraw(
+    public ResponseEntity<ApiResponse<Void>> withdraw(
         @RequestHeader(value = "Authorization") final String accessToken,
         @AuthenticationPrincipal final String memberId,
         @Valid @RequestBody final WithdrawRequest request
@@ -129,7 +129,7 @@ public class MemberController {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK));
+            .body(ApiResponse.success(CommonSuccessCode.OK, null));
     }
 
     @Operation(summary = "마이페이지 회원 정보 조회", description = "마이페이지 속 이름/생일/소득을 조회합니다. 소득 구간 OVER200: 월 소득 200만원 이상, UNDER200: 월 소득 200만원 미만, NONE: 없음")
