@@ -14,8 +14,8 @@ public record ApiResponse<T>(
         T data
 ) {
     // response body 없는 버전
-    public static <T> ApiResponse<EmptyBody> success(SuccessCode successCode) {
-        return new ApiResponse<EmptyBody>(successCode.getSuccess(), successCode.getStatus().value(), successCode.getMessage(), new EmptyBody());
+    public static <T> ApiResponse<T> success(SuccessCode successCode) {
+        return new ApiResponse<T>(successCode.getSuccess(), successCode.getStatus().value(), successCode.getMessage(), null);
     }
 
     // response body 있는 버전

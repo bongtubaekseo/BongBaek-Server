@@ -24,6 +24,7 @@ import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
 import org.appjam.bongbaek.global.oauth.apple.AppleLoginClient;
 import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,9 @@ public class MemberService {
     private final JwtBlacklistManager jwtBlacklistManager;
     private final EntityManager entityManager;
 
+    @Value("${kakao-api.key}")
+    private String apiKey;
+
     @Transactional
     public LoginResponse login(
             OAuthProvider oAuthProvider,
@@ -59,7 +63,7 @@ public class MemberService {
 
                 TokenResponse tokenResponse = generateTokensForMember(member);
 
-                return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId);
+                return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId, apiKey);
             } catch(SignUpRequiredException e){
                 return LoginResponse.ofKakaoLoginFailure(kakaoId);
             }
@@ -74,7 +78,7 @@ public class MemberService {
 
                 TokenResponse tokenResponse = generateTokensForMember(member);
 
-                return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId);
+                return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId, apiKey);
             } catch(SignUpRequiredException e){
                 return LoginResponse.ofAppleLoginFailure(appleId);
             }
@@ -96,7 +100,7 @@ public class MemberService {
             TokenResponse tokenResponse = generateTokensForMember(member);
             log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
 
-            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId());
+            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId(), apiKey);
         }
 
         if(signUpRequest.appleId() != null && !signUpRequest.appleId().isEmpty()) {
@@ -108,7 +112,7 @@ public class MemberService {
             TokenResponse tokenResponse = generateTokensForMember(member);
             log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
 
-            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId());
+            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId(), apiKey);
         }
 
         throw new CustomException(CommonErrorCode.UNAUTHORIZED);

@@ -45,9 +45,12 @@ public class Member {
 	@Column(name = "kakao_id", updatable = false)
 	private String kakaoId;
 
+	@Column(name = "google_id", updatable = false)
+	private String googleId;
+
 	@Builder
-	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId) {
-		if ((appleId == null) == (kakaoId == null)) {
+	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId, String googleId) {
+		if ((appleId == null) && (kakaoId == null) && (googleId == null)) {
 			throw new CustomException(CommonErrorCode.INVALID_OAUTH_ACCOUNT);
 			}
 		this.memberName = memberName;
@@ -55,6 +58,7 @@ public class Member {
 		this.memberIncome = memberIncome;
 		this.appleId = appleId;
 		this.kakaoId = kakaoId;
+		this.googleId = googleId;
 	}
 
     public void update(UpdateMemberRequest request){
