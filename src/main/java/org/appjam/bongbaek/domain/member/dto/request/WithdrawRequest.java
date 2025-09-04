@@ -10,7 +10,7 @@ public record WithdrawRequest (
     @NotNull(message = "탈퇴 사유는 필수입니다.")
     @Schema(
         description = "탈퇴 사유 (INCONVENIENT/PRIVACY_CONCERN/RARELY_USED/BUG_OR_ERROR/NEW_ACCOUNT/OTHER)",
-        example = "INCONVENIENT"
+        example = "OTHER"
     )
     WithdrawalReason withdrawalReason,
 
