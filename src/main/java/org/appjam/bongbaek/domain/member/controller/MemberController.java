@@ -76,13 +76,13 @@ public class MemberController {
 
     @Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
     @PostMapping("/member/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
+    public ResponseEntity<ApiResponse<EmptyBody>> logout(
         @RequestHeader("Authorization") String accessToken
     ) {
         memberService.logout(accessToken);
 
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK, null));
+            .body(ApiResponse.success(CommonSuccessCode.OK));
     }
 
 
@@ -107,7 +107,7 @@ public class MemberController {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK, null));
+            .body(ApiResponse.success(CommonSuccessCode.OK));
     }
 
     @Operation(
@@ -129,7 +129,7 @@ public class MemberController {
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(ApiResponse.success(CommonSuccessCode.OK, null));
+            .body(ApiResponse.success(CommonSuccessCode.OK));
     }
 
     @Operation(summary = "마이페이지 회원 정보 조회", description = "마이페이지 속 이름/생일/소득을 조회합니다. 소득 구간 OVER200: 월 소득 200만원 이상, UNDER200: 월 소득 200만원 미만, NONE: 없음")
