@@ -2,7 +2,6 @@ package org.appjam.bongbaek.domain.event.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
@@ -19,6 +18,8 @@ import org.appjam.bongbaek.domain.event.service.util.RangeCalculator;
 import org.appjam.bongbaek.domain.event.service.util.vo.CostParamInfo;
 import org.appjam.bongbaek.domain.event.service.util.vo.RangeInfo;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.appjam.bongbaek.global.exception.CustomException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -41,31 +42,60 @@ public class EventService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void createEventInfo(final UUID memberId, final EventWriteDto eventWriteDto) {
-        Member memberProxy = memberRepository.getReferenceById(memberId);
-        Event event = eventWriteDto.toEntity(memberProxy);
+    public void createEventInfo(
+        final String memberId,
+        final EventWriteDto eventWriteDto
+    ) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+        Event event = eventWriteDto.toEntity(member);
+
         eventRepository.save(event);
     }
 
-    public EventListDto getEventHistory(final UUID memberId, final int page, final String category,
-            final Boolean attended) {
+    public EventListDto getEventHistory(
+        final String memberId,
+        final int page,
+        final String category,
+        final Boolean attended
+    ) {
+        assertMemberExists(memberId);
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(memberId,
-                Category.of(category), attended, pageable);
+        Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(
+            memberId,
+            Category.of(category),
+            attended,
+            pageable
+        );
 
         return EventListDto.of(result);
     }
 
-    public EventListDto getUpcomingEvents(final UUID memberId, final int page, final String category) {
+    public EventListDto getUpcomingEvents(
+        final String memberId,
+        final int page,
+        final String category
+    ) {
+        assertMemberExists(memberId);
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Slice<Event> result = eventRepository.findUpcomingEventsByMemberIdAndCategoryOrderBy(memberId,
-                Category.of(category), pageable);
+        Slice<Event> result = eventRepository.findUpcomingEventsByMemberIdAndCategoryOrderBy(
+            memberId,
+            Category.of(category),
+            pageable
+        );
 
         return EventListDto.of(result);
     }
 
-    public CostProposalResponseDto getCostProposal(UUID memberId, CostProposalRequestDto costProposalRequestDto) {
-        Member member = memberRepository.findById(memberId).orElseThrow(IllegalArgumentException::new);
+    public CostProposalResponseDto getCostProposal(
+        String memberId,
+        CostProposalRequestDto costProposalRequestDto
+    ) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         int cost = CostCalculator.calculateCost(member, costProposalRequestDto);
 
@@ -74,29 +104,44 @@ public class EventService {
         CostParamInfo costParams = CostParamInfo.of(member, costProposalRequestDto);
 
         // LocationInfo가 null인 경우 반환값 임시
-        if(costProposalRequestDto.locationInfo() == null){
-            return CostProposalResponseDto.of(cost, range,
-                    costProposalRequestDto.category(),
-                    null,
-                    costParams);
+        if (costProposalRequestDto.locationInfo() == null) {
+            return CostProposalResponseDto.of(
+                cost,
+                range,
+                costProposalRequestDto.category(),
+                null,
+                costParams
+            );
         }
 
-        return CostProposalResponseDto.of(cost, range,
-                costProposalRequestDto.category(),
+        return CostProposalResponseDto.of(
+            cost,
+            range,
+            costProposalRequestDto.category(),
                 costProposalRequestDto.locationInfo().location(),
-                costParams);
+                costParams
+        );
     }
 
-    public EventDetailResponseDto getEventByEventId(UUID eventId, UUID memberId) {
-
+    public EventDetailResponseDto getEventByEventId(
+            String eventId,
+            String memberId
+    ) {
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
-                .orElseThrow(NotFoundEventException::new);
+            .orElseThrow(NotFoundEventException::new);
 
         return EventDetailResponseDto.of(event);
     }
 
 
-    public EventHomeResponseDto getEventsForHome(LocalDate now, UUID memberId){
+    public EventHomeResponseDto getEventsForHome(
+        LocalDate now,
+        String memberId
+    ) {
+        assertMemberExists(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
 
         List<Event> events = eventRepository.findTop3ByEventDateGreaterThanEqualAndMemberMemberIdOrderByEventDateAsc(now, memberId);
 
@@ -104,32 +149,47 @@ public class EventService {
     }
 
     @Transactional
-    public void updateEventByEventId(UUID eventId, UUID memberId, EventUpdateRequestDto request) {
-
+    public void updateEventByEventId(
+        String eventId,
+        String memberId,
+        EventUpdateRequestDto request
+    ) {
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
-                .orElseThrow(NotFoundEventException::new);
+            .orElseThrow(NotFoundEventException::new);
 
         event.updateFromDto(request);
     }
 
     @Transactional
-    public void deleteEventByEventId(UUID eventId, UUID memberId) {
-
+    public void deleteEventByEventId(
+        String eventId,
+        String memberId
+    ) {
         Event event = eventRepository.findEventByEventIdAndMemberMemberId(eventId, memberId)
-                .orElseThrow(NotFoundEventException::new);
+            .orElseThrow(NotFoundEventException::new);
 
         eventRepository.delete(event);
     }
 
     @Transactional
-    public void deleteEvents(EventDeleteRequestDto eventDeleteRequest, UUID memberUUID) {
-
-        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventDeleteRequest.eventIds(), memberUUID);
+    public void deleteEvents(
+        EventDeleteRequestDto eventDeleteRequest,
+        String memberId
+    ) {
+        List<Event> events = eventRepository.findAllByEventIdInAndMemberMemberId(eventDeleteRequest.eventIds(), memberId);
 
         if (events.size() != eventDeleteRequest.eventIds().size()) {
             throw new NotFoundEventException();
         }
 
         eventRepository.deleteAll(events);
+    }
+
+    private void assertMemberExists(
+        final String memberId
+    ) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new CustomException(CommonErrorCode.MEMBER_NOT_FOUND);
+        }
     }
 }

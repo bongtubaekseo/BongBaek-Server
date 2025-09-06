@@ -1,9 +1,8 @@
 package org.appjam.bongbaek.domain.member.entity;
 
+import io.hypersistence.utils.hibernate.id.Tsid;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,15 +13,21 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.global.common.CommonErrorCode;
+import org.appjam.bongbaek.global.exception.CustomException;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
 @Table(name = "member")
+@Comment("회원 정보")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 	@Id
-	@Column(name = "member_id", columnDefinition = "BINARY(16)")
-	private UUID memberId;
+    @Tsid
+	@Column(name = "member_id", length = 13)
+	private String memberId;
 
 	@Column(name = "member_name", length = 30, nullable = false)
 	private String memberName;
@@ -38,17 +43,29 @@ public class Member {
 	private String appleId;
 
 	@Column(name = "kakao_id", updatable = false)
-	private Long kakaoId;
+	private String kakaoId;
+
+	@Column(name = "google_id", updatable = false)
+	private String googleId;
 
 	@Builder
-	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, Long kakaoId) {
-		this.memberId = UUID.randomUUID();
+	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId, String googleId) {
+		if ((appleId == null) && (kakaoId == null) && (googleId == null)) {
+			throw new CustomException(CommonErrorCode.INVALID_OAUTH_ACCOUNT);
+			}
 		this.memberName = memberName;
 		this.memberBirthday = memberBirthday;
 		this.memberIncome = memberIncome;
 		this.appleId = appleId;
 		this.kakaoId = kakaoId;
+		this.googleId = googleId;
 	}
+
+    public void update(UpdateMemberRequest request){
+        this.memberName=request.memberName().trim();
+        this.memberBirthday=request.memberBirthday();
+        this.memberIncome=IncomeType.of(request.memberIncome());
+    }
 
 	public int getAge(){
 		return Period.between(this.memberBirthday, LocalDate.now()).getYears();

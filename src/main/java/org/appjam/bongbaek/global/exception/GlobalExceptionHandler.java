@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 
     //NOTE : JSON 데이터 타입이 다른 경우
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e){
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return ResponseEntity
                 .status(CommonErrorCode.BAD_REQUEST.getStatus())
                 .body(ApiResponse.failure(CommonErrorCode.BAD_REQUEST));
