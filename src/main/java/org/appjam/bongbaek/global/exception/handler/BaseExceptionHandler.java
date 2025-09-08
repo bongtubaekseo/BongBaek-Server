@@ -4,7 +4,7 @@ import org.appjam.bongbaek.global.api.code.ErrorResultCode;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
 
 public abstract class BaseExceptionHandler {
-	protected final <T> ApiResponse buildErrorResponse(ErrorResultCode resultCode) {
+	protected final ApiResponse buildErrorResponse(ErrorResultCode resultCode) {
 		return ApiResponse.failure(resultCode);
 	}
 }

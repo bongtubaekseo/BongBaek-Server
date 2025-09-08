@@ -1,11 +1,9 @@
 package org.appjam.bongbaek.global.api.response;
 
-import org.appjam.bongbaek.global.api.code.common.ErrorResultCode;
-import org.appjam.bongbaek.global.api.code.common.SuccessResultCode;
+import org.appjam.bongbaek.global.api.code.ErrorResultCode;
+import org.appjam.bongbaek.global.api.code.SuccessResultCode;
 
 public interface ApiResponse {
-
-	boolean success();
 
 	int status();
 
