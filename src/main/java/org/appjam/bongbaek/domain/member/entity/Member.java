@@ -1,8 +1,13 @@
 package org.appjam.bongbaek.domain.member.entity;
 
-import io.hypersistence.utils.hibernate.id.Tsid;
 import java.time.LocalDate;
 import java.time.Period;
+
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.appjam.bongbaek.global.exception.member.MemberNotAuthenticatedException;
+import org.hibernate.annotations.Comment;
+
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,10 +18,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
-import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.exception.CustomException;
-import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -51,7 +52,7 @@ public class Member {
 	@Builder
 	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId, String googleId) {
 		if ((appleId == null) && (kakaoId == null) && (googleId == null)) {
-			throw new CustomException(CommonErrorCode.INVALID_OAUTH_ACCOUNT);
+			throw new MemberNotAuthenticatedException();
 			}
 		this.memberName = memberName;
 		this.memberBirthday = memberBirthday;

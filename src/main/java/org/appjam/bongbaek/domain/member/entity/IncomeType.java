@@ -1,11 +1,11 @@
 package org.appjam.bongbaek.domain.member.entity;
 
+import java.util.Arrays;
+
+import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.exception.CustomException;
-
-import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
@@ -20,6 +20,6 @@ public enum IncomeType {
 		return Arrays.stream(IncomeType.values())
 				.filter(incomeType -> incomeType.description.equals(description))
 				.findFirst()
-				.orElseThrow(() -> new CustomException(CommonErrorCode.BAD_REQUEST));
+				.orElseThrow(RequestInvalidException::new);
 	}
 }

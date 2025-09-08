@@ -1,8 +1,9 @@
 package org.appjam.bongbaek.domain.event.controller;
 
 import java.time.LocalDate;
+
 import jakarta.validation.Valid;
-import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
+
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
@@ -12,9 +13,8 @@ import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
 import org.appjam.bongbaek.domain.event.service.EventService;
-import org.appjam.bongbaek.global.api.ApiResponse;
-import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
-import org.appjam.bongbaek.global.common.CommonSuccessCode;
+import org.appjam.bongbaek.global.api.code.event.SuccessCode;
+import org.appjam.bongbaek.global.api.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -34,109 +35,90 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/events")
 public class EventController {
 
-    private final EventService eventService;
+	private final EventService eventService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<EmptyBody>> createEvent(
-            @AuthenticationPrincipal final String memberId,
-            @RequestBody @Valid final EventWriteDto eventWriteDto
-    ) {
-        eventService.createEventInfo(memberId, eventWriteDto);
+	@PostMapping
+	public ApiResponse createEvent(
+			@AuthenticationPrincipal final String memberId,
+			@RequestBody @Valid final EventWriteDto eventWriteDto
+	) {
+		eventService.createEventInfo(memberId, eventWriteDto);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(CommonSuccessCode.CREATED));
-    }
+		return ApiResponse.success(SuccessCode.EVENT_CREATED);
+	}
 
-    @GetMapping(path = "/history/{page}")
-    public ResponseEntity<ApiResponse<EventListDto>> getEventHistory(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "page") final int page,
-            @RequestParam(name = "category", required = false) final String category,
-            @RequestParam(name = "attended", required = false) final Boolean attended
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getEventHistory(memberId, page, category, attended)));
-    }
+	@GetMapping(path = "/history/{page}")
+	public ApiResponse getEventHistory(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "page") final int page,
+			@RequestParam(name = "category", required = false) final String category,
+			@RequestParam(name = "attended", required = false) final Boolean attended
+	) {
+		return ApiResponse.success(SuccessCode.EVENT_FOUND,
+				eventService.getEventHistory(memberId, page, category, attended));
+	}
 
-    @GetMapping(path = "/upcoming/{page}")
-    public ResponseEntity<ApiResponse<EventListDto>> getUpcomingEvents(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "page") final int page,
-            @RequestParam(name = "category", required = false) final String category
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getUpcomingEvents(memberId, page, category)));
-    }
+	@GetMapping(path = "/upcoming/{page}")
+	public ApiResponse getUpcomingEvents(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "page") final int page,
+			@RequestParam(name = "category", required = false) final String category
+	) {
+		return ApiResponse.success(SuccessCode.EVENT_FOUND, eventService.getUpcomingEvents(memberId, page, category));
+	}
 
-    @PostMapping(path = "/cost")
-    public ResponseEntity<ApiResponse<CostProposalResponseDto>> createEventCost(
-            @AuthenticationPrincipal final String memberId,
-            @RequestBody @Valid final CostProposalRequestDto costProposalRequestDto
-    ){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getCostProposal(memberId, costProposalRequestDto)));
-    }
+	@PostMapping(path = "/cost")
+	public ApiResponse createEventCost(
+			@AuthenticationPrincipal final String memberId,
+			@RequestBody @Valid final CostProposalRequestDto costProposalRequestDto
+	) {
+		return ApiResponse.success(SuccessCode.COST_CALCULATED,
+				eventService.getCostProposal(memberId, costProposalRequestDto));
+	}
 
-    @GetMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventByEventId(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "eventId") String eventId   // NOTE: 클라 요청 간에는 무조건 String
-    ){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventByEventId(eventId, memberId)));
-    }
+	@GetMapping(path = "/{eventId}")
+	public ApiResponse getEventByEventId(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "eventId") String eventId   // NOTE: 클라 요청 간에는 무조건 String
+	) {
+		return ApiResponse.success(SuccessCode.EVENT_FOUND, eventService.getEventByEventId(eventId, memberId));
+	}
 
-    @GetMapping(path = "/home")
-    public ResponseEntity<ApiResponse<EventHomeResponseDto>> getEventsForHome(
-            @AuthenticationPrincipal final String memberId
-    ){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventsForHome(LocalDate.now(), memberId)));
-    }
+	@GetMapping(path = "/home")
+	public ApiResponse getEventsForHome(
+			@AuthenticationPrincipal final String memberId
+	) {
+		return ApiResponse.success(SuccessCode.EVENT_FOUND, eventService.getEventsForHome(LocalDate.now(), memberId));
+	}
 
-    @PutMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<EmptyBody>> updateEvent(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "eventId") final String eventId,
-            @RequestBody @Valid final EventUpdateRequestDto request
-    ){
-        eventService.updateEventByEventId(eventId, memberId, request);
+	@PutMapping(path = "/{eventId}")
+	public ApiResponse updateEvent(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "eventId") final String eventId,
+			@RequestBody @Valid final EventUpdateRequestDto request
+	) {
+		eventService.updateEventByEventId(eventId, memberId, request);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.UPDATED_EVENT));
-    }
+		return ApiResponse.success(SuccessCode.EVENT_UPDATED);
+	}
 
-    @DeleteMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<EmptyBody>> deleteEventByEventId(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "eventId") String eventId
-    ) {
-        eventService.deleteEventByEventId(eventId, memberId);
+	@DeleteMapping(path = "/{eventId}")
+	public ApiResponse deleteEventByEventId(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "eventId") String eventId
+	) {
+		eventService.deleteEventByEventId(eventId, memberId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
-    }
+		return ApiResponse.success(SuccessCode.EVENT_DELETED);
+	}
 
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<EmptyBody>> deleteEvents(
-            @AuthenticationPrincipal final String memberId,
-            @RequestBody EventDeleteRequestDto eventDeleteRequest
-    ){
-        eventService.deleteEvents(eventDeleteRequest, memberId);
+	@DeleteMapping
+	public ApiResponse deleteEvents(
+			@AuthenticationPrincipal final String memberId,
+			@RequestBody EventDeleteRequestDto eventDeleteRequest
+	) {
+		eventService.deleteEvents(eventDeleteRequest, memberId);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
-    }
+		return ApiResponse.success(SuccessCode.EVENT_DELETED);
+	}
 }
