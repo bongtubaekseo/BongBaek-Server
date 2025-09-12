@@ -32,6 +32,7 @@ public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoi
 		Object exception = request.getAttribute("exception");
 		if (exception instanceof BaseException baseException) {
 			resolver.resolveException(request, response, null, baseException);
+			return;
 		}
 
 		resolver.resolveException(request, response, null, new MemberNotAuthenticatedException());
