@@ -71,17 +71,6 @@ services:
     depends_on:
       - prometheus
 
-  mysqld_exporter:
-    image: prom/mysqld-exporter:latest
-    container_name: mysqld_exporter
-    restart: unless-stopped
-    ports:
-      - "9104:9104"
-    volumes:
-      - ./my.cnf:/my.cnf:ro
-    command:
-      --config.my-cnf=/my.cnf
-
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: nginx-exporter
@@ -91,13 +80,3 @@ services:
       - "-nginx.scrape-uri=http://nginx:80/stub_status"
     depends_on:
       - nginx
-
-  redis_exporter:
-    image: oliver006/redis_exporter:latest
-    container_name: redis_exporter
-    ports:
-      - "9121:9121"
-    command:
-      - "--redis.addr=redis:6379"
-    depends_on:
-      - redis
