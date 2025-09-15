@@ -1,0 +1,56 @@
+package org.appjam.bongbaek.global.exception.handler.common;
+
+import org.appjam.bongbaek.global.api.code.common.ErrorCode;
+import org.appjam.bongbaek.global.api.response.ApiResponse;
+import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
+import org.appjam.bongbaek.global.exception.handler.BaseExceptionHandler;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+@RestControllerAdvice
+public class CommonExceptionHandler extends BaseExceptionHandler {
+	@ExceptionHandler(NoHandlerFoundException.class)
+	protected ApiResponse handleNoHandlerFoundException(NoHandlerFoundException e) {
+		return buildErrorResponse(ErrorCode.REQUEST_PATH_INVALID);
+	}
+
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	protected ApiResponse handleHttpRequestMethodNotSupportedException(
+			HttpRequestMethodNotSupportedException e) {
+		return buildErrorResponse(ErrorCode.HTTP_METHOD_INVALID);
+	}
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	protected ApiResponse handleHttpMessageNotReadableException(
+			HttpMessageNotReadableException e) {
+		return buildErrorResponse(ErrorCode.REQUEST_CONTENT_INVALID);
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	protected ApiResponse handleMethodArgumentTypeMismatchExceptionException(
+			MethodArgumentTypeMismatchException e) {
+		return buildErrorResponse(ErrorCode.REQUIRED_PARAMETER_MISSED);
+	}
+
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	protected ApiResponse handleMissingServletRequestParameterException(
+			MissingServletRequestParameterException e) {
+		return buildErrorResponse(ErrorCode.REQUIRED_PARAMETER_MISSED);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	protected ApiResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+		return buildErrorResponse(ErrorCode.REQUEST_CONTENT_INVALID);
+	}
+
+	@ExceptionHandler(RequestInvalidException.class)
+	protected ApiResponse handleRequestInvalidException(RequestInvalidException e) {
+		return buildErrorResponse(ErrorCode.REQUEST_CONTENT_INVALID);
+	}
+}

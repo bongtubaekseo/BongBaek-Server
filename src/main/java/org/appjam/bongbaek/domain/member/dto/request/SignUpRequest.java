@@ -18,13 +18,13 @@ public record SignUpRequest(
         @Schema(description = "회원 소득", example = "200만원 이상")
         String memberIncome
 ) {
-    public Member toMember(IncomeType incomeType) {
+    public Member toMember() {
         return Member.builder()
                 .kakaoId(this.kakaoId)
                 .appleId(this.appleId)
                 .memberName(this.memberName)
                 .memberBirthday(this.memberBirthday)
-                .memberIncome(incomeType)
+                .memberIncome(IncomeType.of(this.memberIncome))
                 .build();
     }
 }

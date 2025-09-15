@@ -2,8 +2,7 @@ package org.appjam.bongbaek.global.oauth.apple;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.exception.CustomException;
+import org.appjam.bongbaek.global.exception.member.MemberNotAuthenticatedException;
 import org.appjam.bongbaek.global.oauth.apple.dto.AppleInfoResponse;
 import org.appjam.bongbaek.global.oauth.apple.dto.ApplePublicKeyResponse;
 import org.appjam.bongbaek.global.oauth.apple.jwt.AppleJwtParser;
@@ -40,10 +39,10 @@ public class AppleLoginClient {
             Claims claims = jwtParser.getTokenClaimsByPublicKey(identityToken, publicKey);
             // 발신처, 수신처 확인
             if (claims.getIssuer() == null || !issuer.equals(claims.getIssuer())) {
-                throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
+                throw new MemberNotAuthenticatedException();
             }
             if (claims.getAudience() == null || !claims.getAudience().contains(clientId)) {
-                throw new CustomException(CommonErrorCode.VALIDATION_ERROR);
+                throw new MemberNotAuthenticatedException();
             }
 
             AppleInfoResponse userData = AppleInfoResponse.of(claims);
@@ -51,7 +50,7 @@ public class AppleLoginClient {
             return userData.id();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            throw new MemberNotAuthenticatedException();
         }
     }
 

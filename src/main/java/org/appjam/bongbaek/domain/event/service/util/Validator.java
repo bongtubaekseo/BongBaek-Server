@@ -1,6 +1,6 @@
 package org.appjam.bongbaek.domain.event.service.util;
 
-import org.appjam.bongbaek.domain.event.exception.InvalidNoteException;
+import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +12,7 @@ public class Validator {
     public static String validateLength(String note) {
 
         if (lengthWithEmoji(note) > 50){
-            throw new InvalidNoteException();
+            throw new RequestInvalidException();
         }
 
         return note;
