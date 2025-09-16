@@ -17,34 +17,28 @@ public record LoginResponse(
 		@Schema(description = "회원 가입 완료 여부")
 		boolean isCompletedSignUp,
 
-		@Schema(description = "kakao ID", nullable = true)
-		@JsonInclude(JsonInclude.Include.NON_NULL)
-		String kakaoId,
+		@Schema(description = "oauth ID")
+		String oauthId,
 
-		@Schema(description = "apple ID", nullable = true)
-		@JsonInclude(JsonInclude.Include.NON_NULL)
-		String appleId,
+		@Schema(description = "소셜로그인 플랫폼 종류")
+		String oauthProvider,
 
 		@Schema(description = "kakao map api key", nullable = true)
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		String apiKey
 ) {
-	public static LoginResponse success(final Member member, final TokenResponse tokenResponse, final String apiKey) {
+	public static LoginResponse success(final Member member, final TokenResponse tokenResponse,  final String apiKey) {
 		return new LoginResponse(
 				member.getMemberName(),
 				tokenResponse,
 				true,
-				member.getKakaoId(),
-				member.getAppleId(),
+				member.getOauthId(),
+				member.getOauthProvider().getName(),
 				apiKey
 		);
 	}
 
-	public static LoginResponse ofKakaoLoginFailure(final String kakaoId) {
-		return new LoginResponse(null, null, false, kakaoId, null, null);
-	}
-
-	public static LoginResponse ofAppleLoginFailure(final String appleId) {
-		return new LoginResponse(null, null, false, null, appleId, null);
+	public static LoginResponse failure(final String oauthId, final String oauthProvider){
+		return new LoginResponse(null, null, false, oauthId, oauthProvider, null);
 	}
 }
