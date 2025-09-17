@@ -3,6 +3,7 @@ package org.appjam.bongbaek.global.oauth;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 
+import org.appjam.bongbaek.global.exception.member.SignatureInvalidException;
 import org.appjam.bongbaek.global.exception.member.TokenExpiredException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.appjam.bongbaek.global.oauth.resources.OAuthProperty;
@@ -16,7 +17,7 @@ public class OidcValidator {
 	public static void validateSignature(SignedJWT signedJWT, RSAPublicKey publicKey) {
 		// 토큰 서명 검증
 		if (!verifySignature(signedJWT, publicKey)) {
-			throw new IllegalArgumentException("Invalid token signature");
+			throw new SignatureInvalidException();
 		}
 	}
 
@@ -33,7 +34,7 @@ public class OidcValidator {
 		try {
 			return signedJWT.verify(new RSASSAVerifier(publicKey));
 		} catch (JOSEException e) {
-			throw new TokenInvalidException();
+			throw new SignatureInvalidException();
 		}
 	}
 

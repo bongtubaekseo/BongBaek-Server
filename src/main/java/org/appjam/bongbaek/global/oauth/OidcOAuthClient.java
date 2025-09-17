@@ -7,6 +7,7 @@ import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 
+import org.appjam.bongbaek.global.exception.member.OAuthProviderInvalidException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.appjam.bongbaek.global.oauth.resources.OAuthProperties;
 import org.appjam.bongbaek.global.oauth.resources.OAuthProperty;
@@ -65,7 +66,7 @@ public class OidcOAuthClient {
 		try{
 			return JWKSet.load(getOauthUrl(oAuthProperty));
 		} catch (ParseException | IOException e) {
-			throw new RuntimeException(e);
+			throw new OAuthProviderInvalidException();
 		}
 	}
 
@@ -73,7 +74,7 @@ public class OidcOAuthClient {
 		try{
 			return URI.create(oAuthProperty.publicKeyUri()).toURL();
 		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+			throw new OAuthProviderInvalidException();
 		}
 	}
 
@@ -81,7 +82,7 @@ public class OidcOAuthClient {
 		try{
 			return ((RSAKey) jwk).toRSAPublicKey();
 		} catch (JOSEException e) {
-			throw new RuntimeException(e);
+			throw new OAuthProviderInvalidException();
 		}
 	}
 
