@@ -1,11 +1,10 @@
-package org.appjam.bongbaek.domain.member.dto.request;
+package org.appjam.bongbaek.domain.member.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.appjam.bongbaek.domain.member.entity.Member;
-import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
 
 public record LoginResponse(
 		@Schema(description = "회원 이름")
@@ -38,7 +37,7 @@ public record LoginResponse(
 		);
 	}
 
-	public static LoginResponse failure(final String oauthId, final String oauthProvider){
+	public static LoginResponse failure(final String oauthProvider, final String oauthId){
 		return new LoginResponse(null, null, false, oauthId, oauthProvider, null);
 	}
 }
