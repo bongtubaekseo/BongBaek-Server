@@ -4,11 +4,10 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.appjam.bongbaek.global.exception.member.TokenExpiredException;
+import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
@@ -22,37 +21,31 @@ public class JwtParser {
 	private final SecretKey secretKey;
 
 	/**
-	 * AccessToken을 파싱하여 Claims를 반환하는 메서드
+	 * Access Token을 파싱하여 멤버의 id를 반환하는 메서드
 	 */
-	public Claims parseClaims(
-			final String accessToken
-	) {
+	public String getMemberId(String token) {
+		try{
+			return Jwts.parser()
+					.verifyWith(secretKey)
+					.build()
+					.parseSignedClaims(token)
+					.getPayload()
+					.getSubject();
+		} catch (JwtException e) {
+			throw new TokenInvalidException();
+		}
+	}
+
+	public Date getExpire(final String token) {
 		try {
 			return Jwts.parser()
 					.verifyWith(secretKey)
 					.build()
-					.parseSignedClaims(accessToken)
-					.getPayload();
-		} catch (ExpiredJwtException e) {
-			throw new TokenExpiredException();
+					.parseSignedClaims(token)
+					.getPayload()
+					.getExpiration();
+		} catch (JwtException e) {
+			throw new TokenInvalidException();
 		}
-	}
-
-	/**
-	 * Access Token을 파싱하여 멤버의 id를 반환하는 메서드
-	 */
-	public String getMemberIdFromAccessToken(String token) {
-		Claims claims = parseClaims(token);
-
-		return claims.getSubject();
-	}
-
-	public Date getExpire(final String token) {
-		return Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(token)
-				.getPayload()
-				.getExpiration();
 	}
 }

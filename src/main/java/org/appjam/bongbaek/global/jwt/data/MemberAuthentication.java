@@ -10,7 +10,7 @@ public class MemberAuthentication extends UsernamePasswordAuthenticationToken {
         super(principal, credentials, authorities);
     }
 
-    public static MemberAuthentication createMemberAuthentication(String memberId) {
-        return new MemberAuthentication(memberId, null, Collections.emptyList());  // TODO: 권한 레벨 현재 X. 필요시 추가 가능
+    public static MemberAuthentication createMemberAuthentication(String memberId, String accessToken) {
+        return new MemberAuthentication(memberId, accessToken, Collections.emptyList());  // TODO: 권한 레벨 현재 X. 필요시 추가 가능
     }
 }

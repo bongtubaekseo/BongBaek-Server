@@ -2,12 +2,12 @@ package org.appjam.bongbaek.global.jwt.components;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
-import java.util.stream.Collectors;
+
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+
+import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.global.jwt.dto.TokenInfo;
 import org.springframework.stereotype.Component;
 import java.util.Date;
 
@@ -20,40 +20,29 @@ public class JwtProvider {
 
     private final SecretKey secretKey;
 
-    public TokenResponse generateToken(String subject) {
-        TokenResponse.Token access  = generateAccessToken(subject);
-        TokenResponse.Token refresh = generateRefreshToken(subject);
-        return TokenResponse.of(access, refresh);
-    }
-
     /**
      * Access Token 생성
      */
-    public TokenResponse.Token generateAccessToken(String subject) {
-        long expiredAt = System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME;
-
-        String token = Jwts.builder()
-            .subject(subject)
-            .claim("role", "")
-            .expiration(new Date(expiredAt))
-            .signWith(secretKey, SIG.HS256)
-            .compact();
-
-        return TokenResponse.Token.of(token, expiredAt);
+    public TokenInfo generateAccessToken(final Member member) {
+        return generateToken(member, ACCESS_TOKEN_EXPIRATION_TIME);
     }
 
     /**
      * Refresh Token 생성
      */
-    private TokenResponse.Token generateRefreshToken(String subject) {
-        long expiredAt = System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME;
+    public TokenInfo generateRefreshToken(final Member member) {
+        return generateToken(member, REFRESH_TOKEN_EXPIRATION_TIME);
+    }
 
+    private TokenInfo generateToken(final Member member, final long expiration) {
+        long expiredAt = System.currentTimeMillis() + expiration;
         String token = Jwts.builder()
-            .subject(subject)
-            .expiration(new Date(expiredAt))
-            .signWith(secretKey)
-            .compact();
+                .subject(member.getMemberId())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(expiredAt))
+                .signWith(secretKey, SIG.HS512)
+                .compact();
 
-        return TokenResponse.Token.of(token, expiredAt);
+        return TokenInfo.of(token, expiredAt);
     }
 }

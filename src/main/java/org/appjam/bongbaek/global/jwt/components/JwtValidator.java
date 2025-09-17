@@ -1,5 +1,7 @@
 package org.appjam.bongbaek.global.jwt.components;
 
+import java.util.Date;
+
 import javax.crypto.SecretKey;
 
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
@@ -12,33 +14,30 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtValidator {
+	private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
 	private final SecretKey secretKey;
 
 	/**
-	 * 토큰 유효성 검증
-	 * - 성공하면 true 반환
-	 * - 실패하면 CustomException 바로 던짐
+	 * 토큰이 Bearer로 시작하는지, null 또는 빈 문자열인지 검증
 	 */
-	public boolean validateToken(String token) {
-		try {
-			Jwts.parser()
+	public boolean isValidFormat(final String tokenWithBearer) {
+		return tokenWithBearer != null
+				&& tokenWithBearer.startsWith(ACCESS_TOKEN_PREFIX)
+				&& tokenWithBearer.length() > ACCESS_TOKEN_PREFIX.length();
+	}
+
+	public boolean isExpired(final String token) {
+		try{
+			return Jwts.parser()
 					.verifyWith(secretKey)
 					.build()
-					.parseSignedClaims(token);
-
-			return true;
-		} catch (SecurityException e) {
-			throw new TokenInvalidException();
+					.parseSignedClaims(token)
+					.getPayload()
+					.getExpiration()
+					.before(new Date());
 		} catch (JwtException e) {
 			throw new TokenInvalidException();
 		}
-	}
-
-	/**
-	 * 토큰이 Bearer로 시작하는지 확인
-	 */
-	public boolean isBearer(String token) {
-		return token != null && token.startsWith("Bearer ");
 	}
 }
