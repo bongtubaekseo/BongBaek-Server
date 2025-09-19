@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.jwt.exception;
+package org.appjam.bongbaek.global.jwt.exception.handler;
 
 import org.appjam.bongbaek.global.exception.BaseException;
 import org.appjam.bongbaek.global.exception.member.MemberNotAuthenticatedException;
@@ -28,9 +28,7 @@ public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoi
 			HttpServletResponse response,
 			AuthenticationException authException
 	) {
-
-		Object exception = request.getAttribute("exception");
-		if (exception instanceof BaseException baseException) {
+		if (authException.getCause() instanceof BaseException baseException) {
 			resolver.resolveException(request, response, null, baseException);
 			return;
 		}

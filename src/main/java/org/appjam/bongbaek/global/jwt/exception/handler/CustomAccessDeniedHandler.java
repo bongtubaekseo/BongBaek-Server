@@ -1,5 +1,6 @@
-package org.appjam.bongbaek.global.jwt.exception;
+package org.appjam.bongbaek.global.jwt.exception.handler;
 
+import org.appjam.bongbaek.global.exception.BaseException;
 import org.appjam.bongbaek.global.exception.member.MemberAuthorityDeniedException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.AccessDeniedException;
@@ -27,6 +28,11 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 			HttpServletResponse response,
 			AccessDeniedException accessDeniedException
 	) {
+		if (accessDeniedException.getCause() instanceof BaseException baseException) {
+			resolver.resolveException(request, response, null, baseException);
+			return;
+		}
+
 		resolver.resolveException(request, response, null, new MemberAuthorityDeniedException());
 	}
 }
