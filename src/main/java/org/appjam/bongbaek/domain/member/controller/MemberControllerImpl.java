@@ -30,7 +30,7 @@ public class MemberControllerImpl implements MemberController {
 
 	@PostMapping("/oauth/{oauthProvider}")
 	public ApiResponse login(
-			@PathVariable(name = "oauthProvider") String oauthProvider,
+			@PathVariable(name = "oauthProvider") final String oauthProvider,
 			@RequestBody final LoginRequest loginRequest
 	) {
 		LoginResponse loginResponse = memberService.login(oauthProvider, loginRequest.idToken());
