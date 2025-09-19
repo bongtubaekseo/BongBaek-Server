@@ -3,6 +3,7 @@ package org.appjam.bongbaek.domain.member.entity;
 import java.time.LocalDate;
 import java.time.Period;
 
+import org.appjam.bongbaek.domain.common.BaseEntity;
 import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.hibernate.annotations.Comment;
 
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "member")
 @Comment("회원 정보")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseEntity {
 	@Id
     @Tsid
 	@Column(name = "member_id", length = 13)
