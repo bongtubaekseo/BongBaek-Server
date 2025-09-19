@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.config;
+package org.appjam.bongbaek.global.config.security;
 
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
