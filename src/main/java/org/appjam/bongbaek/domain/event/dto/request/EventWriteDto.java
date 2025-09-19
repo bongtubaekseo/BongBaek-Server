@@ -8,6 +8,7 @@ import org.appjam.bongbaek.domain.event.dto.common.HighAccuracy;
 import org.appjam.bongbaek.domain.event.dto.common.HostInfo;
 import org.appjam.bongbaek.domain.event.dto.common.LocationInfo;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 
 import jakarta.validation.Valid;
 
@@ -25,7 +26,7 @@ public record EventWriteDto(
 				.contactFrequency(highAccuracy.contactFrequency())
 				.meetFrequency(highAccuracy.meetFrequency())
 
-				.eventCategory(Category.of(eventInfo.eventCategory()))
+				.eventCategory(Category.of(eventInfo.eventCategory()).orElseThrow(RequestInvalidException::new))
 				.relationship(Relationship.of(eventInfo.relationship()))
 				.eventDate(eventInfo.eventDate())
 				.cost(eventInfo.cost())

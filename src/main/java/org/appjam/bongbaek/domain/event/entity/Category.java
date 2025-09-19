@@ -1,6 +1,7 @@
 package org.appjam.bongbaek.domain.event.entity;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,9 @@ public enum Category {
 	private final String description;
 	private final int defaultCost;
 
-	public static Category of(String description) {
+	public static Optional<Category> of(String description) {
 		return Arrays.stream(Category.values())
 				.filter(category -> category.description.equals(description))
-				.findFirst()
-				.orElse(null);
-				// .orElseThrow(IllegalArgumentException::new);
+				.findFirst();
 	}
 }
