@@ -32,6 +32,7 @@ public enum AuthWhiteList {
 
 	OAUTH("/api/v1/oauth/**", HttpMethod.POST),
 	SIGN_UP("/api/v1/member/profile", HttpMethod.POST),
+	REISSUE("/api/v1/member/reissue", HttpMethod.POST),
 
 	ACTUATOR("/actuator/**", HttpMethod.GET);
 
