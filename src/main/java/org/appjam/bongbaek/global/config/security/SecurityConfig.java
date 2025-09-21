@@ -29,6 +29,7 @@ public class SecurityConfig {
 				.formLogin(AbstractHttpConfigurer::disable)
 				.requestCache(RequestCacheConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
+				.sessionManagement(AbstractHttpConfigurer::disable)
 				.exceptionHandling(exception ->
 				{
 					exception.authenticationEntryPoint(customJwtAuthenticationEntryPoint);
