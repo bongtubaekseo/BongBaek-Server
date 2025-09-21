@@ -21,7 +21,6 @@ import org.appjam.bongbaek.domain.member.dto.response.TokenResponse;
 import org.appjam.bongbaek.global.jwt.dto.TokenInfo;
 import org.appjam.bongbaek.global.oauth.OidcOAuthClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
+	private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
 	private final MemberRepository memberRepository;
 	private final MemberWithdrawalRepository memberWithdrawalRepository;
@@ -81,14 +81,12 @@ public class MemberService {
 	}
 
 	@Transactional
-	public void logout(final String memberId) {
-		String accessToken = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
+	public void logout(final String memberId, final String accessToken) {
 		// 유저의 모든 refreshToken 제거
 		jwtRefreshStore.deleteAllForUser(memberId);
 
 		// 현재 accessToken 차단
-		jwtBlacklistManager.add(accessToken);
+		jwtBlacklistManager.add(resolveToken(accessToken));
 		jwtRefreshStore.deleteAllForUser(memberId);
 	}
 
@@ -146,9 +144,7 @@ public class MemberService {
 	}
 
 	@Transactional
-	public void withdraw(final String memberId, final WithdrawRequest request) {
-		String accessToken = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-
+	public void withdraw(final String memberId, final String accessToken, final WithdrawRequest request) {
 		Member member = memberRepository.findById(memberId)
 				.orElseThrow(MemberNotFoundException::new);
 
@@ -159,7 +155,7 @@ public class MemberService {
 		memberRepository.delete(member);
 
 		// 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
-		jwtBlacklistManager.add(accessToken);
+		jwtBlacklistManager.add(resolveToken(accessToken));
 		jwtRefreshStore.deleteAllForUser(memberId);
 	}
 
@@ -169,5 +165,9 @@ public class MemberService {
 		}
 
 		return false;
+	}
+
+	private String resolveToken(String accessTokenWithBearer) {
+		return accessTokenWithBearer.substring(ACCESS_TOKEN_PREFIX.length());
 	}
 }

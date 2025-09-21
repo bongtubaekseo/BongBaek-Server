@@ -19,7 +19,7 @@ public interface MemberController {
 	ApiResponse signUp(SignUpRequest signUpRequest);
 
 	@Operation(summary = "로그아웃", description = "현재 사용자의 모든 리프레시 토큰을 무효화합니다.")
-	ApiResponse logout(String memberId);
+	ApiResponse logout(String memberId, String accessToken);
 
 	@Operation(summary = "토큰 재발급", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.")
 	ApiResponse reissueTokens(ReissueRequest reissueRequest);
@@ -36,7 +36,7 @@ public interface MemberController {
 					- 그 외 사유일 때 detail: null 필수
 					"""
 	)
-	ApiResponse withdraw(String memberId, WithdrawRequest request);
+	ApiResponse withdraw(String memberId, String accessToken, WithdrawRequest request);
 
 	@Operation(summary = "마이페이지 회원 정보 조회", description = "마이페이지 속 이름/생일/소득을 조회합니다. 소득 구간 OVER200: 월 소득 200만원 이상, UNDER200: 월 소득 200만원 미만, NONE: 없음")
 	ApiResponse getMyInfo(String memberId);

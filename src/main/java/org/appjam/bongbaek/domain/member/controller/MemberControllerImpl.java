@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,9 +52,10 @@ public class MemberControllerImpl implements MemberController {
 
 	@PostMapping("/member/logout")
 	public ApiResponse logout(
-			@AuthenticationPrincipal final String memberId
+			@AuthenticationPrincipal final String memberId,
+			@RequestHeader(name = "Authorization") final String accessToken
 	) {
-		memberService.logout(memberId);
+		memberService.logout(memberId, accessToken);
 
 		return ApiResponse.success(SuccessCode.LOGOUT_SUCCESS);
 	}
@@ -79,9 +81,10 @@ public class MemberControllerImpl implements MemberController {
 	@PostMapping("/member/withdraw")
 	public ApiResponse withdraw(
 			@AuthenticationPrincipal final String memberId,
+			@RequestHeader(name = "Authorization") final String accessToken,
 			@Valid @RequestBody final WithdrawRequest request
 	) {
-		memberService.withdraw(memberId, request);
+		memberService.withdraw(memberId, accessToken, request);
 
 		return ApiResponse.success(SuccessCode.MEMBER_DELETED);
 	}

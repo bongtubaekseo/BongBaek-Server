@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.appjam.bongbaek.global.config.security.AuthWhiteList;
@@ -76,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		MemberAuthentication authentication = MemberAuthentication.createMemberAuthentication(
-				jwtParser.getMemberId(accessToken), accessToken);
+				jwtParser.getMemberId(accessToken));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
