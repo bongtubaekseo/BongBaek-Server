@@ -45,7 +45,6 @@ public class OidcOAuthClient {
 		// claim 검증
 		OidcValidator.validateClaims(claims, property);
 
-		System.out.println(claims.getSubject());
 		return claims.getSubject();
 	}
 
