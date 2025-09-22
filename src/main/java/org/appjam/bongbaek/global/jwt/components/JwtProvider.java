@@ -19,6 +19,7 @@ public class JwtProvider {
     private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14 * 2;
 
     private final SecretKey secretKey;
+    private final String issuer;
 
     /**
      * Access Token 생성
@@ -37,6 +38,7 @@ public class JwtProvider {
     private TokenInfo generateToken(final Member member, final long expiration) {
         long expiredAt = System.currentTimeMillis() + expiration;
         String token = Jwts.builder()
+                .issuer(issue)
                 .subject(member.getMemberId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(expiredAt))
