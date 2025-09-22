@@ -38,7 +38,7 @@ public class JwtProvider {
     private TokenInfo generateToken(final Member member, final long expiration) {
         long expiredAt = System.currentTimeMillis() + expiration;
         String token = Jwts.builder()
-                .issuer(issue)
+                .issuer(issuer)
                 .subject(member.getMemberId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(expiredAt))
