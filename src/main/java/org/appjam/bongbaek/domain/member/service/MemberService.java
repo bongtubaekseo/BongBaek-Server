@@ -6,6 +6,7 @@ import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
 import org.appjam.bongbaek.domain.member.entity.Member;
+import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.exception.member.MemberAlreadyExistsException;
@@ -53,10 +54,10 @@ public class MemberService {
 	public LoginResponse login(final String oAuthProvider, final String idToken) {
 		String oAuthId = oidcOAuthClient.getUserInfo(oAuthProvider, idToken);
 
-		if (memberRepository.findByOauthIdAndOauthProvider(oAuthId, oAuthProvider).isEmpty()) {
+		if (memberRepository.findByOauthIdAndOauthProvider(oAuthId, OAuthProvider.of(oAuthProvider)).isEmpty()) {
 			return LoginResponse.failure(oAuthProvider, oAuthId);
 		}
-		Member member = memberRepository.findByOauthIdAndOauthProvider(oAuthId, oAuthProvider)
+		Member member = memberRepository.findByOauthIdAndOauthProvider(oAuthId, OAuthProvider.of(oAuthProvider))
 				.orElseThrow(MemberNotFoundException::new);
 
 		TokenResponse tokenResponse = generateTokensForMember(member);
@@ -83,7 +84,7 @@ public class MemberService {
 
 	@Transactional
 	public void logout(final String memberId, final String accessToken) {
-		if(!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)){
+		if (!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)) {
 			throw new MemberNotAuthenticatedException();
 		}
 		// 유저의 모든 refreshToken 제거
@@ -148,7 +149,7 @@ public class MemberService {
 
 	@Transactional
 	public void withdraw(final String memberId, final String accessToken, final WithdrawRequest request) {
-		if(!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)){
+		if (!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)) {
 			throw new MemberNotAuthenticatedException();
 		}
 
@@ -168,7 +169,8 @@ public class MemberService {
 
 	private boolean isAlreadyExistsMember(final SignUpRequest signUpRequest) {
 		if (signUpRequest.oauthId() != null && !signUpRequest.oauthId().isEmpty()) {
-			return memberRepository.existsByOauthId(signUpRequest.oauthId());
+			return memberRepository.existsByOauthIdAndOauthProvider(signUpRequest.oauthId(),
+					OAuthProvider.of(signUpRequest.oauthProvider()));
 		}
 
 		return false;
