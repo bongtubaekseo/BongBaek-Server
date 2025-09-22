@@ -2,6 +2,7 @@ package org.appjam.bongbaek.global.config.security;
 
 import lombok.RequiredArgsConstructor;
 
+import org.appjam.bongbaek.global.config.security.util.AuthWhiteList;
 import org.appjam.bongbaek.global.jwt.exception.handler.CustomAccessDeniedHandler;
 import org.appjam.bongbaek.global.jwt.exception.handler.CustomJwtAuthenticationEntryPoint;
 import org.appjam.bongbaek.global.jwt.filter.JwtAuthenticationFilter;
