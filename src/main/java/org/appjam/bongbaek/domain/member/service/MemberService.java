@@ -9,6 +9,7 @@ import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.exception.member.MemberAlreadyExistsException;
+import org.appjam.bongbaek.global.exception.member.MemberNotAuthenticatedException;
 import org.appjam.bongbaek.global.exception.member.MemberNotFoundException;
 import org.appjam.bongbaek.global.exception.member.TokenExpiredException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
@@ -52,10 +53,10 @@ public class MemberService {
 	public LoginResponse login(final String oAuthProvider, final String idToken) {
 		String oAuthId = oidcOAuthClient.getUserInfo(oAuthProvider, idToken);
 
-		if (memberRepository.findByOauthId(oAuthId).isEmpty()) {
+		if (memberRepository.findByOauthIdAndOauthProvider(oAuthId, oAuthProvider).isEmpty()) {
 			return LoginResponse.failure(oAuthProvider, oAuthId);
 		}
-		Member member = memberRepository.findByOauthId(oidcOAuthClient.getUserInfo(oAuthProvider, idToken))
+		Member member = memberRepository.findByOauthIdAndOauthProvider(oAuthId, oAuthProvider)
 				.orElseThrow(MemberNotFoundException::new);
 
 		TokenResponse tokenResponse = generateTokensForMember(member);
@@ -82,12 +83,14 @@ public class MemberService {
 
 	@Transactional
 	public void logout(final String memberId, final String accessToken) {
+		if(!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)){
+			throw new MemberNotAuthenticatedException();
+		}
 		// 유저의 모든 refreshToken 제거
 		jwtRefreshStore.deleteAllForUser(memberId);
 
 		// 현재 accessToken 차단
 		jwtBlacklistManager.add(resolveToken(accessToken));
-		jwtRefreshStore.deleteAllForUser(memberId);
 	}
 
 	@Transactional
@@ -145,6 +148,10 @@ public class MemberService {
 
 	@Transactional
 	public void withdraw(final String memberId, final String accessToken, final WithdrawRequest request) {
+		if(!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)){
+			throw new MemberNotAuthenticatedException();
+		}
+
 		Member member = memberRepository.findById(memberId)
 				.orElseThrow(MemberNotFoundException::new);
 

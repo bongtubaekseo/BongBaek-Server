@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, String> {
     boolean existsByOauthId(final String oauthId);
-    Optional<Member> findByOauthId(final String oauthId);
+    Optional<Member> findByOauthIdAndOauthProvider(final String oauthId, final String oauthProvider);
 }
