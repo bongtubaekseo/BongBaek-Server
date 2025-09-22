@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.config.security;
+package org.appjam.bongbaek.global.config.security.util;
 
 import java.util.Arrays;
 
