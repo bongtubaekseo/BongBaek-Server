@@ -1,22 +1,20 @@
 package org.appjam.bongbaek.global.oauth;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
 
 import org.appjam.bongbaek.global.exception.member.OAuthProviderInvalidException;
-import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
+import org.appjam.bongbaek.global.oauth.jwk.JwkProvider;
+import org.appjam.bongbaek.global.oauth.jwk.RSAPublicKeyConverter;
 import org.appjam.bongbaek.global.oauth.resources.OAuthProperties;
 import org.appjam.bongbaek.global.oauth.resources.OAuthProperty;
+import org.appjam.bongbaek.global.oauth.util.OAuthIdTokenParser;
+import org.appjam.bongbaek.global.oauth.util.OAuthIdTokenValidator;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -26,70 +24,45 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OidcOAuthClient {
 	private final OAuthProperties properties;
+	private final JwkProvider jwkProvider;
 
 	public String getUserInfo(String provider, String oauthIdToken) {
-		OAuthProperty property = this.getOAuthProperty(provider);
+		OAuthProperty property = getOAuthProperty(provider);
 
-		// id token파싱해서 kid 가져오기
-		SignedJWT signedJWT = this.parseJWT(oauthIdToken);
-		String kid = signedJWT.getHeader().getKeyID();
+		// id token을 문자열에서 객체로 반환
+		SignedJWT signedJWT = OAuthIdTokenParser.parseJWT(oauthIdToken);
 
-		// 키 목록에서 kid와 일치하는 키 찾기
-		JWK jwk = getJWKSet(property).getKeyByKeyId(kid);
+		// id token에서 kid 추출
+		String kid = OAuthIdTokenParser.getKeyID(signedJWT);
 
-		// id token의 claim 추출
-		JWTClaimsSet claims = this.getClaims(signedJWT);
+		// id toekn의 kid와 일치하는 jwk 가져오기
+		JWK jwk = jwkProvider.getJWK(provider, getOauthUrl(property), kid);
 
-		// 공개키의 n, e로 키 객체 생성 후 검증
-		OidcValidator.validateSignature(signedJWT, this.createRSAPublicKey(jwk));
-		// claim 검증
-		OidcValidator.validateClaims(claims, property);
+		JWTClaimsSet claims = verifyAndExtractClaims(property, signedJWT, jwk);
 
 		return claims.getSubject();
 	}
 
+	private JWTClaimsSet verifyAndExtractClaims(OAuthProperty property, SignedJWT signedJWT, JWK jwk) {
+		JWTClaimsSet claims = OAuthIdTokenParser.getJWTClaimsSet(signedJWT);	// id token의 claim 추출
+		RSAPublicKey publicKey = RSAPublicKeyConverter.convert(jwk);	// jwk의 n, e로 공개키 객체 생성
+
+		OAuthIdTokenValidator.verifySignature(signedJWT, publicKey);	// 공개키로 id token의 서명 검증
+		OAuthIdTokenValidator.validateClaims(claims, property);		// claim 검증
+
+		return claims;
+	}
+
 	private OAuthProperty getOAuthProperty(String provider) {
 		return properties.getOAuthProperty(provider)
-				.orElseThrow(() -> new RuntimeException("OAuth property not found"));
-	}
-
-	private SignedJWT parseJWT(String oauthIdToken) {
-		try {
-			return SignedJWT.parse(oauthIdToken);
-		} catch (ParseException e) {
-			throw new TokenInvalidException();
-		}
-	}
-
-	private JWKSet getJWKSet(OAuthProperty oAuthProperty){
-		try{
-			return JWKSet.load(getOauthUrl(oAuthProperty));
-		} catch (ParseException | IOException e) {
-			throw new OAuthProviderInvalidException();
-		}
+				.orElseThrow(OAuthProviderInvalidException::new);
 	}
 
 	private URL getOauthUrl(OAuthProperty oAuthProperty) {
-		try{
+		try {
 			return URI.create(oAuthProperty.publicKeyUri()).toURL();
 		} catch (MalformedURLException e) {
 			throw new OAuthProviderInvalidException();
-		}
-	}
-
-	private RSAPublicKey createRSAPublicKey(JWK jwk){
-		try{
-			return ((RSAKey) jwk).toRSAPublicKey();
-		} catch (JOSEException e) {
-			throw new OAuthProviderInvalidException();
-		}
-	}
-
-	private JWTClaimsSet getClaims(SignedJWT signedJWT){
-		try{
-			return signedJWT.getJWTClaimsSet();
-		} catch (ParseException e) {
-			throw new TokenInvalidException();
 		}
 	}
 }
