@@ -8,7 +8,10 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
 
-public class RSAPublicKeyConverter {
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+public final class RSAPublicKeyConverter {
 	public static RSAPublicKey convert(JWK jwk) {
 		try {
 			return ((RSAKey)jwk).toRSAPublicKey();

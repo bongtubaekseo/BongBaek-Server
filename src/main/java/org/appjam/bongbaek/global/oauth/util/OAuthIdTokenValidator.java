@@ -13,7 +13,11 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-public class OAuthIdTokenValidator {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class OAuthIdTokenValidator {
 	public static void verifySignature(SignedJWT signedJWT, RSAPublicKey publicKey) {
 		// 토큰 서명 검증
 		if (!isSignatureVerified(signedJWT, publicKey)) {

@@ -7,7 +7,11 @@ import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-public class OAuthIdTokenParser {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class OAuthIdTokenParser {
 	public static SignedJWT parseJWT(String oauthIdToken) {
 		try {
 			return SignedJWT.parse(oauthIdToken);
