@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.oauth;
+package org.appjam.bongbaek.global.oauth.util;
 
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
