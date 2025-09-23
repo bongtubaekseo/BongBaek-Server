@@ -13,10 +13,10 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-public class OidcValidator {
-	public static void validateSignature(SignedJWT signedJWT, RSAPublicKey publicKey) {
+public class OAuthIdTokenValidator {
+	public static void verifySignature(SignedJWT signedJWT, RSAPublicKey publicKey) {
 		// 토큰 서명 검증
-		if (!verifySignature(signedJWT, publicKey)) {
+		if (!isSignatureVerified(signedJWT, publicKey)) {
 			throw new SignatureInvalidException();
 		}
 	}
@@ -30,7 +30,7 @@ public class OidcValidator {
 		validateExpiration(claims);
 	}
 
-	private static boolean verifySignature(SignedJWT signedJWT, RSAPublicKey publicKey) {
+	private static boolean isSignatureVerified(SignedJWT signedJWT, RSAPublicKey publicKey) {
 		try {
 			return signedJWT.verify(new RSASSAVerifier(publicKey));
 		} catch (JOSEException e) {
