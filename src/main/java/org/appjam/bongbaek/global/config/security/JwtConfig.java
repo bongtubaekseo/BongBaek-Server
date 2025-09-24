@@ -20,19 +20,4 @@ public class JwtConfig {
 	public SecretKey secretKey() {
 		return Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
 	}
-
-	@Bean
-	public String issuer() {
-		return jwtProperties.issuer();
-	}
-
-	@Bean
-	public long accessTokenExpireIn() {
-		return jwtProperties.accessTokenExpireIn();
-	}
-
-	@Bean
-	public long refreshTokenExpireIn() {
-		return jwtProperties.refreshTokenExpireIn();
-	}
 }

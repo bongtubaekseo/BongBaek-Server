@@ -2,6 +2,7 @@ package org.appjam.bongbaek.global.jwt.components;
 
 import java.util.Date;
 
+import org.appjam.bongbaek.global.config.security.util.JwtProperties;
 import org.appjam.bongbaek.global.exception.member.SignatureInvalidException;
 import org.appjam.bongbaek.global.exception.member.TokenExpiredException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
@@ -17,8 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtValidator {
 	private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
-	private final String issuer;
-
+	private final JwtProperties jwtProperties;
 	private final JwtParser jwtParser;
 
 	/**
@@ -43,12 +43,12 @@ public class JwtValidator {
 		}
 	}
 
-	private void verifyClaims(final Jws<Claims> claims){
-		if(!isValidIssuer(claims)) {
+	private void verifyClaims(final Jws<Claims> claims) {
+		if (!isValidIssuer(claims)) {
 			throw new TokenInvalidException();
 		}
 
-		if(isExpired(claims)) {
+		if (isExpired(claims)) {
 			throw new TokenExpiredException();
 		}
 	}
@@ -56,7 +56,7 @@ public class JwtValidator {
 	private boolean isValidIssuer(final Jws<Claims> claims) {
 		return claims.getPayload()
 				.getIssuer()
-				.equals(issuer);
+				.equals(jwtProperties.issuer());
 	}
 
 	private boolean isExpired(final Jws<Claims> claims) {
