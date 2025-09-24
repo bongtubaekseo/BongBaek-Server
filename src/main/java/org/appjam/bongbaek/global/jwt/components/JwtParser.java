@@ -4,10 +4,10 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
@@ -20,32 +20,20 @@ public class JwtParser {
 
 	private final SecretKey secretKey;
 
-	/**
-	 * Access Token을 파싱하여 멤버의 id를 반환하는 메서드
-	 */
-	public String getMemberId(String token) {
-		try{
-			return Jwts.parser()
-					.verifyWith(secretKey)
-					.build()
-					.parseSignedClaims(token)
-					.getPayload()
-					.getSubject();
-		} catch (JwtException e) {
-			throw new TokenInvalidException();
-		}
+	public String getMemberId(final String token) {
+		return parseClaims(token).getPayload()
+				.getSubject();
 	}
 
 	public Date getExpire(final String token) {
-		try {
-			return Jwts.parser()
-					.verifyWith(secretKey)
-					.build()
-					.parseSignedClaims(token)
-					.getPayload()
-					.getExpiration();
-		} catch (JwtException e) {
-			throw new TokenInvalidException();
-		}
+		return parseClaims(token).getPayload()
+				.getExpiration();
+	}
+
+	public Jws<Claims> parseClaims(final String token) {
+		return Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token);
 	}
 }
