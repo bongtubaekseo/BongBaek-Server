@@ -1,6 +1,7 @@
 package org.appjam.bongbaek.global.jwt.components;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.appjam.bongbaek.global.config.security.util.JwtProperties;
 import org.appjam.bongbaek.global.exception.member.SignatureInvalidException;
@@ -54,14 +55,17 @@ public class JwtValidator {
 	}
 
 	private boolean isValidIssuer(final Jws<Claims> claims) {
-		return claims.getPayload()
-				.getIssuer()
-				.equals(jwtProperties.issuer());
+		String issuer = claims.getPayload().getIssuer();
+		return Objects.equals(issuer, jwtProperties.issuer());
 	}
 
 	private boolean isExpired(final Jws<Claims> claims) {
-		return claims.getPayload()
-				.getExpiration()
-				.before(new Date());
+		Date expiration = claims.getPayload().getExpiration();
+
+		if(expiration == null) {
+			return true;
+		}
+
+		return expiration.before(new Date());
 	}
 }
