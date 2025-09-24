@@ -25,4 +25,14 @@ public class JwtConfig {
 	public String issuer() {
 		return jwtProperties.issuer();
 	}
+
+	@Bean
+	public long accessTokenExpireIn() {
+		return jwtProperties.accessTokenExpireIn();
+	}
+
+	@Bean
+	public long refreshTokenExpireIn() {
+		return jwtProperties.refreshTokenExpireIn();
+	}
 }
