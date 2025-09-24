@@ -7,9 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import org.appjam.bongbaek.global.config.security.AuthWhiteList;
+import org.appjam.bongbaek.global.config.security.util.AuthWhiteList;
 import org.appjam.bongbaek.global.exception.BaseException;
-import org.appjam.bongbaek.global.exception.member.TokenExpiredException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.appjam.bongbaek.global.jwt.JwtBlacklistManager;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
@@ -54,22 +53,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			@NonNull FilterChain filterChain) throws ServletException, IOException {
 		final String accessTokenWithBearer = request.getHeader(ACCESS_TOKEN_HEADER_KEY);
 
+		// 토큰이 올바른 형식인지 검증
 		if (!jwtValidator.isValidFormat(accessTokenWithBearer)) {
-			SecurityContextHolder.clearContext();
 			resolveBaseException(request, response, new TokenInvalidException());
 			return;
 		}
 
 		final String accessToken = resolveToken(accessTokenWithBearer);
 
-		if (jwtValidator.isExpired(accessToken)) {
-			SecurityContextHolder.clearContext();
-			resolveBaseException(request, response, new TokenExpiredException());
+		// 토큰 검증
+		try {
+			jwtValidator.verifyToken(accessToken);
+		} catch (BaseException e) {
+			resolveBaseException(request, response, e);
 			return;
 		}
 
+		// 블랙리스팅 여부 검증
 		if (jwtBlacklistManager.contains(accessToken)) {
-			SecurityContextHolder.clearContext();
 			resolveBaseException(request, response, new TokenInvalidException());
 			return;
 		}
@@ -91,7 +92,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		return accessTokenWithBearer.substring(ACCESS_TOKEN_PREFIX.length());
 	}
 
-	private void resolveBaseException(HttpServletRequest request, HttpServletResponse response, BaseException baseException){
+	private void resolveBaseException(HttpServletRequest request, HttpServletResponse response,
+			BaseException baseException) {
+		SecurityContextHolder.clearContext();
 		exceptionResolver.resolveException(request, response, null, baseException);
 	}
 }
