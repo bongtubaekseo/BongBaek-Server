@@ -1,5 +1,7 @@
 package org.appjam.bongbaek.domain.member.service;
 
+import java.util.Optional;
+
 import org.appjam.bongbaek.domain.member.dto.response.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
@@ -12,7 +14,6 @@ import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
 import org.appjam.bongbaek.global.exception.member.MemberAlreadyExistsException;
 import org.appjam.bongbaek.global.exception.member.MemberNotAuthenticatedException;
 import org.appjam.bongbaek.global.exception.member.MemberNotFoundException;
-import org.appjam.bongbaek.global.exception.member.TokenExpiredException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.appjam.bongbaek.global.jwt.JwtBlacklistManager;
 import org.appjam.bongbaek.global.jwt.JwtRefreshStore;
@@ -54,11 +55,14 @@ public class MemberService {
 	public LoginResponse login(final String oAuthProvider, final String idToken) {
 		String oAuthId = oidcOAuthClient.getUserInfo(oAuthProvider, idToken);
 
-		if (memberRepository.findByOauthIdAndOauthProvider(oAuthId, OAuthProvider.of(oAuthProvider)).isEmpty()) {
+		Optional<Member> OptionalMember = memberRepository.findByOauthIdAndOauthProvider(oAuthId,
+				OAuthProvider.of(oAuthProvider));
+
+		if (OptionalMember.isEmpty()) {
 			return LoginResponse.failure(oAuthProvider, oAuthId);
 		}
-		Member member = memberRepository.findByOauthIdAndOauthProvider(oAuthId, OAuthProvider.of(oAuthProvider))
-				.orElseThrow(MemberNotFoundException::new);
+
+		Member member = OptionalMember.get();
 
 		TokenResponse tokenResponse = generateTokensForMember(member);
 
@@ -96,9 +100,7 @@ public class MemberService {
 
 	@Transactional
 	public TokenResponse reissueTokens(final String refreshToken) {
-		if (jwtValidator.isExpired(refreshToken)) {
-			throw new TokenExpiredException();
-		}
+		jwtValidator.verifyToken(refreshToken);
 
 		// 저장된 refreshToken인지 확인
 		if (!jwtRefreshStore.exists(refreshToken)) {
