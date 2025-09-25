@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.global.config;
+package org.appjam.bongbaek.global.config.data;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

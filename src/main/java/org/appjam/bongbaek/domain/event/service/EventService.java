@@ -61,7 +61,7 @@ public class EventService {
 		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 		Slice<Event> result = eventRepository.findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(
 				memberId,
-				Category.of(category),
+				Category.of(category).orElse(null),
 				attended,
 				pageable
 		);
@@ -79,7 +79,7 @@ public class EventService {
 		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 		Slice<Event> result = eventRepository.findUpcomingEventsByMemberIdAndCategoryOrderBy(
 				memberId,
-				Category.of(category),
+				Category.of(category).orElse(null),
 				pageable
 		);
 

@@ -11,11 +11,13 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorCode implements ErrorResultCode {
 	// 400
 	REQUEST_INVALID(HttpStatus.BAD_REQUEST, "올바른 요청값이 아닙니다."),
+	OAUTH_PROVIDER_INVALID(HttpStatus.BAD_REQUEST, "올바른 소셜로그인 플랫폼이 아닙니다."),
 
 	// 401
 	AUTHENTICATE_FAIL(HttpStatus.UNAUTHORIZED,"인증에 실패했습니다."),
 	TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
 	TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
+	SIGNATURE_INVALID(HttpStatus.UNAUTHORIZED, "올바른 서명값이 아닙니다."),
 
 	// 403
 	AUTHORITY_DENIED(HttpStatus.FORBIDDEN, "권한이 존재하지 않습니다."),
