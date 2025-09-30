@@ -2,7 +2,11 @@ package org.appjam.bongbaek.domain.event.service.util;
 
 import org.appjam.bongbaek.domain.event.service.util.vo.RangeInfo;
 
-public class RangeCalculator {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class RangeCalculator {
 	public static RangeInfo calculateRange(int cost) {
 		if (cost <= 30_000) {
 			return new RangeInfo(10_000, 50_000);
