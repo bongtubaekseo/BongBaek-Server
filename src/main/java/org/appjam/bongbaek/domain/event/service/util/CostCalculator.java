@@ -8,7 +8,11 @@ import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 
-public class CostCalculator {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class CostCalculator {
 	private static final int UNIT_AMOUNT = 10000;
 
 	// 나이 계수 상수

@@ -7,17 +7,19 @@ public interface ApiResponse {
 
 	int status();
 
+	String code();
+
 	String message();
 
 	static <T> SuccessResponse<T> success(SuccessResultCode successCode, T data) {
-		return new SuccessResponse<T>(true, successCode.getStatus().value(), successCode.getMessage(), data);
+		return SuccessResponse.of(successCode, data);
 	}
 
 	static <T> SuccessResponse<T> success(SuccessResultCode successCode) {
-		return new SuccessResponse<T>(true, successCode.getStatus().value(), successCode.getMessage(), null);
+		return SuccessResponse.of(successCode);
 	}
 
 	static FailureResponse failure(ErrorResultCode errorCode) {
-		return new FailureResponse(false, errorCode.getStatus().value(), errorCode.getMessage());
+		return FailureResponse.of(errorCode);
 	}
 }
