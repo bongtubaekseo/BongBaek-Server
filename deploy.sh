@@ -28,4 +28,7 @@ done
 # 불필요한 이미지 정리
 docker image prune -f
 
+docker exec nginx nginx -t && docker exec nginx nginx -s reload
+echo "nginx reloaded safely"
+
 echo "===== Deployment Completed ====="
