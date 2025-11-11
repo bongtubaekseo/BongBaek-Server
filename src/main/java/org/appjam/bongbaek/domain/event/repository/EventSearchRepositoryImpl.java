@@ -2,7 +2,7 @@ package org.appjam.bongbaek.domain.event.repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.appjam.bongbaek.domain.event.entity.Category;
+import org.appjam.bongbaek.domain.common.Category;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.entity.QEvent;
 import org.springframework.data.domain.Pageable;

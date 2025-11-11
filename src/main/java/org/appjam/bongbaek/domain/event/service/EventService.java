@@ -11,7 +11,7 @@ import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
-import org.appjam.bongbaek.domain.event.entity.Category;
+import org.appjam.bongbaek.domain.common.Category;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.repository.EventRepository;
 import org.appjam.bongbaek.domain.event.service.util.CostCalculator;

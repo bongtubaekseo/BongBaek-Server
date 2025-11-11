@@ -6,6 +6,7 @@ import jakarta.persistence.ForeignKey;
 import java.time.LocalDate;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
+import org.appjam.bongbaek.domain.common.Category;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.service.util.Validator;
 import org.appjam.bongbaek.domain.member.entity.Member;
@@ -97,9 +98,9 @@ public class Event extends BaseEntity {
 
 	@Builder
 	private Event(String hostName, String hostNickname, Relationship relationship, int contactFrequency,
-			int meetFrequency,
-			Category eventCategory, LocalDate eventDate, boolean attended, String note, int cost,
-			String location, String address, double latitude, double longitude, Member member) {
+				  int meetFrequency,
+				  Category eventCategory, LocalDate eventDate, boolean attended, String note, int cost,
+				  String location, String address, double latitude, double longitude, Member member) {
 		this.hostName = hostName;
 		this.hostNickname = hostNickname;
 		this.relationship = relationship;
