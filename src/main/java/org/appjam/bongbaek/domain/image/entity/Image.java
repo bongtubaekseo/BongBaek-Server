@@ -31,11 +31,15 @@ public class Image {
     @Column(name = "owner_id", nullable = false)
     private String ownerId;
 
+    @Column(name = "sequence", nullable = false)
+    private int sequence;
+
     @Builder
-    public Image(String imageUrl, String storageKey, OwnerType ownerType, String ownerId) {
+    public Image(String imageUrl, String storageKey, OwnerType ownerType, String ownerId, int sequence) {
         this.imageUrl = imageUrl;
         this.storageKey = storageKey;
         this.ownerType = ownerType;
         this.ownerId = ownerId;
+        this.sequence = sequence;
     }
 }
