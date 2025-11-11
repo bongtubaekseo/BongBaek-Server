@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.event.entity;
+package org.appjam.bongbaek.domain.common.entity;
 
 import java.util.Arrays;
 import java.util.Optional;
