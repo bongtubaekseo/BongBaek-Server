@@ -30,7 +30,7 @@ public class S3Uploader implements FileUploader {
 
     private final S3Client s3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
     public FileDto upload(
