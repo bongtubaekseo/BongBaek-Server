@@ -79,7 +79,7 @@ public class S3Uploader implements FileUploader {
             throw new InvalidImageFormatException();
         }
 
-        return ownerType + "/" + TSID.from(13) + extension;
+        return ownerType + "/" + TSID.fast() + extension;
     }
 
     private String getImageUrl(String s3Key) {
