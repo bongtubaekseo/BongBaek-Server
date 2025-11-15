@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/content")
 public class ContentControllerImpl implements ContentController {
 
     private final ContentService contentService;

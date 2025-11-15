@@ -4,10 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.appjam.bongbaek.domain.content.dto.ContentWriteDto;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@RequestMapping("/api/v1/content")
 @Tag(name = "경조사 컨텐츠 정보", description = "경조사 컨텐츠 정보 관련 API")
 public interface ContentController {
 
