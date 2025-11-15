@@ -1,0 +1,28 @@
+package org.appjam.bongbaek.domain.content.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.appjam.bongbaek.domain.content.dto.ContentWriteDto;
+import org.appjam.bongbaek.global.api.response.ApiResponse;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RequestMapping("/api/v1/content")
+@Tag(name = "경조사 컨텐츠 정보", description = "경조사 컨텐츠 정보 관련 API")
+public interface ContentController {
+
+    @Operation(summary = "경조사 컨텐츠 정보 생성", description = "경조사 컨텐츠 정보를 생성합니다.")
+    ApiResponse createContent(ContentWriteDto request, MultipartFile thumbnailFile);
+
+    @Operation(summary = "경조사 컨텐츠 썸네일 변경", description = "경조사 컨텐츠 썸네일을 변경합니다.")
+    ApiResponse updateThumbnail(String contentId, MultipartFile newThumbnailFile);
+
+    @Operation(summary = "경조사 컨텐츠 메인 이미지 업로드", description = "경조사 컨텐츠 메인 이미지를 업로드합니다.")
+    ApiResponse uploadMainImage(String contentId, MultipartFile mainImageFile);
+
+    @Operation(summary = "경조사 컨텐츠 정보 삭제", description = "경조사 컨텐츠 정보를 삭제합니다.")
+    ApiResponse deleteContent( String contentId);
+
+    @Operation(summary = "경조사 컨텐츠 정보 상세 조회", description = "경조사 컨텐츠 정보를 상세 조회합니다.")
+    ApiResponse getContentDetail(String contentId);
+}
