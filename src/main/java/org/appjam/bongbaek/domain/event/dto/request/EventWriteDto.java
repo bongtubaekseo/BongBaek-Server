@@ -1,6 +1,6 @@
 package org.appjam.bongbaek.domain.event.dto.request;
 
-import org.appjam.bongbaek.domain.common.Category;
+import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.entity.Relationship;
 import org.appjam.bongbaek.domain.event.dto.common.EventInfo;

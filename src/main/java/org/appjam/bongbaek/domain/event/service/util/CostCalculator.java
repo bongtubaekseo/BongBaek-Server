@@ -1,7 +1,7 @@
 package org.appjam.bongbaek.domain.event.service.util;
 
 import org.appjam.bongbaek.domain.event.dto.common.HighAccuracy;
-import org.appjam.bongbaek.domain.common.Category;
+import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.domain.event.entity.Relationship;
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;

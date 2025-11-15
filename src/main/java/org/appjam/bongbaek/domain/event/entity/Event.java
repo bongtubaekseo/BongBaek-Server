@@ -6,7 +6,6 @@ import jakarta.persistence.ForeignKey;
 import java.time.LocalDate;
 
 import org.appjam.bongbaek.domain.common.BaseEntity;
-import org.appjam.bongbaek.domain.common.Category;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.service.util.Validator;
 import org.appjam.bongbaek.domain.member.entity.Member;

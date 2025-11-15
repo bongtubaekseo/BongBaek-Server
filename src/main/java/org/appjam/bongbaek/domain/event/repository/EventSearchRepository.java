@@ -1,6 +1,6 @@
 package org.appjam.bongbaek.domain.event.repository;
 
-import org.appjam.bongbaek.domain.common.Category;
+import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
