@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.content.dto;
+package org.appjam.bongbaek.domain.content.dto.response;
 
 import org.appjam.bongbaek.domain.content.entity.Content;
 import org.appjam.bongbaek.domain.event.entity.Category;

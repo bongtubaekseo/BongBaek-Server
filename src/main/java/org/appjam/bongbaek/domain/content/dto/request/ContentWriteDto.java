@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.content.dto;
+package org.appjam.bongbaek.domain.content.dto.request;
 
 public record ContentWriteDto(
         String contentTitle,
