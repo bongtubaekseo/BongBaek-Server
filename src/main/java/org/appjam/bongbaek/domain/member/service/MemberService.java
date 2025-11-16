@@ -48,7 +48,7 @@ public class MemberService {
 	private final JwtRefreshStore jwtRefreshStore;
 	private final JwtBlacklistManager jwtBlacklistManager;
 
-	@Value("${oauth.properties.kakao.client-id}")
+	@Value("${kakao.api-key}")
 	private String apiKey;
 
 	@Transactional
