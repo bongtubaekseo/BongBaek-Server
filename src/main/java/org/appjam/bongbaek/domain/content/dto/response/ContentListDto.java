@@ -22,6 +22,7 @@ public record ContentListDto(
     }
 
     private record ContentListElements(
+            String contentId,
             String contentTitle,
             String contentCategory,
             String thumbnailUrl,
@@ -37,6 +38,7 @@ public record ContentListDto(
                     .format(DATE_FORMATTER);
 
             return new ContentListElements(
+                    content.getContentId(),
                     content.getContentTitle(),
                     content.getContentCategory().getDescription(),
                     content.getThumbnailUrl(),
