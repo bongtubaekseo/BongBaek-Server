@@ -1,8 +1,10 @@
 package org.appjam.bongbaek.domain.content.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.domain.content.dto.ContentWriteDto;
-import org.appjam.bongbaek.domain.content.dto.ContentDetailResponseDto;
+import org.appjam.bongbaek.domain.content.dto.response.ContentHomeResponseDto;
+import org.appjam.bongbaek.domain.content.dto.response.ContentListDto;
+import org.appjam.bongbaek.domain.content.dto.request.ContentWriteDto;
+import org.appjam.bongbaek.domain.content.dto.response.ContentDetailResponseDto;
 import org.appjam.bongbaek.domain.content.service.ContentService;
 import org.appjam.bongbaek.global.api.code.content.SuccessCode;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
@@ -60,6 +62,24 @@ public class ContentControllerImpl implements ContentController {
             @PathVariable String contentId
     ) {
         ContentDetailResponseDto response = contentService.getContentDetail(contentId);
+
+        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
+    }
+
+    @GetMapping("/home")
+    public SuccessResponse<ContentHomeResponseDto> getContentForHome() {
+        ContentHomeResponseDto response = contentService.getContentForHome();
+
+        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
+    }
+
+    @GetMapping("/list/{page}")
+    public SuccessResponse<ContentListDto> getContentList(
+            @PathVariable(name = "page") final int page,
+            @RequestParam(name = "category", required = false) final String category
+    ){
+        ContentListDto response = contentService.getContentList(page, category);
+
         return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
     }
 }
