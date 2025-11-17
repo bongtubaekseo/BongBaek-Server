@@ -54,11 +54,12 @@ public class ContentService {
     public void updateThumbnail(String contentId, MultipartFile newThumbnailFile) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
+        String oldStorageKey = content.getThumbnailStorageKey();
 
         FileDto newThumbnailDto = contentImageService.uploadImage(newThumbnailFile);
 
         content.updateThumbnail(newThumbnailDto.imageUrl(), newThumbnailDto.storageKey());
-        contentImageService.deleteImage(content.getThumbnailStorageKey());
+        contentImageService.deleteImage(oldStorageKey);
     }
 
     @Transactional
@@ -66,8 +67,9 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
+        String oldS3Key = null;
         if (content.getContentImage() != null) {
-            String oldS3Key = content.getContentImage().getStorageKey();
+            oldS3Key = content.getContentImage().getStorageKey();
             contentImageService.deleteImage(oldS3Key);
         }
 
@@ -79,6 +81,10 @@ public class ContentService {
                 .build();
 
         content.uploadContentImage(newMainImage);
+
+        if(oldS3Key != null) {
+            contentImageService.deleteImage(oldS3Key);
+        }
     }
 
     @Transactional
@@ -114,10 +120,9 @@ public class ContentService {
 
     @Transactional(readOnly = true)
     public ContentListDto getContentList(int page, String category) {
-
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         Category contentCategory = Category.of(category)
-                .orElseThrow(RequestInvalidException::new);
+                .orElse(null);
 
         if(contentCategory == null) {
             Page<Content> contents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
