@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.common;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,6 +17,7 @@ import lombok.Getter;
 public abstract class BaseEntity {
 
 	@CreatedDate
+	@NotNull
 	private LocalDateTime createdDateTime;
 
 	@LastModifiedDate
