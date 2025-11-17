@@ -11,7 +11,6 @@ import org.appjam.bongbaek.domain.content.repository.ContentRepository;
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 import org.appjam.bongbaek.global.exception.content.ContentNotFoundException;
-import org.appjam.bongbaek.global.exception.image.ImageNotFoundException;
 import org.appjam.bongbaek.global.s3.dto.FileDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,11 +34,13 @@ public class ContentService {
             ContentWriteDto request,
             MultipartFile thumbnailFile
     ) {
+        Category category = Category.of(request.contentCategory()).orElseThrow(RequestInvalidException::new);
+
         FileDto thumbnailDto = contentImageService.uploadImage(thumbnailFile);
 
         Content content = Content.builder()
                 .contentTitle(request.contentTitle())
-                .contentCategory(Category.of(request.contentCategory()).orElseThrow(RequestInvalidException::new))
+                .contentCategory(category)
                 .thumbnailUrl(thumbnailDto.imageUrl())
                 .thumbnailStorageKey(thumbnailDto.storageKey())
                 .build();
@@ -53,24 +54,23 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        String oldS3Key = content.getThumbnailStorageKey();
-        if(oldS3Key == null){
-            throw new ImageNotFoundException();
-        }
-
         FileDto newThumbnailDto = contentImageService.uploadImage(newThumbnailFile);
 
         content.updateThumbnail(newThumbnailDto.imageUrl(), newThumbnailDto.storageKey());
-
-        contentImageService.deleteImage(oldS3Key);
+        contentImageService.deleteImage(content.getThumbnailStorageKey());
     }
 
     @Transactional
-    public void uploadMainImage(String contentId, MultipartFile mainImageFile) {
+    public void uploadMainImage(String contentId, MultipartFile newImageFile) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        FileDto newMainImageDto = contentImageService.uploadImage(mainImageFile);
+        if (content.getContentImage() != null) {
+            String oldS3Key = content.getContentImage().getStorageKey();
+            contentImageService.deleteImage(oldS3Key);
+        }
+
+        FileDto newMainImageDto = contentImageService.uploadImage(newImageFile);
 
         ContentImage newMainImage = ContentImage.builder()
                 .imageUrl(newMainImageDto.imageUrl())
@@ -78,11 +78,6 @@ public class ContentService {
                 .build();
 
         content.uploadContentImage(newMainImage);
-
-        if (content.getContentImage() != null) {
-            String oldS3Key = content.getContentImage().getStorageKey();
-            contentImageService.deleteImage(oldS3Key);
-        }
     }
 
     @Transactional
@@ -91,10 +86,12 @@ public class ContentService {
                 .orElseThrow(ContentNotFoundException::new);
 
         String thumbnailS3Key = content.getThumbnailStorageKey();
-        String mainImageS3Key = content.getContentImage().getStorageKey();
-
         contentImageService.deleteImage(thumbnailS3Key);
-        contentImageService.deleteImage(mainImageS3Key);
+
+        if (content.getContentImage() != null) {
+            String mainImageS3Key = content.getContentImage().getStorageKey();
+            contentImageService.deleteImage(mainImageS3Key);
+        }
 
         contentRepository.delete(content);
     }
