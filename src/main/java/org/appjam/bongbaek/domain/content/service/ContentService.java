@@ -34,13 +34,14 @@ public class ContentService {
             ContentWriteDto request,
             MultipartFile thumbnailFile
     ) {
-        Category category = Category.of(request.contentCategory()).orElseThrow(RequestInvalidException::new);
+        Category contentCategory = Category.of(request.contentCategory())
+                .orElseThrow(RequestInvalidException::new);
 
         FileDto thumbnailDto = contentImageService.uploadImage(thumbnailFile);
 
         Content content = Content.builder()
                 .contentTitle(request.contentTitle())
-                .contentCategory(category)
+                .contentCategory(contentCategory)
                 .thumbnailUrl(thumbnailDto.imageUrl())
                 .thumbnailStorageKey(thumbnailDto.storageKey())
                 .build();
@@ -115,7 +116,8 @@ public class ContentService {
     public ContentListDto getContentList(int page, String category) {
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Category contentCategory = Category.of(category).orElse(null);
+        Category contentCategory = Category.of(category)
+                .orElseThrow(RequestInvalidException::new);
 
         if(contentCategory == null) {
             Page<Content> contents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
@@ -124,7 +126,7 @@ public class ContentService {
         }
 
         Page<Content> contents = contentRepository.findContentsByContentCategoryOrderByCreatedDateTimeDesc(
-                Category.of(category).orElse(null),
+                contentCategory,
                 pageable
         );
 
