@@ -87,10 +87,11 @@ public class ContentService {
         FileDto newThumbnailDto = contentImageService.uploadImage(newThumbnailFile);
         ContentImage newThumbnail = ContentImage.createThumbnail(newThumbnailDto);
 
+        content.getContentImages().remove(oldThumbnail);
+        contentImageService.deleteImage(oldThumbnail.getStorageKey());
+
         content.addContentImage(newThumbnail);
         content.updateThumbnailUrl(newThumbnail.getImageUrl());
-
-        contentImageService.deleteImage(oldThumbnail.getStorageKey());
     }
 
     @Transactional
@@ -111,9 +112,9 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
+        contentRepository.delete(content);
+
         content.getContentImages()
                 .forEach(image -> contentImageService.deleteImage(image.getStorageKey()));
-
-        contentRepository.delete(content);
     }
 }
