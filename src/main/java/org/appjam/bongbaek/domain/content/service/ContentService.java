@@ -1,16 +1,17 @@
 package org.appjam.bongbaek.domain.content.service;
 
 import lombok.RequiredArgsConstructor;
-import org.appjam.bongbaek.domain.content.dto.response.ContentHomeResponseDto;
-import org.appjam.bongbaek.domain.content.dto.response.ContentListDto;
 import org.appjam.bongbaek.domain.content.dto.request.ContentWriteDto;
 import org.appjam.bongbaek.domain.content.dto.response.ContentDetailResponseDto;
+import org.appjam.bongbaek.domain.content.dto.response.ContentHomeResponseDto;
+import org.appjam.bongbaek.domain.content.dto.response.ContentListDto;
 import org.appjam.bongbaek.domain.content.entity.Content;
 import org.appjam.bongbaek.domain.content.entity.ContentImage;
 import org.appjam.bongbaek.domain.content.repository.ContentRepository;
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 import org.appjam.bongbaek.global.exception.content.ContentNotFoundException;
+import org.appjam.bongbaek.global.exception.image.ImageNotFoundException;
 import org.appjam.bongbaek.global.s3.dto.FileDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,11 +30,35 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentImageService contentImageService;
 
+    @Transactional(readOnly = true)
+    public ContentDetailResponseDto getContentDetail(String contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(ContentNotFoundException::new);
+        return ContentDetailResponseDto.from(content);
+    }
+
+    @Transactional(readOnly = true)
+    public ContentHomeResponseDto getContentForHome() {
+        List<Content> contents = contentRepository.findTop3ByOrderByCreatedDateTimeDesc();
+        return ContentHomeResponseDto.from(contents);
+    }
+
+    @Transactional(readOnly = true)
+    public ContentListDto getContentList(int page, String category) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Category contentCategory = Category.of(category).orElse(null);
+
+        Page<Content> contents;
+        if (contentCategory == null) {
+            contents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
+        } else {
+            contents = contentRepository.findContentsByContentCategoryOrderByCreatedDateTimeDesc(contentCategory, pageable);
+        }
+        return ContentListDto.of(contents);
+    }
+
     @Transactional
-    public void createContent(
-            ContentWriteDto request,
-            MultipartFile thumbnailFile
-    ) {
+    public void createContent(ContentWriteDto request, MultipartFile thumbnailFile) {
         Category contentCategory = Category.of(request.contentCategory())
                 .orElseThrow(RequestInvalidException::new);
 
@@ -43,23 +68,29 @@ public class ContentService {
                 .contentTitle(request.contentTitle())
                 .contentCategory(contentCategory)
                 .thumbnailUrl(thumbnailDto.imageUrl())
-                .thumbnailStorageKey(thumbnailDto.storageKey())
                 .build();
 
+        ContentImage thumbnail = ContentImage.createThumbnail(thumbnailDto);
+
+        content.addContentImage(thumbnail);
         contentRepository.save(content);
     }
-
 
     @Transactional
     public void updateThumbnail(String contentId, MultipartFile newThumbnailFile) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
-        String oldStorageKey = content.getThumbnailStorageKey();
+
+        ContentImage oldThumbnail = content.getThumbnail()
+                .orElseThrow(ImageNotFoundException::new);
 
         FileDto newThumbnailDto = contentImageService.uploadImage(newThumbnailFile);
+        ContentImage newThumbnail = ContentImage.createThumbnail(newThumbnailDto);
 
-        content.updateThumbnail(newThumbnailDto.imageUrl(), newThumbnailDto.storageKey());
-        contentImageService.deleteImage(oldStorageKey);
+        content.addContentImage(newThumbnail);
+        content.updateThumbnailUrl(newThumbnail.getImageUrl());
+
+        contentImageService.deleteImage(oldThumbnail.getStorageKey());
     }
 
     @Transactional
@@ -67,24 +98,12 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        String oldS3Key = null;
-        if (content.getContentImage() != null) {
-            oldS3Key = content.getContentImage().getStorageKey();
-            contentImageService.deleteImage(oldS3Key);
-        }
-
         FileDto newMainImageDto = contentImageService.uploadImage(newImageFile);
+        int nextSequence = content.getContentImages().size();
 
-        ContentImage newMainImage = ContentImage.builder()
-                .imageUrl(newMainImageDto.imageUrl())
-                .storageKey(newMainImageDto.storageKey())
-                .build();
+        ContentImage newMainImage = ContentImage.createMainImage(newMainImageDto, nextSequence);
 
-        content.uploadContentImage(newMainImage);
-
-        if(oldS3Key != null) {
-            contentImageService.deleteImage(oldS3Key);
-        }
+        content.addContentImage(newMainImage);
     }
 
     @Transactional
@@ -92,49 +111,9 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        String thumbnailS3Key = content.getThumbnailStorageKey();
-        contentImageService.deleteImage(thumbnailS3Key);
-
-        if (content.getContentImage() != null) {
-            String mainImageS3Key = content.getContentImage().getStorageKey();
-            contentImageService.deleteImage(mainImageS3Key);
-        }
+        content.getContentImages()
+                .forEach(image -> contentImageService.deleteImage(image.getStorageKey()));
 
         contentRepository.delete(content);
-    }
-
-    @Transactional(readOnly = true)
-    public ContentDetailResponseDto getContentDetail(String contentId) {
-        Content content = contentRepository.findByIdWithContentImage(contentId)
-                .orElseThrow(ContentNotFoundException::new);
-
-        return ContentDetailResponseDto.from(content);
-    }
-
-    @Transactional(readOnly = true)
-    public ContentHomeResponseDto getContentForHome() {
-        List<Content> contents = contentRepository.findTop3ByOrderByCreatedDateTimeDesc();
-
-        return ContentHomeResponseDto.from(contents);
-    }
-
-    @Transactional(readOnly = true)
-    public ContentListDto getContentList(int page, String category) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Category contentCategory = Category.of(category)
-                .orElse(null);
-
-        if(contentCategory == null) {
-            Page<Content> contents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
-
-            return ContentListDto.of(contents);
-        }
-
-        Page<Content> contents = contentRepository.findContentsByContentCategoryOrderByCreatedDateTimeDesc(
-                contentCategory,
-                pageable
-        );
-
-        return ContentListDto.of(contents);
     }
 }
