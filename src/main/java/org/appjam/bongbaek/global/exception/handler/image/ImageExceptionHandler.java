@@ -1,7 +1,6 @@
 package org.appjam.bongbaek.global.exception.handler.image;
 
 import org.appjam.bongbaek.global.api.response.ApiResponse;
-import org.appjam.bongbaek.global.exception.content.ContentNotFoundException;
 import org.appjam.bongbaek.global.exception.handler.BaseExceptionHandler;
 import org.appjam.bongbaek.global.exception.image.FileUploadFailedException;
 import org.appjam.bongbaek.global.exception.image.ImageNotFoundException;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ImageExceptionHandler extends BaseExceptionHandler {
     @ExceptionHandler(FileUploadFailedException.class)
-    protected ApiResponse handleContentNotFoundException(ContentNotFoundException e) {
+    protected ApiResponse handleFileUploadFailedException(FileUploadFailedException e) {
         return buildErrorResponse(e.getErrorResultCode());
     }
 
@@ -24,11 +23,6 @@ public class ImageExceptionHandler extends BaseExceptionHandler {
 
     @ExceptionHandler(InvalidImageRequestException.class)
     protected ApiResponse handleInvalidImageRequestException(InvalidImageRequestException e) {
-        return buildErrorResponse(e.getErrorResultCode());
-    }
-
-    @ExceptionHandler(ImageNotFoundException.class)
-    protected ApiResponse handleContentNotFoundException(ImageNotFoundException e) {
         return buildErrorResponse(e.getErrorResultCode());
     }
 
