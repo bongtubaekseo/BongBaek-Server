@@ -22,12 +22,17 @@ public class ContentImage extends BaseImageEntity {
     @JoinColumn(name = "content_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Content content;
 
+    @Setter
     @Column(name = "sequence", nullable = false)
     private Integer sequence;
 
+    @Column(name = "is_thumbnail", nullable = false)
+    private boolean isThumbnail;
+
     @Builder
-    public ContentImage(String imageUrl, String storageKey, Integer sequence) {
+    public ContentImage(String imageUrl, String storageKey, Integer sequence, boolean isThumbnail) {
         super(imageUrl, storageKey);
         this.sequence = sequence;
+        this.isThumbnail = isThumbnail;
     }
 }
