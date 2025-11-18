@@ -11,6 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "경조사 컨텐츠 정보", description = "경조사 컨텐츠 정보 관련 API")
 public interface ContentController {
+    @Operation(summary = "경조사 컨텐츠 정보 상세 조회", description = "경조사 컨텐츠 정보를 상세 조회합니다.")
+    SuccessResponse<ContentDetailResponseDto> getContentDetail(String contentId);
+
+    @Operation(summary = "경조사 컨텐츠 정보 홈 조회", description = "홈 화면에서 경조사 컨텐츠 정보 3개를 최신순으로 조회합니다.")
+    SuccessResponse<ContentHomeResponseDto> getContentForHome();
+
+    @Operation(summary = "경조사 컨텐츠 정보 더보기 탭 조회", description = "더보기 탭에서 경조사 컨텐츠 정보들을 최신순, 카테고리 별로 조회합니다.")
+    SuccessResponse<ContentListDto> getContentList(int page, String category);
 
     @Operation(summary = "경조사 컨텐츠 정보 생성", description = "경조사 컨텐츠 정보를 생성합니다.")
     SuccessResponse<Void> createContent(ContentWriteDto request, MultipartFile thumbnailFile);
@@ -23,13 +31,4 @@ public interface ContentController {
 
     @Operation(summary = "경조사 컨텐츠 정보 삭제", description = "경조사 컨텐츠 정보를 삭제합니다.")
     SuccessResponse<Void> deleteContent( String contentId);
-
-    @Operation(summary = "경조사 컨텐츠 정보 상세 조회", description = "경조사 컨텐츠 정보를 상세 조회합니다.")
-    SuccessResponse<ContentDetailResponseDto> getContentDetail(String contentId);
-
-    @Operation(summary = "경조사 컨텐츠 정보 홈 조회", description = "홈 화면에서 경조사 컨텐츠 정보 3개를 최신순으로 조회합니다.")
-    SuccessResponse<ContentHomeResponseDto> getContentForHome();
-
-    @Operation(summary = "경조사 컨텐츠 정보 더보기 탭 조회", description = "더보기 탭에서 경조사 컨텐츠 정보들을 최신순, 카테고리 별로 조회합니다.")
-    SuccessResponse<ContentListDto> getContentList(int page, String category);
 }

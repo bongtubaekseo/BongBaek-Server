@@ -20,6 +20,33 @@ public class ContentControllerImpl implements ContentController {
 
     private final ContentService contentService;
 
+    @GetMapping("/{contentId}")
+    public SuccessResponse<ContentDetailResponseDto> getContentDetail(
+            @PathVariable String contentId
+    ) {
+        ContentDetailResponseDto response = contentService.getContentDetail(contentId);
+
+        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
+    }
+
+    @GetMapping("/home")
+    public SuccessResponse<ContentHomeResponseDto> getContentForHome() {
+        ContentHomeResponseDto response = contentService.getContentForHome();
+
+        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
+    }
+
+    @GetMapping("/list/{page}")
+    public SuccessResponse<ContentListDto> getContentList(
+            @PathVariable(name = "page") final int page,
+            @RequestParam(name = "category", required = false) final String category
+    ){
+        ContentListDto response = contentService.getContentList(page, category);
+
+        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
+    }
+
+    // 업로드 용 어드민 API
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<Void> createContent(
             @RequestPart("request") ContentWriteDto request,
@@ -55,31 +82,5 @@ public class ContentControllerImpl implements ContentController {
         contentService.deleteContent(contentId);
 
         return ApiResponse.success(SuccessCode.CONTENT_DELETED);
-    }
-
-    @GetMapping("/{contentId}")
-    public SuccessResponse<ContentDetailResponseDto> getContentDetail(
-            @PathVariable String contentId
-    ) {
-        ContentDetailResponseDto response = contentService.getContentDetail(contentId);
-
-        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
-    }
-
-    @GetMapping("/home")
-    public SuccessResponse<ContentHomeResponseDto> getContentForHome() {
-        ContentHomeResponseDto response = contentService.getContentForHome();
-
-        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
-    }
-
-    @GetMapping("/list/{page}")
-    public SuccessResponse<ContentListDto> getContentList(
-            @PathVariable(name = "page") final int page,
-            @RequestParam(name = "category", required = false) final String category
-    ){
-        ContentListDto response = contentService.getContentList(page, category);
-
-        return ApiResponse.success(SuccessCode.CONTENT_FOUND, response);
     }
 }
