@@ -33,41 +33,24 @@ public class Content extends BaseEntity {
     @Column(name = "thumbnail_url", nullable = false)
     private String thumbnailUrl;
 
-    @Column(name = "thumbnail_storage_key", nullable = false)
-    private String thumbnailStorageKey;
-
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sequence ASC")
     private final List<ContentImage> contentImages = new ArrayList<>();
 
     @Builder
-    public Content(String contentTitle, Category contentCategory, String thumbnailUrl, String thumbnailStorageKey) {
+    public Content(String contentTitle, Category contentCategory, String thumbnailUrl) {
         this.contentTitle = contentTitle;
         this.contentCategory = contentCategory;
         this.thumbnailUrl = thumbnailUrl;
-        this.thumbnailStorageKey = thumbnailStorageKey;
     }
 
-    public void updateThumbnail(String thumbnailUrl, String thumbnailStorageKey) {
+    public void updateThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
-        this.thumbnailStorageKey = thumbnailStorageKey;
     }
 
     public void addContentImage(ContentImage contentImage) {
         this.contentImages.add(contentImage);
 
-        if (contentImage != null) {
-            contentImage.setContent(this);
-        }
-    }
-
-    public List<String> getMainImageUrls() {
-        if (this.contentImages == null) {
-            return null;
-        }
-
-        return this.contentImages.stream()
-                .map(ContentImage::getImageUrl)
-                .toList();
+        contentImage.setContent(this);
     }
 }
