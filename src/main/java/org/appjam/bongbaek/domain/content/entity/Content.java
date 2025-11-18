@@ -34,7 +34,6 @@ public class Content extends BaseEntity {
     private String thumbnailUrl;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("sequence ASC")
     private final List<ContentImage> contentImages = new ArrayList<>();
 
     @Builder
