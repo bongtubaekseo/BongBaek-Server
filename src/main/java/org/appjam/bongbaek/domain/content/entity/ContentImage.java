@@ -18,7 +18,6 @@ public class ContentImage extends BaseImageEntity {
     @Column(name = "content_image_id", length = 13)
     private String imageId;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Content content;
@@ -35,6 +34,10 @@ public class ContentImage extends BaseImageEntity {
         super(imageUrl, storageKey);
         this.sequence = sequence;
         this.isThumbnail = isThumbnail;
+    }
+
+    void setContent(Content content) {
+        this.content = content;
     }
 
     public static ContentImage createThumbnail(FileDto fileDto) {
