@@ -12,6 +12,7 @@ import org.hibernate.annotations.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -51,5 +52,12 @@ public class Content extends BaseEntity {
         this.contentImages.add(contentImage);
 
         contentImage.setContent(this);
+    }
+
+    public Optional<ContentImage> getThumbnail() {
+        return this.contentImages
+                .stream()
+                .filter(ContentImage::isThumbnail)
+                .findFirst();
     }
 }

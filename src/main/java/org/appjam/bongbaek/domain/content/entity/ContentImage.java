@@ -4,6 +4,7 @@ import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
 import org.appjam.bongbaek.domain.image.entity.BaseImageEntity;
+import org.appjam.bongbaek.global.s3.dto.FileDto;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -34,5 +35,23 @@ public class ContentImage extends BaseImageEntity {
         super(imageUrl, storageKey);
         this.sequence = sequence;
         this.isThumbnail = isThumbnail;
+    }
+
+    public static ContentImage createThumbnail(FileDto fileDto) {
+        return ContentImage.builder()
+                .imageUrl(fileDto.imageUrl())
+                .storageKey(fileDto.storageKey())
+                .sequence(0)
+                .isThumbnail(true)
+                .build();
+    }
+
+    public static ContentImage createMainImage(FileDto fileDto, int sequence) {
+        return ContentImage.builder()
+                .imageUrl(fileDto.imageUrl())
+                .storageKey(fileDto.storageKey())
+                .sequence(sequence)
+                .isThumbnail(false)
+                .build();
     }
 }
