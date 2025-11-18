@@ -10,6 +10,9 @@ import org.appjam.bongbaek.domain.common.BaseEntity;
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "content")
@@ -33,8 +36,9 @@ public class Content extends BaseEntity {
     @Column(name = "thumbnail_storage_key", nullable = false)
     private String thumbnailStorageKey;
 
-    @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ContentImage contentImage;
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sequence ASC")
+    private final List<ContentImage> contentImages = new ArrayList<>();
 
     @Builder
     public Content(String contentTitle, Category contentCategory, String thumbnailUrl, String thumbnailStorageKey) {
@@ -49,18 +53,21 @@ public class Content extends BaseEntity {
         this.thumbnailStorageKey = thumbnailStorageKey;
     }
 
-    public void uploadContentImage(ContentImage contentImage) {
-        this.contentImage = contentImage;
+    public void addContentImage(ContentImage contentImage) {
+        this.contentImages.add(contentImage);
 
         if (contentImage != null) {
             contentImage.setContent(this);
         }
     }
 
-    public String getMainImageUrl() {
-        if (this.contentImage == null) {
+    public List<String> getMainImageUrls() {
+        if (this.contentImages == null) {
             return null;
         }
-        return this.contentImage.getImageUrl();
+
+        return this.contentImages.stream()
+                .map(ContentImage::getImageUrl)
+                .toList();
     }
 }

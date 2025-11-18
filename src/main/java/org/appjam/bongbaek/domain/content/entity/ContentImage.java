@@ -18,12 +18,16 @@ public class ContentImage extends BaseImageEntity {
     private String imageId;
 
     @Setter
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Content content;
 
+    @Column(name = "sequence", nullable = false)
+    private Integer sequence;
+
     @Builder
-    public ContentImage(String imageUrl, String storageKey) {
+    public ContentImage(String imageUrl, String storageKey, Integer sequence) {
         super(imageUrl, storageKey);
+        this.sequence = sequence;
     }
 }
