@@ -10,6 +10,7 @@ import org.appjam.bongbaek.domain.common.BaseEntity;
 @Getter
 @MappedSuperclass
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+// BaseEntity 상속 빼기
 public abstract class BaseImageEntity extends BaseEntity {
     @Column(name = "storage_key", nullable = false)
     private String storageKey;
