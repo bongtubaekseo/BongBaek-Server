@@ -9,10 +9,12 @@ import org.appjam.bongbaek.domain.content.entity.Content;
 import org.appjam.bongbaek.domain.content.entity.ContentImage;
 import org.appjam.bongbaek.domain.content.repository.ContentRepository;
 import org.appjam.bongbaek.domain.event.entity.Category;
+import org.appjam.bongbaek.domain.image.entity.OwnerType;
 import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 import org.appjam.bongbaek.global.exception.content.ContentNotFoundException;
 import org.appjam.bongbaek.global.exception.image.ImageNotFoundException;
 import org.appjam.bongbaek.global.s3.dto.FileDto;
+import org.appjam.bongbaek.global.s3.uploader.FileUploader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,33 +30,36 @@ public class ContentService {
     private final int PAGE_SIZE = 5;
 
     private final ContentRepository contentRepository;
-    private final ContentImageService contentImageService;
+    private final FileUploader fileUploader;
 
     @Transactional(readOnly = true)
     public ContentDetailResponseDto getContentDetail(String contentId) {
-        Content content = contentRepository.findById(contentId)
+        Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
+
         return ContentDetailResponseDto.from(content);
     }
 
     @Transactional(readOnly = true)
     public ContentHomeResponseDto getContentForHome() {
         List<Content> contents = contentRepository.findTop3ByOrderByCreatedDateTimeDesc();
+
         return ContentHomeResponseDto.from(contents);
     }
 
     @Transactional(readOnly = true)
     public ContentListDto getContentList(int page, String category) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
         Category contentCategory = Category.of(category).orElse(null);
 
-        Page<Content> contents;
         if (contentCategory == null) {
-            contents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
-        } else {
-            contents = contentRepository.findContentsByContentCategoryOrderByCreatedDateTimeDesc(contentCategory, pageable);
+            Page<Content> allContents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
+            return ContentListDto.of(allContents);
         }
-        return ContentListDto.of(contents);
+
+        Page<Content> categoryContents = contentRepository.findContentsByContentCategoryOrderByCreatedDateTimeDesc(contentCategory, pageable);
+        return ContentListDto.of(categoryContents);
     }
 
     @Transactional
@@ -62,59 +67,85 @@ public class ContentService {
         Category contentCategory = Category.of(request.contentCategory())
                 .orElseThrow(RequestInvalidException::new);
 
-        FileDto thumbnailDto = contentImageService.uploadImage(thumbnailFile);
+        FileDto thumbnailDto = fileUploader.upload(thumbnailFile, OwnerType.CONTENT);
 
-        Content content = Content.builder()
-                .contentTitle(request.contentTitle())
-                .contentCategory(contentCategory)
-                .thumbnailUrl(thumbnailDto.imageUrl())
-                .build();
+        try {
+            Content content = Content.builder()
+                    .contentTitle(request.contentTitle())
+                    .contentCategory(contentCategory)
+                    .thumbnailUrl(thumbnailDto.imageUrl())
+                    .build();
 
-        ContentImage thumbnail = ContentImage.createThumbnail(thumbnailDto);
+            ContentImage thumbnail = ContentImage.createThumbnail(thumbnailDto);
 
-        content.addContentImage(thumbnail);
-        contentRepository.save(content);
+            content.addContentImage(thumbnail);
+            contentRepository.save(content);
+
+        } catch(Exception e) {
+            if (thumbnailDto != null) {
+                fileUploader.delete(thumbnailDto.storageKey());
+            }
+            throw new RequestInvalidException();
+        }
     }
 
     @Transactional
     public void updateThumbnail(String contentId, MultipartFile newThumbnailFile) {
-        Content content = contentRepository.findById(contentId)
+        Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
         ContentImage oldThumbnail = content.getThumbnail()
                 .orElseThrow(ImageNotFoundException::new);
 
-        FileDto newThumbnailDto = contentImageService.uploadImage(newThumbnailFile);
-        ContentImage newThumbnail = ContentImage.createThumbnail(newThumbnailDto);
+        FileDto newThumbnailDto = fileUploader.upload(newThumbnailFile, OwnerType.CONTENT);
 
-        content.getContentImages().remove(oldThumbnail);
-        contentImageService.deleteImage(oldThumbnail.getStorageKey());
+        try {
+            ContentImage newThumbnail = ContentImage.createThumbnail(newThumbnailDto);
 
-        content.addContentImage(newThumbnail);
-        content.updateThumbnailUrl(newThumbnail.getImageUrl());
+            content.addContentImage(newThumbnail);
+            content.updateThumbnailUrl(newThumbnail.getImageUrl());
+            content.getContentImages().remove(oldThumbnail);
+
+        } catch (Exception e) {
+            if(newThumbnailDto != null) {
+                fileUploader.delete(newThumbnailDto.storageKey());
+            }
+            throw new RequestInvalidException();
+        }
+        fileUploader.delete(oldThumbnail.getStorageKey());
     }
 
+    // TO DO: 메인 이미지 개별 삭제 기능 추가 + Sequence 정렬까지
     @Transactional
     public void uploadMainImage(String contentId, MultipartFile newImageFile) {
-        Content content = contentRepository.findById(contentId)
+        Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        FileDto newMainImageDto = contentImageService.uploadImage(newImageFile);
-        int nextSequence = content.getContentImages().size();
+        FileDto newMainImageDto = fileUploader.upload(newImageFile, OwnerType.CONTENT);
 
-        ContentImage newMainImage = ContentImage.createMainImage(newMainImageDto, nextSequence);
+        try {
+            int nextSequence = content.getContentImages().size();
 
-        content.addContentImage(newMainImage);
+            ContentImage newMainImage = ContentImage.createMainImage(newMainImageDto, nextSequence);
+            content.addContentImage(newMainImage);
+
+        } catch (Exception e) {
+            if (newMainImageDto != null) {
+                fileUploader.delete(newMainImageDto.storageKey());
+            }
+            throw new RequestInvalidException();
+        }
     }
 
+    // TO DO: FileUploader 수정 후 반복문 삭제
     @Transactional
     public void deleteContent(String contentId) {
-        Content content = contentRepository.findById(contentId)
+        Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
         contentRepository.delete(content);
 
         content.getContentImages()
-                .forEach(image -> contentImageService.deleteImage(image.getStorageKey()));
+                .forEach(image -> fileUploader.delete(image.getStorageKey()));
     }
 }
