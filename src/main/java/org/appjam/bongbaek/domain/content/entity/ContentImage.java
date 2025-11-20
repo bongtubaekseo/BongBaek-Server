@@ -3,7 +3,7 @@ package org.appjam.bongbaek.domain.content.entity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
-import org.appjam.bongbaek.domain.image.entity.BaseImageEntity;
+import org.appjam.bongbaek.domain.common.BaseImageEntity;
 import org.appjam.bongbaek.global.s3.dto.FileDto;
 import org.hibernate.annotations.Comment;
 

@@ -1,17 +1,15 @@
-package org.appjam.bongbaek.domain.image.entity;
+package org.appjam.bongbaek.domain.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.appjam.bongbaek.domain.common.BaseEntity;
 
 @Getter
 @MappedSuperclass
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// BaseEntity 상속 빼기
-public abstract class BaseImageEntity extends BaseEntity {
+public abstract class BaseImageEntity {
     @Column(name = "storage_key", nullable = false)
     private String storageKey;
 
