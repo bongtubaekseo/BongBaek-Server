@@ -9,6 +9,7 @@ import java.util.List;
 public record ContentListDto(
         List<ContentListElements> contents,
         int currentPage,
+        int totalPages,
         long totalElements,
         boolean isLast
 
@@ -18,7 +19,12 @@ public record ContentListDto(
                 .map(ContentListElements::from)
                 .toList();
 
-        return new ContentListDto(elements, contents.getNumber(), contents.getTotalElements(), contents.isLast());
+        return new ContentListDto(
+                elements,
+                contents.getNumber(),
+                contents.getTotalPages(),
+                contents.getTotalElements(),
+                contents.isLast());
     }
 
     private record ContentListElements(
