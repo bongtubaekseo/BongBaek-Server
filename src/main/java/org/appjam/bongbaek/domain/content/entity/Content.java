@@ -2,10 +2,7 @@ package org.appjam.bongbaek.domain.content.entity;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.appjam.bongbaek.domain.common.BaseEntity;
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.hibernate.annotations.Comment;
@@ -31,7 +28,7 @@ public class Content extends BaseEntity {
     @Column(name = "content_category", nullable = false)
     private Category contentCategory;
 
-    @Column(name = "thumbnail_url", nullable = false)
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)

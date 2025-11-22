@@ -78,7 +78,7 @@ public class ContentService {
         try {
             ContentImage thumbnail = ContentImage.createThumbnail(thumbnailDto);
 
-            content.setThumbnailUrl(thumbnailDto.imageUrl());
+            content.updateThumbnailUrl(thumbnailDto.imageUrl());
             content.addContentImage(thumbnail);
 
         } catch (Exception e) {
