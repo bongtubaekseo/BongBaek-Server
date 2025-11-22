@@ -67,22 +67,22 @@ public class ContentService {
         Category contentCategory = Category.of(request.contentCategory())
                 .orElseThrow(RequestInvalidException::new);
 
-        FileDto thumbnailDto = fileUploader.upload(thumbnailFile, OwnerType.CONTENT);
+        Content content = Content.builder()
+                .contentTitle(request.contentTitle())
+                .contentCategory(contentCategory)
+                .build();
+
+        contentRepository.save(content);
+        FileDto thumbnailDto = fileUploader.upload(thumbnailFile, OwnerType.CONTENT, content.getContentId());
 
         try {
-            Content content = Content.builder()
-                    .contentTitle(request.contentTitle())
-                    .contentCategory(contentCategory)
-                    .thumbnailUrl(thumbnailDto.imageUrl())
-                    .build();
-
             ContentImage thumbnail = ContentImage.createThumbnail(thumbnailDto);
 
+            content.setThumbnailUrl(thumbnailDto.imageUrl());
             content.addContentImage(thumbnail);
-            contentRepository.save(content);
 
-        } catch(Exception e) {
-            if (thumbnailDto != null) {
+        } catch (Exception e) {
+            if(thumbnailDto != null) {
                 fileUploader.delete(thumbnailDto.storageKey());
             }
             throw new RequestInvalidException();
@@ -97,7 +97,7 @@ public class ContentService {
         ContentImage oldThumbnail = content.getThumbnail()
                 .orElseThrow(ImageNotFoundException::new);
 
-        FileDto newThumbnailDto = fileUploader.upload(newThumbnailFile, OwnerType.CONTENT);
+        FileDto newThumbnailDto = fileUploader.upload(newThumbnailFile, OwnerType.CONTENT, contentId);
 
         try {
             ContentImage newThumbnail = ContentImage.createThumbnail(newThumbnailDto);
@@ -121,7 +121,7 @@ public class ContentService {
         Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        FileDto newMainImageDto = fileUploader.upload(newImageFile, OwnerType.CONTENT);
+        FileDto newMainImageDto = fileUploader.upload(newImageFile, OwnerType.CONTENT, contentId);
 
         try {
             int nextSequence = content.getContentImages().size();
@@ -137,15 +137,12 @@ public class ContentService {
         }
     }
 
-    // TO DO: FileUploader 수정 후 반복문 삭제
     @Transactional
     public void deleteContent(String contentId) {
         Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
         contentRepository.delete(content);
-
-        content.getContentImages()
-                .forEach(image -> fileUploader.delete(image.getStorageKey()));
+        fileUploader.deleteDirectory(OwnerType.CONTENT, contentId);
     }
 }

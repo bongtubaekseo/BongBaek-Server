@@ -26,8 +26,8 @@ public class S3Uploader implements FileUploader {
 
     private final S3ClientHelper s3ClientHelper;
 
-    public FileDto upload(MultipartFile file, OwnerType ownerType) {
-        String s3Key = createS3Key(file, ownerType);
+    public FileDto upload(MultipartFile file, OwnerType ownerType, String ownerId){
+        String s3Key = createS3Key(file, ownerType, ownerId);
 
         try {
             s3ClientHelper.upload(
@@ -47,7 +47,14 @@ public class S3Uploader implements FileUploader {
         s3ClientHelper.delete(s3Key);
     }
 
-    private String createS3Key(MultipartFile file, OwnerType ownerType) {
+    @Override
+    public void deleteDirectory(OwnerType ownerType, String ownerId) {
+        String prefix = ownerType.toString() + "/" + ownerId + "/";
+
+        s3ClientHelper.deleteDirectory(prefix);
+    }
+
+    private String createS3Key(MultipartFile file, OwnerType ownerType, String ownerId) {
         String originalFilename = file.getOriginalFilename();
 
         if (originalFilename == null || originalFilename.isBlank()) {
@@ -60,7 +67,7 @@ public class S3Uploader implements FileUploader {
             throw new InvalidImageFormatException();
         }
 
-        return ownerType + "/" + TSID.fast() + extension;
+        return ownerType + "/" + ownerId + "/" + TSID.fast() + extension;
     }
 
     private String getImageUrl(String s3Key) {
