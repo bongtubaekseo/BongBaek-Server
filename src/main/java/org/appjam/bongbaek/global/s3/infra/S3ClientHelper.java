@@ -5,11 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetUrlRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -42,6 +43,28 @@ public class S3ClientHelper {
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
+    }
+
+    public void deleteDirectory(String prefix) {
+        ListObjectsV2Request listObjectsV2Request = ListObjectsV2Request.builder()
+                .bucket(bucket)
+                .prefix(prefix)
+                .build();
+
+        ListObjectsV2Iterable listObjectsV2Iterable = s3Client.listObjectsV2Paginator(listObjectsV2Request);
+
+        List<ObjectIdentifier> objectIdentifiers = new ArrayList<>();
+        listObjectsV2Iterable.stream()
+                .flatMap(response -> response.contents().stream())
+                .forEach(s3Object -> objectIdentifiers.add(ObjectIdentifier.builder().key(s3Object.key()).build()));
+
+        if (!objectIdentifiers.isEmpty()) {
+            DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+                    .bucket(bucket)
+                    .delete(Delete.builder().objects(objectIdentifiers).build())
+                    .build();
+            s3Client.deleteObjects(deleteObjectsRequest);
+        }
     }
 
     public String getUrl(String key) {
