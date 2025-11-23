@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -115,13 +116,37 @@ public class ContentService {
         fileUploader.delete(oldThumbnail.getStorageKey());
     }
 
-    // TO DO: 메인 이미지 개별 삭제 기능 추가 + Sequence 정렬까지
     @Transactional
-    public void uploadMainImage(String contentId, MultipartFile newImageFile) {
+    public void uploadMainImages(String contentId, List<MultipartFile> newImageFiles){
         Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
-        FileDto newMainImageDto = fileUploader.upload(newImageFile, OwnerType.CONTENT, contentId);
+        List<String> storedKeys = new ArrayList<>();
+        for(MultipartFile newImageFile : newImageFiles) {
+            try {
+                String storedKey = uploadMainImage(content, newImageFile);
+                storedKeys.add(storedKey);
+
+            } catch (Exception e){
+                for(String storedKey : storedKeys) {
+                    fileUploader.delete(storedKey);
+                }
+                throw new RequestInvalidException();
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteContent(String contentId) {
+        Content content = contentRepository.findContentByIdWithImages(contentId)
+                .orElseThrow(ContentNotFoundException::new);
+
+        contentRepository.delete(content);
+        fileUploader.deleteDirectory(OwnerType.CONTENT, contentId);
+    }
+
+    private String uploadMainImage(Content content, MultipartFile newImageFile) {
+        FileDto newMainImageDto = fileUploader.upload(newImageFile, OwnerType.CONTENT, content.getContentId());
 
         try {
             int nextSequence = content.getContentImages().size();
@@ -135,14 +160,7 @@ public class ContentService {
             }
             throw new RequestInvalidException();
         }
-    }
 
-    @Transactional
-    public void deleteContent(String contentId) {
-        Content content = contentRepository.findContentByIdWithImages(contentId)
-                .orElseThrow(ContentNotFoundException::new);
-
-        contentRepository.delete(content);
-        fileUploader.deleteDirectory(OwnerType.CONTENT, contentId);
+        return newMainImageDto.storageKey();
     }
 }

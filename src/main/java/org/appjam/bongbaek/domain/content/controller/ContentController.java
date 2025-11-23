@@ -9,6 +9,8 @@ import org.appjam.bongbaek.domain.content.dto.response.ContentListDto;
 import org.appjam.bongbaek.global.api.response.SuccessResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Tag(name = "경조사 컨텐츠 정보", description = "경조사 컨텐츠 정보 관련 API")
 public interface ContentController {
     @Operation(summary = "경조사 컨텐츠 정보 상세 조회", description = "경조사 컨텐츠 정보를 상세 조회합니다.")
@@ -27,7 +29,7 @@ public interface ContentController {
     SuccessResponse<Void> updateThumbnail(String contentId, MultipartFile newThumbnailFile);
 
     @Operation(summary = "경조사 컨텐츠 메인 이미지 업로드", description = "경조사 컨텐츠 메인 이미지를 업로드합니다.")
-    SuccessResponse<Void> uploadMainImage(String contentId, MultipartFile mainImageFile);
+    SuccessResponse<Void> uploadMainImage(String contentId, List<MultipartFile> mainImageFiles);
 
     @Operation(summary = "경조사 컨텐츠 정보 삭제", description = "경조사 컨텐츠 정보를 삭제합니다.")
     SuccessResponse<Void> deleteContent( String contentId);

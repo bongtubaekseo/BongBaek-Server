@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/content")
@@ -67,12 +69,12 @@ public class ContentControllerImpl implements ContentController {
         return ApiResponse.success(SuccessCode.CONTENT_THUMBNAIL_UPDATED);
     }
 
-    @PostMapping(value = "/{contentId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{contentId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<Void> uploadMainImage(
             @PathVariable String contentId,
-            @RequestPart("main_image") MultipartFile mainImageFile
+            @RequestPart("main_image") List<MultipartFile> mainImageFiles
     ) {
-        contentService.uploadMainImage(contentId, mainImageFile);
+        contentService.uploadMainImages(contentId, mainImageFiles);
 
         return ApiResponse.success(SuccessCode.CONTENT_MAIN_IMAGE_UPLOADED);
     }
