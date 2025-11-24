@@ -97,9 +97,9 @@ public class Event extends BaseEntity {
 
 	@Builder
 	private Event(String hostName, String hostNickname, Relationship relationship, int contactFrequency,
-			int meetFrequency,
-			Category eventCategory, LocalDate eventDate, boolean attended, String note, int cost,
-			String location, String address, double latitude, double longitude, Member member) {
+				  int meetFrequency,
+				  Category eventCategory, LocalDate eventDate, boolean attended, String note, int cost,
+				  String location, String address, double latitude, double longitude, Member member) {
 		this.hostName = hostName;
 		this.hostNickname = hostNickname;
 		this.relationship = relationship;

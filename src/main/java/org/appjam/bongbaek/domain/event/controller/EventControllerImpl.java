@@ -8,9 +8,14 @@ import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
+import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
+import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
+import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
+import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
 import org.appjam.bongbaek.domain.event.service.EventService;
 import org.appjam.bongbaek.global.api.code.event.SuccessCode;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
+import org.appjam.bongbaek.global.api.response.SuccessResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +37,7 @@ public class EventControllerImpl implements EventController {
 	private final EventService eventService;
 
 	@PostMapping
-	public ApiResponse createEvent(
+	public SuccessResponse<Void> createEvent(
 			@AuthenticationPrincipal final String memberId,
 			@RequestBody @Valid final EventWriteDto eventWriteDto
 	) {
@@ -42,7 +47,7 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@GetMapping(path = "/history/{page}")
-	public ApiResponse getEventHistory(
+	public SuccessResponse<EventListDto> getEventHistory(
 			@AuthenticationPrincipal final String memberId,
 			@PathVariable(name = "page") final int page,
 			@RequestParam(name = "category", required = false) final String category,
@@ -53,7 +58,7 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@GetMapping(path = "/upcoming/{page}")
-	public ApiResponse getUpcomingEvents(
+	public SuccessResponse<EventListDto> getUpcomingEvents(
 			@AuthenticationPrincipal final String memberId,
 			@PathVariable(name = "page") final int page,
 			@RequestParam(name = "category", required = false) final String category
@@ -62,7 +67,7 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@PostMapping(path = "/cost")
-	public ApiResponse createEventCost(
+	public SuccessResponse<CostProposalResponseDto> createEventCost(
 			@AuthenticationPrincipal final String memberId,
 			@RequestBody @Valid final CostProposalRequestDto costProposalRequestDto
 	) {
@@ -71,7 +76,7 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@GetMapping(path = "/{eventId}")
-	public ApiResponse getEventByEventId(
+	public SuccessResponse<EventDetailResponseDto> getEventByEventId(
 			@AuthenticationPrincipal final String memberId,
 			@PathVariable(name = "eventId") String eventId   // NOTE: 클라 요청 간에는 무조건 String
 	) {
@@ -79,14 +84,14 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@GetMapping(path = "/home")
-	public ApiResponse getEventsForHome(
+	public SuccessResponse<EventHomeResponseDto> getEventsForHome(
 			@AuthenticationPrincipal final String memberId
 	) {
 		return ApiResponse.success(SuccessCode.EVENT_FOUND, eventService.getEventsForHome(LocalDate.now(), memberId));
 	}
 
 	@PutMapping(path = "/{eventId}")
-	public ApiResponse updateEvent(
+	public SuccessResponse<Void> updateEvent(
 			@AuthenticationPrincipal final String memberId,
 			@PathVariable(name = "eventId") final String eventId,
 			@RequestBody @Valid final EventUpdateRequestDto request
@@ -97,7 +102,7 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@DeleteMapping(path = "/{eventId}")
-	public ApiResponse deleteEventByEventId(
+	public SuccessResponse<Void> deleteEventByEventId(
 			@AuthenticationPrincipal final String memberId,
 			@PathVariable(name = "eventId") String eventId
 	) {
@@ -107,7 +112,7 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@DeleteMapping
-	public ApiResponse deleteEvents(
+	public SuccessResponse<Void> deleteEvents(
 			@AuthenticationPrincipal final String memberId,
 			@RequestBody EventDeleteRequestDto eventDeleteRequest
 	) {
