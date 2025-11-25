@@ -9,7 +9,7 @@ import org.appjam.bongbaek.domain.content.entity.Content;
 import org.appjam.bongbaek.domain.content.entity.ContentImage;
 import org.appjam.bongbaek.domain.content.repository.ContentRepository;
 import org.appjam.bongbaek.domain.event.entity.Category;
-import org.appjam.bongbaek.domain.image.entity.OwnerType;
+import org.appjam.bongbaek.domain.common.OwnerType;
 import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 import org.appjam.bongbaek.global.exception.content.ContentNotFoundException;
 import org.appjam.bongbaek.global.exception.image.ImageNotFoundException;
