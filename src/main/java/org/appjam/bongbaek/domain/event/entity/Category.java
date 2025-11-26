@@ -1,7 +1,7 @@
 package org.appjam.bongbaek.domain.event.entity;
 
 import java.util.Arrays;
-import java.util.Optional;
+import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,12 @@ public enum Category {
 	private final String description;
 	private final int defaultCost;
 
-	public static Optional<Category> of(String description) {
+	public static Category of(String description) {
+		if (description == null)
+			return null;
 		return Arrays.stream(Category.values())
 				.filter(category -> category.description.equals(description))
-				.findFirst();
+				.findFirst()
+				.orElseThrow(RequestInvalidException::new);
 	}
 }

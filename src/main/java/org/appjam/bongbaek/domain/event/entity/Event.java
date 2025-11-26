@@ -25,7 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -122,8 +121,7 @@ public class Event extends BaseEntity {
 		this.hostName = dto.hostInfo().hostName();
 		this.hostNickname = dto.hostInfo().hostNickname();
 
-		this.eventCategory = Category.of(dto.eventInfo().eventCategory())
-				.orElseThrow(RequestInvalidException::new);
+		this.eventCategory = Category.of(dto.eventInfo().eventCategory());
 		this.relationship = Relationship.of(dto.eventInfo().relationship());
 		this.cost = dto.eventInfo().cost();
 		this.attended = dto.eventInfo().isAttend();
