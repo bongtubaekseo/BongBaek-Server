@@ -2,6 +2,8 @@ package org.appjam.bongbaek.domain.event.entity;
 
 import java.util.Arrays;
 
+import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,6 @@ public enum Relationship {
 		return Arrays.stream(Relationship.values())
 				.filter(relationship -> relationship.description.equals(description))
 				.findFirst()
-				.orElse(null);
+				.orElseThrow(RequestInvalidException::new);
 	}
 }
