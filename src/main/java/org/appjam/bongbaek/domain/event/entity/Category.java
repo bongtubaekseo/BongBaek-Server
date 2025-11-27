@@ -12,7 +12,8 @@ public enum Category {
 	WEDDING("결혼식", 80_000),
 	FUNERAL("장례식", 50_000),
 	DOLJANCHI("돌잔치", 50_000),
-	BIRTHDAY("생일", 30_000);
+	BIRTHDAY("생일", 30_000),
+	COMMON("포괄", 10_000);
 
 	private final String description;
 	private final int defaultCost;

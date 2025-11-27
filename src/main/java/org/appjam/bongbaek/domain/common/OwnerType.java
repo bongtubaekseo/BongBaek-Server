@@ -1,4 +1,4 @@
-package org.appjam.bongbaek.domain.image.entity;
+package org.appjam.bongbaek.domain.common;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

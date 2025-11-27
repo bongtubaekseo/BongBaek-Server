@@ -1,7 +1,7 @@
 package org.appjam.bongbaek.global.s3.uploader;
 
 import io.hypersistence.tsid.TSID;
-import org.appjam.bongbaek.domain.image.entity.OwnerType;
+import org.appjam.bongbaek.domain.common.OwnerType;
 import org.appjam.bongbaek.global.exception.image.FileUploadFailedException;
 import org.appjam.bongbaek.global.exception.image.InvalidImageFormatException;
 import org.appjam.bongbaek.global.s3.infra.S3ClientHelper;
