@@ -17,6 +17,7 @@ import org.appjam.bongbaek.global.api.code.event.SuccessCode;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
 import org.appjam.bongbaek.global.api.response.SuccessResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/events")
@@ -51,7 +55,7 @@ public class EventControllerImpl implements EventController {
 			@AuthenticationPrincipal final String memberId,
 			@PathVariable(name = "page") final int page,
 			@RequestParam(name = "year") final int year,
-			@RequestParam(name = "month") final int month,
+			@RequestParam(name = "month") @Min(1) @Max(12) final int month,
 			@RequestParam(name = "category", required = false) final String category,
 			@RequestParam(name = "attended", required = false) final Boolean attended
 	) {
