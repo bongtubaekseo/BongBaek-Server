@@ -133,7 +133,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 		LocalDate monthStart = LocalDate.of(year, month, 1);
 		LocalDate monthEnd = monthStart.plusMonths(1);
 
-		return QEvent.event.eventDate.goe(LocalDate.from(monthStart.atStartOfDay()))
-				.and(QEvent.event.eventDate.lt(LocalDate.from(monthEnd.atStartOfDay())));
+		return QEvent.event.eventDate.goe(monthStart)
+				.and(QEvent.event.eventDate.lt(monthEnd));
 	}
 }
