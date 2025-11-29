@@ -18,6 +18,9 @@ public interface EventController {
 	@Operation(summary = "경조사 정보 생성", description = "경조사 정보 데이터를 생성합니다.")
 	SuccessResponse<Void> createEvent(String memberId, EventWriteDto eventWriteDto);
 
+	@Operation(summary = "월별 경조사 정보 조회", description = "월별로 경조사 정보를 조회합니다.")
+	SuccessResponse<EventListDto> getMonthlyEvents(String memberId, int page, int year, int month, String category, Boolean attended);
+
 	@Operation(summary = "과거 경조사 정보 조회", description = "조회 시점을 기준으로 과거의 경조사 정보를 조회합니다.")
 	SuccessResponse<EventListDto> getEventHistory(String memberId, int page, String category, Boolean attended);
 

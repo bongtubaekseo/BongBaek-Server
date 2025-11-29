@@ -50,6 +50,24 @@ public class EventService {
 		eventRepository.save(eventWriteDto.toEntity(member));
 	}
 
+	public EventListDto getMonthlyEvents(
+			final String memberId,
+			final int page,
+			final String category,
+			final Boolean attended,
+			final int year,
+			final int month
+	) {
+		assertMemberExists(memberId);
+
+		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+		Slice<Event> result = eventRepository.findMonthlyEventsByMemberIdAndCategoryAndAttentedOrderBy(
+				memberId, year, month, Category.of(category), attended, pageable
+		);
+		return EventListDto.of(result);
+	}
+
 	public EventListDto getEventHistory(
 			final String memberId,
 			final int page,

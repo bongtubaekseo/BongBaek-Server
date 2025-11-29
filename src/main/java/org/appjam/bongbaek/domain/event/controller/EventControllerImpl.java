@@ -46,6 +46,19 @@ public class EventControllerImpl implements EventController {
 		return ApiResponse.success(SuccessCode.EVENT_CREATED);
 	}
 
+	@GetMapping(path = "/monthly/{page}")
+	public SuccessResponse<EventListDto> getMonthlyEvents(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "page") final int page,
+			@RequestParam(name = "year") final int year,
+			@RequestParam(name = "month") final int month,
+			@RequestParam(name = "category", required = false) final String category,
+			@RequestParam(name = "attended", required = false) final Boolean attended
+	) {
+		return ApiResponse.success(SuccessCode.EVENT_FOUND,
+				eventService.getMonthlyEvents(memberId, page, category, attended, year, month));
+	}
+
 	@GetMapping(path = "/history/{page}")
 	public SuccessResponse<EventListDto> getEventHistory(
 			@AuthenticationPrincipal final String memberId,

@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.event.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import org.appjam.bongbaek.domain.event.entity.Category;
 import org.appjam.bongbaek.domain.event.entity.Event;
 import org.appjam.bongbaek.domain.event.entity.QEvent;
@@ -9,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
+
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -20,7 +23,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 
 	@Override
 	public Slice<Event> findEventHistoryByMemberIdAndCategoryAndAttendedOrderBy(
-            String memberId,
+			String memberId,
 			Category category,
 			Boolean attended,
 			Pageable pageable
@@ -50,10 +53,10 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 
 	@Override
 	public Slice<Event> findUpcomingEventsByMemberIdAndCategoryOrderBy(
-        String memberId,
-        Category category,
-        Pageable pageable
-    ) {
+			String memberId,
+			Category category,
+			Pageable pageable
+	) {
 		QEvent qEvent = QEvent.event;
 		int pageSize = pageable.getPageSize();
 
@@ -76,17 +79,61 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 		return new SliceImpl<Event>(events, pageable, hasNext);
 	}
 
+	@Override
+	public Slice<Event> findMonthlyEventsByMemberIdAndCategoryAndAttentedOrderBy(
+			String memberId,
+			int year,
+			int month,
+			Category category,
+			Boolean attended,
+			Pageable pageable
+	) {
+		QEvent qEvent = QEvent.event;
+		int pageSize = pageable.getPageSize();
+
+		List<Event> events = queryFactory.selectFrom(qEvent)
+				.where(
+						qEvent.member.memberId.eq(memberId),
+						eventMonthEqual(year, month),
+						categoryEqual(category),
+						attendedEqual(attended)
+				)
+				.orderBy(qEvent.eventDate.desc())
+				.offset(pageable.getOffset())
+				.limit(pageSize + 1)
+				.fetch();
+
+		boolean hasNext = events.size() > pageSize;
+		if (hasNext) {
+			events.remove(pageSize);
+		}
+
+		return new SliceImpl<Event>(events, pageable, hasNext);
+	}
+
 	private BooleanExpression categoryEqual(Category category) {
-		if(category == null){
+		if (category == null) {
 			return null;
 		}
 		return QEvent.event.eventCategory.eq(category);
 	}
 
 	private BooleanExpression attendedEqual(Boolean attended) {
-		if(attended == null){
+		if (attended == null) {
 			return null;
 		}
 		return QEvent.event.attended.eq(attended);
+	}
+
+	private BooleanExpression eventMonthEqual(int year, int month) {
+		if (year == 0 || month == 0 || month > 12) {
+			return null;
+		}
+
+		LocalDate monthStart = LocalDate.of(year, month, 1);
+		LocalDate monthEnd = monthStart.plusMonths(1);
+
+		return QEvent.event.eventDate.goe(LocalDate.from(monthStart.atStartOfDay()))
+				.and(QEvent.event.eventDate.lt(LocalDate.from(monthEnd.atStartOfDay())));
 	}
 }
