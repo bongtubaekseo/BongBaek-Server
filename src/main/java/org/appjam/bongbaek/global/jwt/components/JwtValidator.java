@@ -1,5 +1,9 @@
 package org.appjam.bongbaek.global.jwt.components;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SecurityException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -36,13 +40,21 @@ public class JwtValidator {
 		verifyClaims(claims);
 	}
 
-	private Jws<Claims> parseAndVerifySignature(final String token) {
-		try {
-			return jwtParser.parseClaims(token);
-		} catch (JwtException e) {
-			throw new SignatureInvalidException();
-		}
-	}
+    private Jws<Claims> parseAndVerifySignature(final String token) {
+        try {
+            return jwtParser.parseClaims(token);
+        } catch (SecurityException e) {
+            throw new SignatureInvalidException();
+        } catch (MalformedJwtException e) {
+            throw new TokenInvalidException();
+        } catch (ExpiredJwtException e) {
+            throw new TokenExpiredException();
+        } catch (UnsupportedJwtException e) {
+            throw new TokenInvalidException();
+        } catch (JwtException e) {
+            throw new TokenInvalidException();
+        }
+    }
 
 	private void verifyClaims(final Jws<Claims> claims) {
 		if (!isValidIssuer(claims)) {
