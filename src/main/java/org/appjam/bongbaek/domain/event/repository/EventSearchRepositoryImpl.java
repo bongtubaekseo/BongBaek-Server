@@ -93,12 +93,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 				.limit(pageSize + 1)
 				.fetch();
 
-		boolean hasNext = events.size() > pageSize;
-		if (hasNext) {
-			events.remove(pageSize);
-		}
-
-		return new SliceImpl<Event>(events, pageable, hasNext);
+		return toSlice(events, pageable);
 	}
 
 	private BooleanExpression categoryEqual(Category category) {
