@@ -43,12 +43,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 				.limit(pageSize + 1)
 				.fetch();
 
-		boolean hasNext = events.size() > pageSize;
-		if (hasNext) {
-			events.remove(pageSize);
-		}
-
-		return new SliceImpl<Event>(events, pageable, hasNext);
+		return toSlice(events, pageable);
 	}
 
 	@Override
@@ -71,12 +66,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 				.limit(pageSize + 1)
 				.fetch();
 
-		boolean hasNext = events.size() > pageSize;
-		if (hasNext) {
-			events.remove(pageSize);
-		}
-
-		return new SliceImpl<Event>(events, pageable, hasNext);
+		return toSlice(events, pageable);
 	}
 
 	@Override
@@ -135,5 +125,15 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 
 		return QEvent.event.eventDate.goe(monthStart)
 				.and(QEvent.event.eventDate.lt(monthEnd));
+	}
+
+	private <T> Slice<T> toSlice(List<T> list, Pageable pageable) {
+		int pageSize = pageable.getPageSize();
+
+		boolean hasNext = list.size() > pageSize;
+
+		if (hasNext) list.remove(pageSize);
+
+		return new SliceImpl<>(list, pageable, hasNext);
 	}
 }
