@@ -13,4 +13,12 @@ public record FailureResponse(
 				errorCode.toString(),
 				errorCode.getMessage());
 	}
+
+	public static FailureResponse of(ErrorResultCode errorCode, String message) {
+		return new FailureResponse(
+				errorCode.getStatus().value(),
+				errorCode.toString(),
+				message
+		);
+	}
 }

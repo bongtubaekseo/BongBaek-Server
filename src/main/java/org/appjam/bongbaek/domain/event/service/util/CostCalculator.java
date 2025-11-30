@@ -6,7 +6,6 @@ import org.appjam.bongbaek.domain.event.entity.Relationship;
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
-import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -33,7 +32,7 @@ public final class CostCalculator {
 
 	public static int calculateCost(Member member, CostProposalRequestDto costProposalRequestDto) {
 		// 경조사 종류에 따른 기본금
-		Category category = Category.of(costProposalRequestDto.category()).orElseThrow(RequestInvalidException::new);
+		Category category = Category.of(costProposalRequestDto.category());
 		int defaultCost = category.getDefaultCost();
 
 		// 나이 계수

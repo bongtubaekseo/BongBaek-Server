@@ -9,9 +9,12 @@ import org.appjam.bongbaek.domain.member.dto.request.ReissueRequest;
 import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
+import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
+import org.appjam.bongbaek.domain.member.dto.response.TokenResponse;
 import org.appjam.bongbaek.domain.member.service.MemberService;
 import org.appjam.bongbaek.global.api.code.member.SuccessCode;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
+import org.appjam.bongbaek.global.api.response.SuccessResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +33,7 @@ public class MemberControllerImpl implements MemberController {
 	private final MemberService memberService;
 
 	@PostMapping("/oauth/{oauthProvider}")
-	public ApiResponse login(
+	public SuccessResponse<LoginResponse> login(
 			@PathVariable(name = "oauthProvider") final String oauthProvider,
 			@RequestBody final LoginRequest loginRequest
 	) {
@@ -44,14 +47,14 @@ public class MemberControllerImpl implements MemberController {
 	}
 
 	@PostMapping("/member/profile")
-	public ApiResponse signUp(
+	public SuccessResponse<LoginResponse> signUp(
 			@RequestBody final SignUpRequest signUpRequest
 	) {
 		return ApiResponse.success(SuccessCode.MEMBER_CREATED, memberService.signUp(signUpRequest));
 	}
 
 	@PostMapping("/member/logout")
-	public ApiResponse logout(
+	public SuccessResponse<Void> logout(
 			@AuthenticationPrincipal final String memberId,
 			@RequestHeader(name = "Authorization") final String accessToken
 	) {
@@ -61,7 +64,7 @@ public class MemberControllerImpl implements MemberController {
 	}
 
 	@PostMapping("/member/reissue")
-	public ApiResponse reissueTokens(
+	public SuccessResponse<TokenResponse> reissueTokens(
 			@RequestBody final ReissueRequest reissueRequest
 	) {
 		return ApiResponse.success(SuccessCode.TOKEN_REISSUED,
@@ -69,7 +72,7 @@ public class MemberControllerImpl implements MemberController {
 	}
 
 	@PutMapping(path = "/member/profile")
-	public ApiResponse updateProfile(
+	public SuccessResponse<Void> updateProfile(
 			@AuthenticationPrincipal final String memberId,
 			@RequestBody @Valid final UpdateMemberRequest request
 	) {
@@ -79,7 +82,7 @@ public class MemberControllerImpl implements MemberController {
 	}
 
 	@PostMapping("/member/withdraw")
-	public ApiResponse withdraw(
+	public SuccessResponse<Void> withdraw(
 			@AuthenticationPrincipal final String memberId,
 			@RequestHeader(name = "Authorization") final String accessToken,
 			@Valid @RequestBody final WithdrawRequest request
@@ -90,7 +93,7 @@ public class MemberControllerImpl implements MemberController {
 	}
 
 	@GetMapping(path = "/member/profile")
-	public ApiResponse getMyInfo(
+	public SuccessResponse<MyInfoResponse> getMyInfo(
 			@AuthenticationPrincipal final String memberId
 	) {
 		return ApiResponse.success(SuccessCode.MEMBER_FOUND, memberService.getMyInfo(memberId));
