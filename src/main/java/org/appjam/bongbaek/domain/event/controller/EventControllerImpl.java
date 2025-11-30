@@ -30,15 +30,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
 @Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/events")
-public class EventControllerImpl {
+public class EventControllerImpl implements EventController {
 
 	private final EventService eventService;
 
