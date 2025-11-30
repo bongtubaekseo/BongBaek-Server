@@ -15,6 +15,7 @@ public enum AuthWhiteList {
 	SWAGGER_RESOURCES("/swagger-resources/**", HttpMethod.GET),
 	SWAGGER_UI("/swagger-ui/**", HttpMethod.GET),
 	SWAGGER_UI_LEGACY("/swagger-ui.html", HttpMethod.GET),
+	SWAGGER_UI_INDEX("/swagger-ui/index.html", HttpMethod.GET),
 	SWAGGER_STATIC_RESOURCES("/webjars/**", HttpMethod.GET),
 
 	ROOT_PAGE("/", HttpMethod.GET),

@@ -7,4 +7,8 @@ public abstract class BaseExceptionHandler {
 	protected final ApiResponse buildErrorResponse(ErrorResultCode resultCode) {
 		return ApiResponse.failure(resultCode);
 	}
+
+	protected final ApiResponse buildErrorResponse(ErrorResultCode resultCode, String message) {
+		return ApiResponse.failure(resultCode, message);
+	}
 }

@@ -22,4 +22,8 @@ public interface ApiResponse {
 	static FailureResponse failure(ErrorResultCode errorCode) {
 		return FailureResponse.of(errorCode);
 	}
+
+	static FailureResponse failure(ErrorResultCode errorCode, String message) {
+		return FailureResponse.of(errorCode, message);
+	}
 }
