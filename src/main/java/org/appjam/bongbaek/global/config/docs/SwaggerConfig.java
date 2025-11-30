@@ -5,14 +5,10 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-
-// @Profile("dev")
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
@@ -37,17 +33,8 @@ public class SwaggerConfig {
 
         SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
 
-        Server localServer = new Server()
-                .url("http://localhost:8080")
-                .description("Local Server");
-
-        Server devServer = new Server()
-                .url("https://dev.bongbaek.com")
-                .description("Dev Server");
-
         return new OpenAPI()
                 .addSecurityItem(securityRequirement)
-                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme))
-                .servers(List.of(localServer, devServer));
+                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme));
     }
 }
