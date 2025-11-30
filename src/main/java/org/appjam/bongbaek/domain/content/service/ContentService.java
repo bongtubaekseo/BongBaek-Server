@@ -52,7 +52,7 @@ public class ContentService {
     public ContentListDto getContentList(int page, String category) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
-        Category contentCategory = Category.of(category).orElse(null);
+        Category contentCategory = Category.of(category);
 
         if (contentCategory == null) {
             Page<Content> allContents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
@@ -65,12 +65,10 @@ public class ContentService {
 
     @Transactional
     public void createContent(ContentWriteDto request, MultipartFile thumbnailFile) {
-        Category contentCategory = Category.of(request.contentCategory())
-                .orElseThrow(RequestInvalidException::new);
 
         Content content = Content.builder()
                 .contentTitle(request.contentTitle())
-                .contentCategory(contentCategory)
+                .contentCategory(Category.of(request.contentCategory()))
                 .build();
 
         contentRepository.save(content);
