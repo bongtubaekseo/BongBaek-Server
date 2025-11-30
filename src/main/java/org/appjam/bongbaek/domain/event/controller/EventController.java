@@ -2,6 +2,7 @@ package org.appjam.bongbaek.domain.event.controller;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventSearchRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
 import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
@@ -12,8 +13,6 @@ import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 
 import org.appjam.bongbaek.global.api.response.SuccessResponse;
 
@@ -23,7 +22,7 @@ public interface EventController {
 	SuccessResponse<Void> createEvent(String memberId, @Valid EventWriteDto eventWriteDto);
 
 	@Operation(summary = "월별 경조사 정보 조회", description = "월별로 경조사 정보를 조회합니다.")
-	SuccessResponse<EventListDto> getMonthlyEvents(String memberId, int page, int year, @Min(1) @Max(12) int month, String category, Boolean attended);
+	SuccessResponse<EventListDto> getMonthlyEvents(String memberId, int page, @Valid EventSearchRequestDto eventSearchRequestDto);
 
 	@Operation(summary = "과거 경조사 정보 조회", description = "조회 시점을 기준으로 과거의 경조사 정보를 조회합니다.")
 	SuccessResponse<EventListDto> getEventHistory(String memberId, int page, String category, Boolean attended);
