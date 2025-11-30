@@ -70,7 +70,7 @@ public class EventSearchRepositoryImpl implements EventSearchRepository {
 	}
 
 	@Override
-	public Slice<Event> findMonthlyEventsByMemberIdAndCategoryAndAttentedOrderBy(
+	public Slice<Event> findMonthlyEventsByMemberIdAndCategoryAndAttendedOrderBy(
 			String memberId,
 			int year,
 			int month,

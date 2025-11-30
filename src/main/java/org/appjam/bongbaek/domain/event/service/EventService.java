@@ -60,7 +60,7 @@ public class EventService {
 
 		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
-		Slice<Event> result = eventRepository.findMonthlyEventsByMemberIdAndCategoryAndAttentedOrderBy(
+		Slice<Event> result = eventRepository.findMonthlyEventsByMemberIdAndCategoryAndAttendedOrderBy(
 				memberId,
 				eventSearchRequestDto.year(),
 				eventSearchRequestDto.month(),

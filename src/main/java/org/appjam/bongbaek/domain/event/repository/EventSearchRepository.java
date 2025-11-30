@@ -11,6 +11,6 @@ public interface EventSearchRepository {
 
 	Slice<Event> findUpcomingEventsByMemberIdAndCategoryOrderBy(String memberId, Category category, Pageable pageable);
 
-	Slice<Event> findMonthlyEventsByMemberIdAndCategoryAndAttentedOrderBy(String memberId, int year, int month,
+	Slice<Event> findMonthlyEventsByMemberIdAndCategoryAndAttendedOrderBy(String memberId, int year, int month,
 			Category category, Boolean attended, Pageable pageable);
 }
