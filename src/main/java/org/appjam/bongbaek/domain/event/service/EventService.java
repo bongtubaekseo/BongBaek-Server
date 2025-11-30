@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventSearchRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
 import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
@@ -48,6 +49,26 @@ public class EventService {
 				.orElseThrow(MemberNotFoundException::new);
 
 		eventRepository.save(eventWriteDto.toEntity(member));
+	}
+
+	public EventListDto getMonthlyEvents(
+			final String memberId,
+			final int page,
+			final EventSearchRequestDto eventSearchRequestDto
+	) {
+		assertMemberExists(memberId);
+
+		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+		Slice<Event> result = eventRepository.findMonthlyEventsByMemberIdAndCategoryAndAttendedOrderBy(
+				memberId,
+				eventSearchRequestDto.year(),
+				eventSearchRequestDto.month(),
+				Category.of(eventSearchRequestDto.category()),
+				eventSearchRequestDto.attended(),
+				pageable
+		);
+		return EventListDto.of(result);
 	}
 
 	public EventListDto getEventHistory(

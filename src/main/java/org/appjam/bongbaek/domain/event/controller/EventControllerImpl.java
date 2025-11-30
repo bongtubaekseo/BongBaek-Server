@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventSearchRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
 import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
@@ -17,8 +18,10 @@ import org.appjam.bongbaek.global.api.code.event.SuccessCode;
 import org.appjam.bongbaek.global.api.response.ApiResponse;
 import org.appjam.bongbaek.global.api.response.SuccessResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,10 +32,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/events")
-public class EventControllerImpl {
+public class EventControllerImpl implements EventController {
 
 	private final EventService eventService;
 
@@ -44,6 +48,16 @@ public class EventControllerImpl {
 		eventService.createEventInfo(memberId, eventWriteDto);
 
 		return ApiResponse.success(SuccessCode.EVENT_CREATED);
+	}
+
+	@GetMapping(path = "/monthly/{page}")
+	public SuccessResponse<EventListDto> getMonthlyEvents(
+			@AuthenticationPrincipal final String memberId,
+			@PathVariable(name = "page") final int page,
+			@ModelAttribute @Valid final EventSearchRequestDto eventSearchRequestDto
+	) {
+		return ApiResponse.success(SuccessCode.EVENT_FOUND,
+				eventService.getMonthlyEvents(memberId, page, eventSearchRequestDto));
 	}
 
 	@GetMapping(path = "/history/{page}")

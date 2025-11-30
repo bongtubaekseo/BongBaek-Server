@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import jakarta.validation.ConstraintViolationException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -61,5 +63,10 @@ public class CommonExceptionHandler extends BaseExceptionHandler {
 	@ExceptionHandler(RequestInvalidException.class)
 	protected ApiResponse handleRequestInvalidException(RequestInvalidException e) {
 		return buildErrorResponse(ErrorCode.REQUEST_CONTENT_INVALID);
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	protected ApiResponse handleConstraintViolationException(ConstraintViolationException e) {
+		return buildErrorResponse(ErrorCode.REQUEST_CONTENT_INVALID, e.getMessage());
 	}
 }
