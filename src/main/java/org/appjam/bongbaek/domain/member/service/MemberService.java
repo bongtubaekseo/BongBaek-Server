@@ -77,15 +77,15 @@ public class MemberService {
 	public LoginResponse signUp(
 			final SignUpRequest signUpRequest
 	) {
+        // 이미 가입된 회원인지 확인
+        if (isAlreadyExistsMember(signUpRequest)) {
+            throw new MemberAlreadyExistsException();
+        }
+
         // 최초 로그인에서 검증된 oauthId인지 확인
         if (!oAuthSignUpStore.exists(signUpRequest.oauthProvider(), signUpRequest.oauthId())) {
             throw new MemberNotAuthenticatedException();
         }
-
-        // 이미 가입된 회원인지 확인
-		if (isAlreadyExistsMember(signUpRequest)) {
-			throw new MemberAlreadyExistsException();
-		}
 
 		Member member = memberRepository.save(signUpRequest.toMember());
 		TokenResponse tokenResponse = generateTokensForMember(member);
