@@ -17,6 +17,7 @@ import org.appjam.bongbaek.global.exception.member.MemberNotFoundException;
 import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.appjam.bongbaek.global.jwt.JwtBlacklistManager;
 import org.appjam.bongbaek.global.jwt.JwtRefreshStore;
+import org.appjam.bongbaek.global.jwt.OAuthSignUpStore;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
@@ -41,6 +42,7 @@ public class MemberService {
 	private final MemberWithdrawalRepository memberWithdrawalRepository;
 
 	private final OidcOAuthClient oidcOAuthClient;
+    private final OAuthSignUpStore oAuthSignUpStore;
 
 	private final JwtProvider jwtProvider;
 	private final JwtValidator jwtValidator;
@@ -59,6 +61,8 @@ public class MemberService {
 				OAuthProvider.of(oAuthProvider));
 
 		if (OptionalMember.isEmpty()) {
+            oAuthSignUpStore.save(oAuthProvider, oAuthId);
+
 			return LoginResponse.failure(oAuthProvider, oAuthId);
 		}
 
@@ -73,13 +77,21 @@ public class MemberService {
 	public LoginResponse signUp(
 			final SignUpRequest signUpRequest
 	) {
-		// 여기서 최초 로그인 시 redis에 저장한 소셜로그인 아이디를 조회해서 올바른 아이디인지 검증 필요
-		if (isAlreadyExistsMember(signUpRequest)) {
-			throw new MemberAlreadyExistsException();
-		}
+        // 이미 가입된 회원인지 확인
+        if (isAlreadyExistsMember(signUpRequest)) {
+            throw new MemberAlreadyExistsException();
+        }
+
+        // 최초 로그인에서 검증된 oauthId인지 확인
+        if (!oAuthSignUpStore.exists(signUpRequest.oauthProvider(), signUpRequest.oauthId())) {
+            throw new MemberNotAuthenticatedException();
+        }
 
 		Member member = memberRepository.save(signUpRequest.toMember());
 		TokenResponse tokenResponse = generateTokensForMember(member);
+
+        // 가입 완료 후, redis에서 oauthId 제거
+        oAuthSignUpStore.delete(signUpRequest.oauthProvider(), signUpRequest.oauthId());
 
 		log.info("회원가입 완료. {} ID: {}", signUpRequest.oauthProvider(), signUpRequest.oauthId());
 
