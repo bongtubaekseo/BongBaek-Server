@@ -1,6 +1,7 @@
 package org.appjam.bongbaek.domain.content.service;
 
 import lombok.RequiredArgsConstructor;
+import org.appjam.bongbaek.domain.common.OwnerType;
 import org.appjam.bongbaek.domain.content.dto.request.ContentWriteDto;
 import org.appjam.bongbaek.domain.content.dto.response.ContentDetailResponseDto;
 import org.appjam.bongbaek.domain.content.dto.response.ContentHomeResponseDto;
@@ -9,7 +10,6 @@ import org.appjam.bongbaek.domain.content.entity.Content;
 import org.appjam.bongbaek.domain.content.entity.ContentImage;
 import org.appjam.bongbaek.domain.content.repository.ContentRepository;
 import org.appjam.bongbaek.domain.event.entity.Category;
-import org.appjam.bongbaek.domain.common.OwnerType;
 import org.appjam.bongbaek.global.exception.common.RequestInvalidException;
 import org.appjam.bongbaek.global.exception.content.ContentNotFoundException;
 import org.appjam.bongbaek.global.exception.image.ImageNotFoundException;
@@ -51,16 +51,12 @@ public class ContentService {
     @Transactional(readOnly = true)
     public ContentListDto getContentList(int page, String category) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Page<Content> contents = contentRepository.findContentsByCategoryOrderByCreatedDateDesc(
+                Category.of(category),
+                pageable
+        );
 
-        Category contentCategory = Category.of(category);
-
-        if (contentCategory == null) {
-            Page<Content> allContents = contentRepository.findAllByOrderByCreatedDateTimeDesc(pageable);
-            return ContentListDto.of(allContents);
-        }
-
-        Page<Content> categoryContents = contentRepository.findContentsByContentCategoryOrderByCreatedDateTimeDesc(contentCategory, pageable);
-        return ContentListDto.of(categoryContents);
+        return ContentListDto.of(contents);
     }
 
     @Transactional
@@ -81,7 +77,7 @@ public class ContentService {
             content.addContentImage(thumbnail);
 
         } catch (Exception e) {
-            if(thumbnailDto != null) {
+            if (thumbnailDto != null) {
                 fileUploader.delete(thumbnailDto.storageKey());
             }
             throw new RequestInvalidException();
@@ -106,7 +102,7 @@ public class ContentService {
             content.getContentImages().remove(oldThumbnail);
 
         } catch (Exception e) {
-            if(newThumbnailDto != null) {
+            if (newThumbnailDto != null) {
                 fileUploader.delete(newThumbnailDto.storageKey());
             }
             throw new RequestInvalidException();
@@ -115,18 +111,18 @@ public class ContentService {
     }
 
     @Transactional
-    public void uploadMainImages(String contentId, List<MultipartFile> newImageFiles){
+    public void uploadMainImages(String contentId, List<MultipartFile> newImageFiles) {
         Content content = contentRepository.findContentByIdWithImages(contentId)
                 .orElseThrow(ContentNotFoundException::new);
 
         List<String> storedKeys = new ArrayList<>();
-        for(MultipartFile newImageFile : newImageFiles) {
+        for (MultipartFile newImageFile : newImageFiles) {
             try {
                 String storedKey = uploadMainImage(content, newImageFile);
                 storedKeys.add(storedKey);
 
-            } catch (Exception e){
-                for(String storedKey : storedKeys) {
+            } catch (Exception e) {
+                for (String storedKey : storedKeys) {
                     fileUploader.delete(storedKey);
                 }
                 throw new RequestInvalidException();
