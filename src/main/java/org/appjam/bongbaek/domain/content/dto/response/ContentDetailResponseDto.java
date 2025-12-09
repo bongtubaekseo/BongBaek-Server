@@ -3,7 +3,7 @@ package org.appjam.bongbaek.domain.content.dto.response;
 import org.appjam.bongbaek.domain.content.entity.Content;
 import org.appjam.bongbaek.domain.content.entity.ContentImage;
 
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -13,13 +13,9 @@ public record ContentDetailResponseDto(
         String contentTitle,
         String contentCategory,
         List<String> imageUrls,
-        String createdAt
+        LocalDate createdAt
 ) {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-
     public static ContentDetailResponseDto from(Content content) {
-        String createdAt = content.getCreatedDateTime()
-                .format(DATE_FORMATTER);
 
         List<String> imageUrls = new ArrayList<>();
         imageUrls.add(content.getThumbnailUrl());
@@ -37,7 +33,7 @@ public record ContentDetailResponseDto(
                 content.getContentTitle(),
                 content.getContentCategory().getDescription(),
                 imageUrls,
-                createdAt
+                content.getCreatedDateTime().toLocalDate()
         );
     }
 }
