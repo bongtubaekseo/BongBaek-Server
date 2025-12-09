@@ -17,16 +17,13 @@ public record ContentDetailResponseDto(
 ) {
     public static ContentDetailResponseDto from(Content content) {
 
-        List<String> imageUrls = new ArrayList<>();
-        imageUrls.add(content.getThumbnailUrl());
-
         List<String> mainImageUrls = content.getContentImages().stream()
                 .filter(image -> !image.isThumbnail())
                 .sorted(Comparator.comparing(ContentImage::getSequence))
                 .map(ContentImage::getImageUrl)
                 .toList();
 
-        imageUrls.addAll(mainImageUrls);
+        List<String> imageUrls = new ArrayList<>(mainImageUrls);
 
         return new ContentDetailResponseDto(
                 content.getContentId(),
