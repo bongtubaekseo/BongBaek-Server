@@ -3,7 +3,7 @@ package org.appjam.bongbaek.domain.member.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record LoginRequest(
-        @Schema(description = "카카오 액세스 토큰", example = "카카오에서 발급받은 액세스 토큰")
-        String accessToken
+        @Schema(description = "소셜 로그인 아이디 토큰", example = "소셜 로그인 플랫폼으로 부터 발급받은 아이디 토큰")
+        String idToken
 ) {
 }

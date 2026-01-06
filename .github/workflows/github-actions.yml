@@ -18,7 +18,6 @@ jobs:
       HOST: ${{ github.ref == 'refs/heads/main' && secrets.HOST || secrets.TEST_HOST }}
       SSH_PRIVATE_KEY: ${{ github.ref == 'refs/heads/main' && secrets.SSH_PRIVATE_KEY || secrets.TEST_SSH_PRIVATE_KEY }}
       APPLICATION: ${{ github.ref == 'refs/heads/main' && secrets.APPLICATION || secrets.TEST_APPLICATION }}
-      MY_CNF: ${{ github.ref == 'refs/heads/main' && secrets.MY_CNF || secrets.TEST_MY_CNF }}
 
     steps:
       # GitHub Actions Runner로 repository 내용을 복사
@@ -48,8 +47,6 @@ jobs:
           mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml
           printf '%s' "${{ env.APPLICATION }}" > ./src/main/resources/application.yml
-          touch ./my.cnf
-          printf '%s' "${{ env.MY_CNF }}" > ./my.cnf
 
         shell: bash
 
@@ -96,7 +93,7 @@ jobs:
           host: ${{ env.HOST }}
           username: ubuntu
           key: ${{ env.SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml,./proxy,./deploy.sh,./prometheus.yml,./my.cnf"
+          source: "./docker-compose.yml,./proxy,./deploy.sh,./prometheus.yml"
           target: "/home/ubuntu/bongbaek-server"
           rm: true
 

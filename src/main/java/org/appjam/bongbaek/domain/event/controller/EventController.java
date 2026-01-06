@@ -1,142 +1,50 @@
 package org.appjam.bongbaek.domain.event.controller;
 
-import java.time.LocalDate;
-import jakarta.validation.Valid;
-import org.appjam.bongbaek.domain.event.code.EventSuccessCode;
 import org.appjam.bongbaek.domain.event.dto.request.CostProposalRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventDeleteRequestDto;
+import org.appjam.bongbaek.domain.event.dto.request.EventSearchRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventUpdateRequestDto;
 import org.appjam.bongbaek.domain.event.dto.request.EventWriteDto;
 import org.appjam.bongbaek.domain.event.dto.response.CostProposalResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventDetailResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventHomeResponseDto;
 import org.appjam.bongbaek.domain.event.dto.response.EventListDto;
-import org.appjam.bongbaek.domain.event.service.EventService;
-import org.appjam.bongbaek.global.api.ApiResponse;
-import org.appjam.bongbaek.global.api.ApiResponse.EmptyBody;
-import org.appjam.bongbaek.global.common.CommonSuccessCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/v1/events")
-public class EventController {
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
-    private final EventService eventService;
+import org.appjam.bongbaek.global.api.response.SuccessResponse;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<EmptyBody>> createEvent(
-            @AuthenticationPrincipal final String memberId,
-            @RequestBody @Valid final EventWriteDto eventWriteDto
-    ) {
-        eventService.createEventInfo(memberId, eventWriteDto);
+@Tag(name = "경조사 정보", description = "경조사 정보 관련 API")
+public interface EventController {
+	@Operation(summary = "경조사 정보 생성", description = "경조사 정보 데이터를 생성합니다.")
+	SuccessResponse<Void> createEvent(String memberId, @Valid EventWriteDto eventWriteDto);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(CommonSuccessCode.CREATED));
-    }
+	@Operation(summary = "월별 경조사 정보 조회", description = "월별로 경조사 정보를 조회합니다.")
+	SuccessResponse<EventListDto> getMonthlyEvents(String memberId, int page, @Valid EventSearchRequestDto eventSearchRequestDto);
 
-    @GetMapping(path = "/history/{page}")
-    public ResponseEntity<ApiResponse<EventListDto>> getEventHistory(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "page") final int page,
-            @RequestParam(name = "category", required = false) final String category,
-            @RequestParam(name = "attended", required = false) final Boolean attended
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getEventHistory(memberId, page, category, attended)));
-    }
+	@Operation(summary = "과거 경조사 정보 조회", description = "조회 시점을 기준으로 과거의 경조사 정보를 조회합니다.")
+	SuccessResponse<EventListDto> getEventHistory(String memberId, int page, String category, Boolean attended);
 
-    @GetMapping(path = "/upcoming/{page}")
-    public ResponseEntity<ApiResponse<EventListDto>> getUpcomingEvents(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "page") final int page,
-            @RequestParam(name = "category", required = false) final String category
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getUpcomingEvents(memberId, page, category)));
-    }
+	@Operation(summary = "다가올 경조사 정보 조회", description = "조회 시점을 기준으로 다가올 경조사 정보를 조회합니다.")
+	SuccessResponse<EventListDto> getUpcomingEvents(String memberId, int page, String category);
 
-    @PostMapping(path = "/cost")
-    public ResponseEntity<ApiResponse<CostProposalResponseDto>> createEventCost(
-            @AuthenticationPrincipal final String memberId,
-            @RequestBody @Valid final CostProposalRequestDto costProposalRequestDto
-    ){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(CommonSuccessCode.OK,
-                        eventService.getCostProposal(memberId, costProposalRequestDto)));
-    }
+	@Operation(summary = "경조사 비용 추천", description = "경조사 정보와 사용자 정보를 기반으로 적절한 경조사 비용을 산정합니다.")
+	SuccessResponse<CostProposalResponseDto> createEventCost(String memberId, @Valid CostProposalRequestDto costProposalRequestDto);
 
-    @GetMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventByEventId(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "eventId") String eventId   // NOTE: 클라 요청 간에는 무조건 String
-    ){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventByEventId(eventId, memberId)));
-    }
+	@Operation(summary = "경조사 정보 상세 조회", description = "단일 경조사 정보에 대한 상세 정보를 조회합니다.")
+	SuccessResponse<EventDetailResponseDto> getEventByEventId(String memberId, String eventId);
 
-    @GetMapping(path = "/home")
-    public ResponseEntity<ApiResponse<EventHomeResponseDto>> getEventsForHome(
-            @AuthenticationPrincipal final String memberId
-    ){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.GET_EVENT, eventService.getEventsForHome(LocalDate.now(), memberId)));
-    }
+	@Operation(summary = "홈화면에서의 경조사 정보 조회", description = "홈화면에 표시하기 위한 경조사 정보를 조회합니다.")
+	SuccessResponse<EventHomeResponseDto> getEventsForHome(String memberId);
 
-    @PutMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<EmptyBody>> updateEvent(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "eventId") final String eventId,
-            @RequestBody @Valid final EventUpdateRequestDto request
-    ){
-        eventService.updateEventByEventId(eventId, memberId, request);
+	@Operation(summary = "경조사 정보 수정", description = "단일 경조사 정보에 대한 내용을 수정합니다.")
+	SuccessResponse<Void> updateEvent(String memberId, String eventId, @Valid EventUpdateRequestDto eventUpdateRequestDto);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.UPDATED_EVENT));
-    }
+	@Operation(summary = "단일 경조사 정보 삭제", description = "단일 경조사 정보에 대한 데이터를 삭제합니다.")
+	SuccessResponse<Void> deleteEventByEventId(String memberId, String eventId);
 
-    @DeleteMapping(path = "/{eventId}")
-    public ResponseEntity<ApiResponse<EmptyBody>> deleteEventByEventId(
-            @AuthenticationPrincipal final String memberId,
-            @PathVariable(name = "eventId") String eventId
-    ) {
-        eventService.deleteEventByEventId(eventId, memberId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
-    }
-
-    @DeleteMapping
-    public ResponseEntity<ApiResponse<EmptyBody>> deleteEvents(
-            @AuthenticationPrincipal final String memberId,
-            @RequestBody EventDeleteRequestDto eventDeleteRequest
-    ){
-        eventService.deleteEvents(eventDeleteRequest, memberId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(EventSuccessCode.DELETED_EVENT));
-    }
+	@Operation(summary = "복수 경조사 정보 삭제", description = "여러 개의 경조사 정보에 대한 데이터를 삭제합니다.")
+	SuccessResponse<Void> deleteEvents(String memberId, @Valid EventDeleteRequestDto eventDeleteRequestDto);
 }

@@ -1,232 +1,196 @@
 package org.appjam.bongbaek.domain.member.service;
 
-import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.appjam.bongbaek.domain.member.dto.request.LoginResponse;
+import java.util.Optional;
+
+import org.appjam.bongbaek.domain.member.dto.response.LoginResponse;
 import org.appjam.bongbaek.domain.member.dto.request.SignUpRequest;
 import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
 import org.appjam.bongbaek.domain.member.dto.request.WithdrawRequest;
 import org.appjam.bongbaek.domain.member.dto.response.MyInfoResponse;
-import org.appjam.bongbaek.domain.member.entity.IncomeType;
 import org.appjam.bongbaek.domain.member.entity.Member;
 import org.appjam.bongbaek.domain.member.entity.OAuthProvider;
 import org.appjam.bongbaek.domain.member.repository.MemberRepository;
 import org.appjam.bongbaek.domain.member.repository.MemberWithdrawalRepository;
-import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.exception.CustomException;
-import org.appjam.bongbaek.global.exception.SignUpRequiredException;
+import org.appjam.bongbaek.global.exception.member.MemberAlreadyExistsException;
+import org.appjam.bongbaek.global.exception.member.MemberNotAuthenticatedException;
+import org.appjam.bongbaek.global.exception.member.MemberNotFoundException;
+import org.appjam.bongbaek.global.exception.member.TokenInvalidException;
 import org.appjam.bongbaek.global.jwt.JwtBlacklistManager;
 import org.appjam.bongbaek.global.jwt.JwtRefreshStore;
-import org.appjam.bongbaek.global.jwt.dto.TokenResponse;
+import org.appjam.bongbaek.global.jwt.OAuthSignUpStore;
 import org.appjam.bongbaek.global.jwt.components.JwtParser;
 import org.appjam.bongbaek.global.jwt.components.JwtProvider;
 import org.appjam.bongbaek.global.jwt.components.JwtValidator;
-import org.appjam.bongbaek.global.oauth.apple.AppleLoginClient;
-import org.appjam.bongbaek.global.oauth.kakao.KakaoLoginClient;
+import org.appjam.bongbaek.domain.member.dto.response.TokenResponse;
+import org.appjam.bongbaek.global.jwt.dto.TokenInfo;
+import org.appjam.bongbaek.global.oauth.OidcOAuthClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
+	private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
-    private final MemberRepository memberRepository;
-    private final MemberWithdrawalRepository memberWithdrawalRepository;
+	private final MemberRepository memberRepository;
+	private final MemberWithdrawalRepository memberWithdrawalRepository;
 
-    private final KakaoLoginClient kakaoLoginClient;
-    private final AppleLoginClient appleLoginClient;
+	private final OidcOAuthClient oidcOAuthClient;
+    private final OAuthSignUpStore oAuthSignUpStore;
 
-    private final JwtProvider jwtProvider;
-    private final JwtValidator jwtValidator;
-    private final JwtParser jwtParser;
-    private final JwtRefreshStore jwtRefreshStore;
-    private final JwtBlacklistManager jwtBlacklistManager;
-    private final EntityManager entityManager;
+	private final JwtProvider jwtProvider;
+	private final JwtValidator jwtValidator;
+	private final JwtParser jwtParser;
+	private final JwtRefreshStore jwtRefreshStore;
+	private final JwtBlacklistManager jwtBlacklistManager;
 
-    @Value("${kakao-api.key}")
-    private String apiKey;
+	@Value("${kakao.api-key}")
+	private String apiKey;
 
-    @Transactional
-    public LoginResponse login(
-            OAuthProvider oAuthProvider,
-            final String accessToken
-    ) {
-        if (oAuthProvider.equals(OAuthProvider.KAKAO)) {
-            final String kakaoId = kakaoLoginClient.validateKakaoAccessToken(accessToken);
+	@Transactional
+	public LoginResponse login(final String oAuthProvider, final String idToken) {
+		String oAuthId = oidcOAuthClient.getUserInfo(oAuthProvider, idToken);
 
-            try {
-                Member member = memberRepository.findByKakaoId(kakaoId)
-                        .orElseThrow(() -> new SignUpRequiredException(kakaoId));
+		Optional<Member> OptionalMember = memberRepository.findByOauthIdAndOauthProvider(oAuthId,
+				OAuthProvider.of(oAuthProvider));
 
-                TokenResponse tokenResponse = generateTokensForMember(member);
+		if (OptionalMember.isEmpty()) {
+            oAuthSignUpStore.save(oAuthProvider, oAuthId);
 
-                return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, kakaoId, apiKey);
-            } catch(SignUpRequiredException e){
-                return LoginResponse.ofKakaoLoginFailure(kakaoId);
-            }
+			return LoginResponse.failure(oAuthProvider, oAuthId);
+		}
+
+		Member member = OptionalMember.get();
+
+		TokenResponse tokenResponse = generateTokensForMember(member);
+
+		return LoginResponse.success(member, tokenResponse, apiKey);
+	}
+
+	@Transactional
+	public LoginResponse signUp(
+			final SignUpRequest signUpRequest
+	) {
+        // 이미 가입된 회원인지 확인
+        if (isAlreadyExistsMember(signUpRequest)) {
+            throw new MemberAlreadyExistsException();
         }
 
-        if (oAuthProvider.equals(OAuthProvider.APPLE)) {
-            final String appleId = appleLoginClient.validateAppleIdentityToken(accessToken);
-
-            try {
-                Member member = memberRepository.findByAppleId(appleId)
-                        .orElseThrow(() -> new SignUpRequiredException(appleId));
-
-                TokenResponse tokenResponse = generateTokensForMember(member);
-
-                return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, appleId, apiKey);
-            } catch(SignUpRequiredException e){
-                return LoginResponse.ofAppleLoginFailure(appleId);
-            }
-        }
-        throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-    }
-
-    @Transactional
-    public LoginResponse signUp(
-        final SignUpRequest signUpRequest
-    ) {
-        if(signUpRequest.kakaoId() != null && !signUpRequest.kakaoId().isEmpty()) {
-            // 이미 가입된 회원인지 확인
-            if (memberRepository.existsByKakaoId(signUpRequest.kakaoId())) {
-                throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
-            }
-
-            Member member = createMember(signUpRequest);
-            TokenResponse tokenResponse = generateTokensForMember(member);
-            log.info("회원가입 완료. 카카오 ID: {}", signUpRequest.kakaoId());
-
-            return LoginResponse.ofKakaoLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.kakaoId(), apiKey);
+        // 최초 로그인에서 검증된 oauthId인지 확인
+        if (!oAuthSignUpStore.exists(signUpRequest.oauthProvider(), signUpRequest.oauthId())) {
+            throw new MemberNotAuthenticatedException();
         }
 
-        if(signUpRequest.appleId() != null && !signUpRequest.appleId().isEmpty()) {
-            if (memberRepository.existsByAppleId(signUpRequest.appleId())) {
-                throw new CustomException(CommonErrorCode.ALREADY_REGISTERED_MEMBER);
-            }
+		Member member = memberRepository.save(signUpRequest.toMember());
+		TokenResponse tokenResponse = generateTokensForMember(member);
 
-            Member member = createMember(signUpRequest);
-            TokenResponse tokenResponse = generateTokensForMember(member);
-            log.info("회원가입 완료. 애플 ID: {}", signUpRequest.appleId());
+        // 가입 완료 후, redis에서 oauthId 제거
+        oAuthSignUpStore.delete(signUpRequest.oauthProvider(), signUpRequest.oauthId());
 
-            return LoginResponse.ofAppleLoginSuccess(member.getMemberName(), tokenResponse, signUpRequest.appleId(), apiKey);
-        }
+		log.info("회원가입 완료. {} ID: {}", signUpRequest.oauthProvider(), signUpRequest.oauthId());
 
-        throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-    }
+		return LoginResponse.success(member, tokenResponse, apiKey);
+	}
 
-    @Transactional
-    public void logout(final String accessToken) {
-        if (!jwtValidator.isBearer(accessToken)) return;
+	@Transactional
+	public void logout(final String memberId, final String accessToken) {
+		if (!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)) {
+			throw new MemberNotAuthenticatedException();
+		}
+		// 유저의 모든 refreshToken 제거
+		jwtRefreshStore.deleteAllForUser(memberId);
 
-        String accessTokenNoBearer = accessToken.substring("Bearer ".length());
-        jwtValidator.validateToken(accessTokenNoBearer);
+		// 현재 accessToken 차단
+		jwtBlacklistManager.add(resolveToken(accessToken));
+	}
 
-        String memberId = jwtParser.parseClaims(accessTokenNoBearer).getSubject();
+	@Transactional
+	public TokenResponse reissueTokens(final String refreshToken) {
+		jwtValidator.verifyToken(refreshToken);
 
-        // 유저의 모든 refreshToken 제거
-        jwtRefreshStore.deleteAllForUser(memberId);
+		// 저장된 refreshToken인지 확인
+		if (!jwtRefreshStore.exists(refreshToken)) {
+			throw new TokenInvalidException();
+		}
 
-        // 현재 accessToken 차단
-        jwtBlacklistManager.add(accessToken);
-    }
+		Member member = memberRepository.findById(jwtParser.getMemberId(refreshToken))
+				.orElseThrow(MemberNotFoundException::new);
 
-    @Transactional
-    public TokenResponse reissueTokens(final String refreshToken) {
-        jwtValidator.validateToken(refreshToken);
+		// 사용한 refreshToken 폐기
+		jwtRefreshStore.deleteToken(refreshToken);
 
-        // 저장된 refreshToken인지 확인
-        if (!jwtRefreshStore.exists(refreshToken)) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-        }
+		// 새로운 access+refresh 토큰 발급
+		return generateTokensForMember(member);
+	}
 
-        String memberId = jwtParser.parseClaims(refreshToken).getSubject();
+	public MyInfoResponse getMyInfo(final String memberId) {
+		Member member = memberRepository.findById(memberId)
+				.orElseThrow(MemberNotFoundException::new);
 
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+		return MyInfoResponse.fromEntity(member);
+	}
 
-        // 사용한 refreshToken 폐기
-        jwtRefreshStore.deleteToken(refreshToken);
+	/**
+	 * 새 access+refresh 토큰 발급
+	 * + refreshtoken Redis 저장
+	 * */
+	private TokenResponse generateTokensForMember(Member member) {
+		TokenInfo accessTokenInfo = jwtProvider.generateAccessToken(member);
+		TokenInfo refreshTokenInfo = jwtProvider.generateRefreshToken(member);
 
-        // 새로운 access+refresh 토큰 발급
-        return generateTokensForMember(member);
-    }
+		long refreshTtlSec = Math.max(1,
+				(refreshTokenInfo.expiredAt() - System.currentTimeMillis()) / 1000);
 
-    @Transactional(readOnly = true)
-    public MyInfoResponse getMyInfo(String memberId) {
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+		// refresh token redis에 저장
+		jwtRefreshStore.save(member.getMemberId(), refreshTokenInfo.token(), refreshTtlSec);
 
-        return MyInfoResponse.fromEntity(member);
-    }
+		return TokenResponse.of(accessTokenInfo, refreshTokenInfo);
+	}
 
-    /**
-     * 새 access+refresh 토큰 발급
-     * + refreshtoken Redis 저장
-     * */
-    private TokenResponse generateTokensForMember(Member member) {
-        TokenResponse tokenResponse = jwtProvider.generateToken(member.getMemberId());
+	@Transactional
+	public void updateProfile(final String memberId, final UpdateMemberRequest request) {
+		Member member = memberRepository.findById(memberId)
+				.orElseThrow(MemberNotFoundException::new);
 
-        long refreshTtlSec = Math.max(1, (tokenResponse.refreshToken().expiredAt() - System.currentTimeMillis()) / 1000);
+		member.update(request);
+	}
 
-        // refresh token redis에 저장
-        jwtRefreshStore.save(member.getMemberId(), tokenResponse.refreshToken().token(), refreshTtlSec);
+	@Transactional
+	public void withdraw(final String memberId, final String accessToken, final WithdrawRequest request) {
+		if (!jwtParser.getMemberId(resolveToken(accessToken)).equals(memberId)) {
+			throw new MemberNotAuthenticatedException();
+		}
 
-        return tokenResponse;
-    }
+		Member member = memberRepository.findById(memberId)
+				.orElseThrow(MemberNotFoundException::new);
 
-    @Transactional
-    public void updateProfile(final String memberId, final UpdateMemberRequest request) {
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+		// 탈퇴 이력 저장
+		memberWithdrawalRepository.save(request.toEntity());
 
-        member.update(request);
-    }
+		// 회원 정보 삭제
+		memberRepository.delete(member);
 
-    private Member createMember(
-            final SignUpRequest signUpRequest
-    ) {
-        IncomeType incomeType = IncomeType.of(signUpRequest.memberIncome());
-        Member member = signUpRequest.toMember(incomeType);
+		// 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
+		jwtBlacklistManager.add(resolveToken(accessToken));
+		jwtRefreshStore.deleteAllForUser(memberId);
+	}
 
-        return memberRepository.save(member);
-    }
+	private boolean isAlreadyExistsMember(final SignUpRequest signUpRequest) {
+		if (signUpRequest.oauthId() != null && !signUpRequest.oauthId().isEmpty()) {
+			return memberRepository.existsByOauthIdAndOauthProvider(signUpRequest.oauthId(),
+					OAuthProvider.of(signUpRequest.oauthProvider()));
+		}
 
-    @Transactional
-    public void withdraw(final String accessToken, final String memberId, final WithdrawRequest request) {
-        if (!jwtValidator.isBearer(accessToken)) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-        }
+		return false;
+	}
 
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
-
-        final String accessTokenNoBearer = accessToken.substring(7);
-
-        // 유효성 검증 실패시 예외
-        jwtValidator.validateToken(accessTokenNoBearer);
-
-        // 토큰 주체와 사용자 일치 확인
-        final String subject = jwtParser.parseClaims(accessTokenNoBearer).getSubject();
-
-        if (!memberId.equals(subject)) {
-            throw new CustomException(CommonErrorCode.UNAUTHORIZED);
-        }
-
-        // 탈퇴 이력 저장
-        memberWithdrawalRepository.save(request.toEntity());
-
-        // 회원 정보 삭제
-        memberRepository.delete(member);
-
-        entityManager.flush();
-
-        // 토큰 무효화 (accessToken 블랙리스트 + refreshToken 전부 삭제)
-        jwtBlacklistManager.add(accessToken);
-        jwtRefreshStore.deleteAllForUser(memberId);
-    }
+	private String resolveToken(String accessTokenWithBearer) {
+		return accessTokenWithBearer.substring(ACCESS_TOKEN_PREFIX.length());
+	}
 }
-

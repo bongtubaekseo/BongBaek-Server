@@ -1,5 +1,5 @@
 # 서비스가 실행 중이면 그대로 두기, 아니면 재시작
-docker compose up -d --no-recreate nginx nginx-exporter redis prometheus grafana mysqld_exporter redis_exporter dozzle
+docker compose up -d --no-recreate nginx nginx-exporter redis prometheus grafana dozzle
 
 # bongbaek 서비스 롤링 배포
 for service in bongbaek1 bongbaek2
@@ -27,5 +27,8 @@ done
 
 # 불필요한 이미지 정리
 docker image prune -f
+
+docker exec nginx nginx -t && docker exec nginx nginx -s reload
+echo "nginx reloaded safely"
 
 echo "===== Deployment Completed ====="

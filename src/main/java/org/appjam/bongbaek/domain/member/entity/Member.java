@@ -1,8 +1,13 @@
 package org.appjam.bongbaek.domain.member.entity;
 
-import io.hypersistence.utils.hibernate.id.Tsid;
 import java.time.LocalDate;
 import java.time.Period;
+
+import org.appjam.bongbaek.domain.common.BaseEntity;
+import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
+import org.hibernate.annotations.Comment;
+
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,17 +18,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.appjam.bongbaek.domain.member.dto.request.UpdateMemberRequest;
-import org.appjam.bongbaek.global.common.CommonErrorCode;
-import org.appjam.bongbaek.global.exception.CustomException;
-import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
 @Table(name = "member")
 @Comment("회원 정보")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseEntity {
 	@Id
     @Tsid
 	@Column(name = "member_id", length = 13)
@@ -39,26 +40,20 @@ public class Member {
 	@Column(name = "member_income", columnDefinition = "VARCHAR(50)", nullable = false)
 	private IncomeType memberIncome;
 
-	@Column(name = "apple_id", updatable = false)
-	private String appleId;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "oauth_provider", updatable = false, columnDefinition = "VARCHAR(50)", nullable = false)
+	private OAuthProvider oauthProvider;
 
-	@Column(name = "kakao_id", updatable = false)
-	private String kakaoId;
-
-	@Column(name = "google_id", updatable = false)
-	private String googleId;
+	@Column(name = "oauth_id", updatable = false, unique = true, nullable = false)
+	private String oauthId;
 
 	@Builder
-	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, String appleId, String kakaoId, String googleId) {
-		if ((appleId == null) && (kakaoId == null) && (googleId == null)) {
-			throw new CustomException(CommonErrorCode.INVALID_OAUTH_ACCOUNT);
-			}
+	private Member(String memberName, LocalDate memberBirthday, IncomeType memberIncome, OAuthProvider oauthProvider, String oauthId) {
 		this.memberName = memberName;
 		this.memberBirthday = memberBirthday;
 		this.memberIncome = memberIncome;
-		this.appleId = appleId;
-		this.kakaoId = kakaoId;
-		this.googleId = googleId;
+		this.oauthProvider = oauthProvider;
+		this.oauthId = oauthId;
 	}
 
     public void update(UpdateMemberRequest request){
